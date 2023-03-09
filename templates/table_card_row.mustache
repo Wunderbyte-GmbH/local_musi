@@ -68,7 +68,7 @@
     <div class="{{cardimageclass}}">
       {{#cardimage}}
         {{#value}}
-          <img class="w-100" src="{{{value}}}">
+          <img class="w-100" src="{{{value}}}" {{#cardimagealt}}alt="{{.}}" title="{{.}}"{{/cardimagealt}}>
         {{/value}}
       {{/cardimage}}
     </div>
@@ -106,7 +106,7 @@
       <div class="{{cardlistclass}}">
         <ul class="infolist">
         {{#cardlist}}
-          <li>
+          <li {{#columnalt}}title="{{.}}"{{/columnalt}}>
           {{#columnclass}}<div class="{{.}}{{#key}} {{key}}{{/key}}">{{/columnclass}}
                 <span {{^value}} style="display:none" {{/value}}>
                 {{#columniclassbefore}}

@@ -159,3 +159,10 @@ $string['userinformation'] = 'Benutzer-Information';
 
 // My Courses List.
 $string['tocoursecontent'] = 'zu den Kursmaterialien';
+
+// Shortlist section information
+$string['dayofweekalt'] = 'Wochentag und Termin, an dem eine Kurseinheit stattfindet';
+$string['locationalt'] = 'Abhaltungsort des Kurses';
+$string['bookingsalt'] = 'Anzahl der freien und maximal verfügbaren Kursplätze';
+$string['teacheralt'] = 'Leiter des Kurses';
+$string['imagealt'] = 'Titelbild des Kurses';
