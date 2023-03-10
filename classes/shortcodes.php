@@ -825,7 +825,7 @@ class shortcodes {
         $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'font-size-sm'], ['botags']);
         $table->add_classes_to_subcolumns(
             'cardbody',
-            ['columnvalueclass' => 'shortcodes_option_info_invisible'],
+            ['columnvalueclass' => 'text-center shortcodes_option_info_invisible'],
             ['invisibleoption']
         );
         $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'text-secondary'], ['sport']);
@@ -868,12 +868,12 @@ class shortcodes {
         if(!empty($args['showminanswers'])){
             $subcolumns_info[]='minanswers';
         }
-        $subcolumns_leftside = ['text', 'invisibleoption'];
+        $subcolumns_leftside = ['text'];
 
         $table->define_cache('mod_booking', 'bookingoptionstable');
 
         $table->add_subcolumns('top', ['sport', 'action']);
-        $table->add_subcolumns('leftside', ['text', 'invisibleoption']);
+        $table->add_subcolumns('leftside', ['text']);
         $table->add_subcolumns('info', $subcolumns_info);
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* $table->add_subcolumns('footer', ['botags']); */
@@ -882,7 +882,7 @@ class shortcodes {
 
         $table->add_subcolumns('info', $subcolumns_info);
         //$table->add_subcolumns('footer', ['botags']);
-        $table->add_subcolumns('rightside', ['botags','price']);
+        $table->add_subcolumns('rightside', ['botags', 'invisibleoption', 'price']);
 
         $table->add_classes_to_subcolumns('top', ['columnkeyclass' => 'd-none']);
         $table->add_classes_to_subcolumns('top', ['columnclass' => 'text-left col-md-8'], ['sport']);
@@ -891,11 +891,6 @@ class shortcodes {
         $table->add_classes_to_subcolumns('top', ['columnclass' => 'text-right col-md-2 position-relative pr-0'], ['action']);
 
         $table->add_classes_to_subcolumns('leftside', ['columnkeyclass' => 'd-none']);
-        $table->add_classes_to_subcolumns(
-            'leftside',
-            ['columnvalueclass' => 'shortcodes_option_info_invisible'],
-            ['invisibleoption']
-        );
         $table->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left mt-2 mb-2 h3 col-md-auto'], ['text']);
 
         $table->add_classes_to_subcolumns('info', ['columnkeyclass' => 'd-none']);
@@ -914,6 +909,8 @@ class shortcodes {
         $table->add_classes_to_subcolumns('info', ['columnalt' => get_string('locationalt', 'local_musi')], ['location']);
         $table->add_classes_to_subcolumns('info', ['columnalt' => get_string('bookingsalt', 'local_musi')], ['bookings']);
 
+        $table->add_classes_to_subcolumns('rightside', ['columnvalueclass' => 'text-right mb-auto align-self-end shortcodes_option_info_invisible '],
+            ['invisibleoption']);
         $table->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right mb-auto align-self-end '], ['botags']);
         $table->add_classes_to_subcolumns('rightside', ['columnclass' =>
             'text-right mt-auto align-self-end theme-text-color bold '], ['price']);

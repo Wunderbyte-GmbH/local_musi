@@ -158,7 +158,7 @@ $string['userinformation'] = 'Benutzer-Information';
 $string['tocoursecontent'] = 'Course content';
 
 // Shortlist section information
-$string['dayofweekalt'] = 'Day of week and the time slot, where a course will take place.';
+$string['dayofweekalt'] = 'Day of week and the time slot, where a course will take place';
 $string['locationalt'] = 'Location of the course';
 $string['bookingsalt'] = 'Available course slots and maximum capacity';
 $string['teacheralt'] = 'Course instructor';
