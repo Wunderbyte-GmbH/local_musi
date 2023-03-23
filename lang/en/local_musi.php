@@ -40,6 +40,7 @@ $string['shortcodeslistofmyteachedbookingoptionsascards'] = 'Courses I teach as 
 // General strings.
 $string['titleprefix'] = 'Course number';
 $string['dayofweek'] = 'Weekday';
+$string['invisibleoption'] = '<i class="fa fa-eye-slash" aria-hidden="true"></i>';
 
 // List of all courses.
 $string['allcourses'] = 'All courses';
@@ -157,7 +158,7 @@ $string['userinformation'] = 'Benutzer-Information';
 // My Courses List.
 $string['tocoursecontent'] = 'Course content';
 
-// Shortlist section information
+// Shortlist section information.
 $string['dayofweekalt'] = 'Day of week and the time slot, where a course will take place';
 $string['locationalt'] = 'Location of the course';
 $string['bookingsalt'] = 'Available course slots and maximum capacity';

@@ -62,25 +62,28 @@
 
 {{#table}}
 <div class="wunderbyte-table-list">
-     <div class="rows-container container-fluid">
-          {{#rows}}
-               {{> local_musi/table_list_row }}
-          {{/rows}}
-     </div>
+    <div class="rows-container container-fluid">
+        {{#rows}}
+            {{> local_musi/table_list_row }}
+        {{/rows}}
+    </div>
 </div>
 {{/table}}
 
 {{#js}}
-    require(['local_wunderbyte_table/init'], function(init) {
+require(['local_wunderbyte_table/init'], function(init) {
     init.init('{{idstring}}', '{{encodedtable}}');
-    });
-    require(['local_shopping_cart/cart'], function(cart) {
+});
+require(['local_shopping_cart/cart'], function(cart) {
     cart.buttoninit(null, 'mod_booking');
-    });
-    require(['mod_booking/modal_init'], function(init) {
+});
+require(['mod_booking/modal_init'], function(init) {
     init.init();
-    });
-    require(['mod_booking/button_notifyme'], function(init) {
+});
+require(['mod_booking/button_notifyme'], function(init) {
     init.init();
-    });
+});
+require(['mod_booking/bookit'], function(init) {
+    init.initprepagemodal(null, null, null, null);
+});
 {{/js}}

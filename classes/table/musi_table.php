@@ -62,7 +62,7 @@ class musi_table extends wunderbyte_table {
     private $context = null;
 
     /** @var bool $showunits */
-    private $displayoptions= [];
+    private $displayoptions = [];
 
 
     /** @var bool $showunits */
@@ -90,14 +90,13 @@ class musi_table extends wunderbyte_table {
         $this->buyforuser = price::return_user_to_buy_for();
         $this->set_display_options([]);
 
-
-
         // Columns and headers are not defined in constructor, in order to keep things as generic as possible.
     }
 
-    public function set_display_options($displayoptions){
+    public function set_display_options($displayoptions) {
         $this->displayoptions['showunits'] = !empty($displayoptions['show_units']) ? $displayoptions['show_units'] : false;
-        $this->displayoptions['showmaxanwers'] = !empty($displayoptions['show_max_registrations']) ? $displayoptions['show_max_registrations'] : false;
+        $this->displayoptions['showmaxanwers'] = !empty($displayoptions['show_max_registrations']) ?
+            $displayoptions['show_max_registrations'] : false;
     }
 
     /**
@@ -114,7 +113,7 @@ class musi_table extends wunderbyte_table {
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
 
         if (!empty($settings->invisible)) {
-            return get_string('invisibleoption', 'mod_booking');
+            return get_string('invisibleoption', 'local_musi');
         } else {
             return '';
         }

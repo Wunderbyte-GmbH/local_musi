@@ -40,6 +40,7 @@ $string['dayofweek'] = 'Wochentag';
 
 // General strings.
 $string['titleprefix'] = 'Kursnummer';
+$string['invisibleoption'] = '<i class="fa fa-eye-slash" aria-hidden="true"></i>';
 
 // List of all courses.
 $string['allcourses'] = 'Alle Kurse';
@@ -160,7 +161,7 @@ $string['userinformation'] = 'Benutzer-Information';
 // My Courses List.
 $string['tocoursecontent'] = 'zu den Kursmaterialien';
 
-// Shortlist section information
+// Shortlist section information.
 $string['dayofweekalt'] = 'Wochentag und Termin, an dem eine Kurseinheit stattfindet';
 $string['locationalt'] = 'Abhaltungsort des Kurses';
 $string['bookingsalt'] = 'Anzahl der freien und maximal verfügbaren Kursplätze';
