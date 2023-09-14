@@ -924,6 +924,7 @@ class shortcodes {
     }
 
     private static function generate_table_for_cards(&$table, $args) {
+        $locationcolumn = self::get_location_column($args);
         $table->define_cache('mod_booking', 'bookingoptionstable');
 
         // We define it here so we can pass it with the mustache template.
@@ -945,7 +946,7 @@ class shortcodes {
         $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'text-secondary'], ['sport']);
         $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'm-0 mt-1 mb-1 h5'], ['text']);
 
-        $subcolumns = ['teacher', 'dayofweektime', 'location', 'institution', 'bookings'];
+        $subcolumns = ['teacher', 'dayofweektime', $locationcolumn, 'institution', 'bookings'];
         if (!empty($args['showminanswers'])) {
             $subcolumns[] = 'minanswers';
         }
@@ -954,7 +955,7 @@ class shortcodes {
         $table->add_classes_to_subcolumns('cardlist', ['columnkeyclass' => 'd-none']);
         $table->add_classes_to_subcolumns('cardlist', ['columnvalueclass' => 'text-secondary']);
         $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'text-secondary fa-fw']);
-        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-map-marker'], ['location']);
+        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-map-marker'], [$locationcolumn]);
         $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-building-o'], ['institution']);
         $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-clock-o'], ['dayofweektime']);
         $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-users'], ['bookings']);
@@ -964,7 +965,7 @@ class shortcodes {
 
         // Set additional descriptions.
         $table->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('teacheralt', 'local_musi')], ['teacher']);
-        $table->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('locationalt', 'local_musi')], ['location']);
+        $table->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('locationalt', 'local_musi')], [$locationcolumn]);
         $table->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('dayofweekalt', 'local_musi')], ['dayofweektime']);
         $table->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('bookingsalt', 'local_musi')], ['bookings']);
         $table->add_classes_to_subcolumns('cardimage', ['cardimagealt' => get_string('imagealt', 'local_musi')], ['image']);
@@ -979,7 +980,8 @@ class shortcodes {
 
     private static function generate_table_for_list(&$table, $args) {
         $subcolumnsleftside = ['text'];
-        $subcolumnsinfo = ['teacher', 'dayofweektime', 'location', 'institution', 'bookings'];
+        $locationcolumn = self::get_location_column($args);
+        $subcolumnsinfo = ['teacher', 'dayofweektime', $locationcolumn, 'institution', 'bookings'];
 
         // Check if we should add the description.
         if (get_config('local_musi', 'shortcodelists_showdescriptions')) {
@@ -1021,7 +1023,7 @@ class shortcodes {
         $table->add_classes_to_subcolumns('info', ['columnclass' => 'text-left text-secondary font-size-sm pr-2']);
         $table->add_classes_to_subcolumns('info', ['columnvalueclass' => 'd-flex'], ['teacher']);
         $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-clock-o'], ['dayofweektime']);
-        $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-map-marker'], ['location']);
+        $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-map-marker'], [$locationcolumn]);
         $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-building-o'], ['institution']);
         $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-ticket'], ['bookings']);
         if (!empty($args['showminanswers'])) {
@@ -1031,7 +1033,7 @@ class shortcodes {
         // Set additional descriptions.
         $table->add_classes_to_subcolumns('info', ['columnalt' => get_string('teacheralt', 'local_musi')], ['teacher']);
         $table->add_classes_to_subcolumns('info', ['columnalt' => get_string('dayofweekalt', 'local_musi')], ['dayofweektime']);
-        $table->add_classes_to_subcolumns('info', ['columnalt' => get_string('locationalt', 'local_musi')], ['location']);
+        $table->add_classes_to_subcolumns('info', ['columnalt' => get_string('locationalt', 'local_musi')], [$locationcolumn]);
         $table->add_classes_to_subcolumns('info', ['columnalt' => get_string('bookingsalt', 'local_musi')], ['bookings']);
 
         $table->add_classes_to_subcolumns('rightside',
@@ -1082,5 +1084,27 @@ class shortcodes {
         );
 
         $table->is_downloading('', 'List of booking options');
+    }
+
+    private static function get_location_column($args){
+        $columnname = 'location';
+        if(!empty($args['locationdisplay'])){
+
+            switch ($args['locationdisplay']){
+                case 'parent_than_entity':
+                    $columnname = 'location_parent_than_entity';
+                    break;
+                case 'entity_than_parent':
+                    $columnname = 'location_entity_than_parent';
+                    break;
+                case 'only_parent':
+                    $columnname = 'location_parent';
+                    break;
+                case 'only_entity':
+                    $columnname = 'location';
+                    break;
+            }
+        }
+        return $columnname;
     }
 }

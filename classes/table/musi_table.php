@@ -36,6 +36,7 @@ use mod_booking\output\col_availableplaces;
 use mod_booking\output\col_teacher;
 use mod_booking\price;
 use mod_booking\singleton_service;
+use local_entities\entity;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -46,6 +47,11 @@ defined('MOODLE_INTERNAL') || die();
  * Search results for managers are shown in a table (student search results use the template searchresults_student).
  */
 class musi_table extends wunderbyte_table {
+
+    const SHOW_PARENT_THAN_ENTITY = 'parent_entity';
+    const SHOW_ENTITY_THAN_PARENT = 'entity_parent';
+    const SHOW_ONLY_ENTITY = 'entity';
+    const SHOW_ONLY_PARENT = 'parent';
 
     /** @var booking $booking */
     private $booking = null;
@@ -267,17 +273,54 @@ class musi_table extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_location($values) {
+        return $this->get_location_string($values,self::SHOW_ONLY_ENTITY);
+    }
 
+    public function col_location_parent($values) {
+        return $this->get_location_string($values,self::SHOW_ONLY_PARENT);
+    }
+    public function col_location_parent_than_entity($values) {
+        return $this->get_location_string($values,self::SHOW_PARENT_THAN_ENTITY);
+    }
+
+    public function col_location_entity_than_parent($values) {
+      return $this->get_location_string($values,self::SHOW_ENTITY_THAN_PARENT);
+    }
+    private function get_location_string($values, $type){
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
 
         if (isset($settings->entity) && (count($settings->entity) > 0)) {
 
             $url = new moodle_url('/local/entities/view.php', ['id' => $settings->entity['id']]);
-            // Full name of the entity (NOT the shortname).
-            $nametobeshown = $settings->entity['name'];
-            return html_writer::tag('a', $nametobeshown, ['href' => $url->out(false)]);
-        }
+            $entityname =  $settings->entity['name'];
 
+           if($type == self::SHOW_ONLY_ENTITY){
+               return html_writer::tag('a', $entityname, ['href' => $url->out(false)]);
+           }else{
+               $entity = entity::load($settings->entity['id']);
+               if($entity->parentid != 0){
+                   $parententity = entity::load($entity->parentid);
+
+                   if(isset($parententity)){
+                   $parententityname =  $parententity->name;
+
+                   switch ($type){
+                       case self::SHOW_ONLY_PARENT:
+                           return html_writer::tag('a', $parententityname, ['href' => $url->out(false)]);
+                       case self::SHOW_PARENT_THAN_ENTITY:
+
+                           return html_writer::tag('a', $parententityname.'<span class="musi-location-additional"> ('.$entityname.')</span>', ['href' => $url->out(false)]);
+                       case self::SHOW_ENTITY_THAN_PARENT:
+                           return html_writer::tag('a', $entityname.'<span class="musi-location-additional"> ('.$parententityname.')</span>', ['href' => $url->out(false)]);;
+                       default:
+                           return html_writer::tag('a', $entityname, ['href' => $url->out(false)]);
+                   }
+                   }
+               }
+                   return html_writer::tag('a', $entityname, ['href' => $url->out(false)]);
+           }
+
+        }
         return $settings->location;
     }
 
