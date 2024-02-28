@@ -34,6 +34,8 @@ use local_musi\output\userinformation;
 use local_musi\table\musi_table;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\shopping_cart_credits;
+use local_wunderbyte_table\filters\types\datepicker;
+use local_wunderbyte_table\filters\types\standardfilter;
 use mod_booking\booking;
 use mod_booking\singleton_service;
 use moodle_url;
@@ -727,68 +729,68 @@ class shortcodes {
     }
 
     private static function define_filtercolumns(&$table) {
-        $filtercolumns = [
-            'id',
-            'sport' => [
-                'localizedname' => get_string('sport', 'local_musi')
-            ],
-            'sportsdivision' => [
-                'localizedname' => get_string('sportsdivision', 'local_musi')
-            ],
-            'dayofweek' => [
-                'localizedname' => get_string('dayofweek', 'local_musi'),
-                'monday' => get_string('monday', 'mod_booking'),
-                'tuesday' => get_string('tuesday', 'mod_booking'),
-                'wednesday' => get_string('wednesday', 'mod_booking'),
-                'thursday' => get_string('thursday', 'mod_booking'),
-                'friday' => get_string('friday', 'mod_booking'),
-                'saturday' => get_string('saturday', 'mod_booking'),
-                'sunday' => get_string('sunday', 'mod_booking')
-            ],
-            'location' => [
-                'localizedname' => get_string('location', 'mod_booking')
-            ],
-            'botags' => [
-                'localizedname' => get_string('tags', 'core')
-            ],
-        ];
+
+        $filtercolumns = [];
+
+        $standardfilter = new standardfilter('sport', get_string('sport', 'local_musi'));
+        $standardfilter->add_filter($filtercolumns);
+
+        $standardfilter = new standardfilter('sportsdivision', get_string('sportsdivision', 'local_musi'));
+        $standardfilter->add_filter($filtercolumns);
+
+        $standardfilter = new standardfilter('dayofweek', get_string('dayofweek', 'local_musi'));
+        $standardfilter->add_options([
+            'monday' => get_string('monday', 'mod_booking'),
+            'tuesday' => get_string('tuesday', 'mod_booking'),
+            'wednesday' => get_string('wednesday', 'mod_booking'),
+            'thursday' => get_string('thursday', 'mod_booking'),
+            'friday' => get_string('friday', 'mod_booking'),
+            'saturday' => get_string('saturday', 'mod_booking'),
+            'sunday' => get_string('sunday', 'mod_booking')
+        ]);
+        $standardfilter->add_filter($filtercolumns);
+
+        $standardfilter = new standardfilter('location', get_string('location', 'mod_booking'));
+        $standardfilter->add_filter($filtercolumns);
+
+        $standardfilter = new standardfilter('botags', get_string('tags', 'core'));
+        $standardfilter->add_filter($filtercolumns);
 
         if (get_config('local_musi', 'musishortcodesshowfiltercoursetime')) {
-            $filtercolumns['coursestarttime'] = [
-                'localizedname' => get_string('timefilter:coursetime', 'mod_booking'),
-                'datepicker' => [
-                    'In between' => [
-                        // Timespan filter with two datepicker-filtercontainer applying to two columns (i.e. startdate, enddate).
-                        'possibleoperations' => ['within', 'flexoverlap', 'before', 'after'],
-                        // Will be displayed in select to choose from.
-                        'columntimestart' => 'coursestarttime', // Columnname as is DB query with lower value.
-                        'columntimeend' => 'courseendtime', // Columnname as is DB query with higher value.
-                        'labelstartvalue' => get_string('from', 'mod_booking'),
-                        'defaultvaluestart' => 'now', // Can also be Unix timestamp or string "now".
-                        'labelendvalue' => get_string('until', 'mod_booking'),
-                        'defaultvalueend' => 'now + 1 year', // Can also be Unix timestamp or string "now".
-                        'checkboxlabel' => get_string('apply_filter', 'local_wunderbyte_table'),
-                    ],
-                ],
-            ];
+
+            $datepicker = new datepicker(
+                'coursestarttime',
+                get_string('timefilter:coursetime', 'mod_booking'),
+                'columntimeend'
+            );
+            $datepicker->add_options(
+                'in between',
+                '<',
+                get_string('apply_filter', 'local_wunderbyte_table'),
+                'now',
+                'now + 1 year'
+            );
+
+            $datepicker->add_filter($filtercolumns);
         }
 
         if (get_config('local_musi', 'musishortcodesshowfilterbookingtime')) {
-            $filtercolumns['bookingopeningtime'] = [
-                'localizedname' => get_string('timefilter:bookingtime', 'mod_booking'),
-                'datepicker' => [
-                    'In between' => [
-                        'possibleoperations' => ['within', 'flexoverlap', 'before', 'after'],
-                        'columntimestart' => 'bookingopeningtime',
-                        'columntimeend' => 'bookingclosingtime',
-                        'labelstartvalue' => get_string('bookingopeningtime', 'mod_booking'),
-                        'defaultvaluestart' => 'now', // Can also be Unix timestamp or string "now".
-                        'labelendvalue' => get_string('bookingclosingtime', 'mod_booking'),
-                        'defaultvalueend' => 'now + 1 year', // Can also be Unix timestamp or string "now".
-                        'checkboxlabel' => get_string('apply_filter', 'local_wunderbyte_table'),
-                    ],
-                ],
-            ];
+
+            $datepicker = new datepicker(
+                'bookingopeningtime',
+                get_string('bookingopeningtime', 'mod_booking'),
+                'bookingclosingtime',
+                get_string('bookingclosingtime', 'mod_booking')
+            );
+            $datepicker->add_options(
+                'in between',
+                '<',
+                get_string('apply_filter', 'local_wunderbyte_table'),
+                'now',
+                'now + 1 year'
+            );
+
+            $datepicker->add_filter($filtercolumns);
         }
 
         $table->define_filtercolumns($filtercolumns);

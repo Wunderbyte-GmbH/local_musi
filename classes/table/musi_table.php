@@ -414,9 +414,11 @@ class musi_table extends wunderbyte_table {
 
         $isteacherofthisoption = booking_check_if_teacher($values);
 
+        $context = $this->get_context();
+
         if (!empty($settings->courseid) && (
                 $status == 0 // MOD_BOOKING_STATUSPARAM_BOOKED.
-                || has_capability('mod/booking:updatebooking', context_system::instance()) ||
+                || has_capability('mod/booking:updatebooking', $context) ||
                 $isteacherofthisoption)) {
             // The link will be shown to everyone who...
             // ...has booked this option.
