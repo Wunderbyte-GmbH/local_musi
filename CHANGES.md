@@ -1,3 +1,7 @@
+## Version 0.9.0 (2024030600)
+* Improvement: Add static page to shopping cart history for testing reasons.
+* Bugfix: Fix error in substitutions pool (if teachers were removed there was an exception).
+
 ## Version 0.8.9 (2024022600)
 * Improvement: Better layout for table row.
 * Bugfix: Fix calls of newsletter functions (will always use $USER, so no param necessary).
