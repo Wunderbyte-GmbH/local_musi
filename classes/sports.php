@@ -125,6 +125,9 @@ class sports {
             foreach ($sportrecords as $sportrecord) {
                 $teacherids = explode(',', $sportrecord->teachers);
                 foreach ($teacherids as $teacherid) {
+                    if (empty($teacherid)) {
+                        continue;
+                    }
                     $teachersarr[$teacherid] = $teacherid;
                 }
             }
@@ -208,7 +211,7 @@ class sports {
                         'name' => $sport,
                         'editsubstitutionspool' => $editsubstitutionspool,
                         'viewsubstitutionspool' => $viewsubstitutionspool,
-                        'substitutionteachers' => $substitutionteachers,
+                        'substitutionteachers' => empty($substitutionteachers) ? null : $substitutionteachers,
                         'mailtolink' => $mailtolink ?? null,
                         'emailstring' => $emailstring ?? null,
                         'description' => $description,

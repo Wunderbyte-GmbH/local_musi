@@ -53,6 +53,9 @@ class substitutionspool_form extends \core_form\dynamic_form {
             'ajax' => 'local_shopping_cart/form_users_selector',
             'valuehtmlcallback' => function($value) {
                 global $OUTPUT;
+                if (empty($value)) {
+                    return null;
+                }
                 $user = singleton_service::get_instance_of_user((int)$value);
                 $details = [
                     'id' => $user->id,
