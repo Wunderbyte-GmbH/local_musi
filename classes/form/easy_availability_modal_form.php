@@ -20,7 +20,6 @@ use context_module;
 use context;
 use mod_booking\booking_option;
 use mod_booking\option\fields_info;
-use mod_booking\output\eventslist;
 use mod_booking\singleton_service;
 use moodle_exception;
 use stdClass;
@@ -35,25 +34,11 @@ use stdClass;
  */
 class easy_availability_modal_form extends \core_form\dynamic_form {
 
-    /** @var bool $formmode 'simple' or 'expert' */
-    public $formmode = null;
-
     /**
      * {@inheritDoc}
      * @see moodleform::definition()
      */
     public function definition() {
-        global $DB, $OUTPUT;
-
-        /* At first get the option form configuration from DB.
-        Unfortunately, we need this, because hideIf does not work with
-        editors, headers and html elements. */
-        $optionformconfig = [];
-        if ($optionformconfigrecords = $DB->get_records('booking_optionformconfig')) {
-            foreach ($optionformconfigrecords as $optionformconfigrecord) {
-                $optionformconfig[$optionformconfigrecord->elementname] = $optionformconfigrecord->active;
-            }
-        }
 
         $formdata = $this->_customdata ?? $this->_ajaxformdata;
 
@@ -62,32 +47,13 @@ class easy_availability_modal_form extends \core_form\dynamic_form {
         $formdata['context'] = $context;
         $optionid = $formdata['id'] ?? $formdata['optionid'] ?? 0;
 
-        // Get the form mode, which can be 'simple' or 'expert'.
-        if (isset($formdata['formmode'])) {
-            // Formmode can also be set via custom data.
-            // Currently we only need this for the optionformconfig...
-            // ...which needs to be set to 'expert', so it shows all checkboxes.
-            $this->formmode = $formdata['formmode'];
-        } else {
-            // Normal case: we get formmode from user preferences.
-            $this->formmode = get_user_preferences('optionform_mode');
-        }
-
-        if (empty($this->formmode)) {
-            // Default: Simple mode.
-            $this->formmode = 'simple';
-        }
-
-        // We add the formmode to the optionformconfig.
-        $optionformconfig['formmode'] = $this->formmode;
-
         $mform = &$this->_form;
 
         $mform->addElement('hidden', 'scrollpos');
         $mform->setType('scrollpos', PARAM_INT);
 
         // Add all available fields in the right order.
-        fields_info::instance_form_definition($mform, $formdata, $optionformconfig);
+        fields_info::instance_form_definition($mform, $formdata);
     }
 
     /**
@@ -208,13 +174,6 @@ class easy_availability_modal_form extends \core_form\dynamic_form {
 
     public function validation($data, $files) {
         $errors = [];
-
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* if ($data['bookingopeningtime'] >= $data['bookingclosingtime']) {
-            $errors['bookingopeningtime'] = get_string('error:starttime', 'local_musi');
-            $errors['bookingclosingtime'] = get_string('error:endtime', 'local_musi');
-        } */
-
         return $errors;
     }
 
