@@ -1,3 +1,7 @@
+## Version 0.9.1 (2024031300)
+* New feature: New setting to turn off phone numbers in substitutions pool.
+* Bugfix: Fix broken easy availability modal form.
+
 ## Version 0.9.0 (2024030600)
 * Improvement: Add static page to shopping cart history for testing reasons.
 * Bugfix: Fix error in substitutions pool (if teachers were removed there was an exception).
