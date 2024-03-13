@@ -33,11 +33,14 @@ $string['musi:cansendmessages'] = 'Can send messages';
 $string['musi:editavailability'] = 'Can change availability and reservations';
 $string['musi:editsubstitutionspool'] = 'Can edit the substitutions pool of teachers for different sports';
 $string['musi:viewsubstitutionspool'] = 'Can view the substitutions pool of teachers for different sports and send emails to substitution pools';
+$string['substitutionspoolshowphonenumbers'] = 'Show phone numbers in substitutions pool';
+
 
 // Caches.
 $string['cachedef_cachedpaymenttable'] = 'Cached payment table (transaction list).';
 
 // Settings.
+$string['additionalsettings'] = 'Additional settings';
 $string['newslettersettingsheading'] = 'Newsletter settings';
 $string['newslettersettingsdesc'] = 'After configuration, you can use the following shortcodes:<br>
 <b>[newslettersubscribe], [newsletterunsubscribe], [newslettersubscribe button=true], [newsletterunsubscribe button=true]</b>';

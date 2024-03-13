@@ -179,8 +179,10 @@ class sports {
                                         $teacher['firstname'] = $fullteacher->firstname;
                                         $teacher['lastname'] = $fullteacher->lastname;
                                         $teacher['email'] = $fullteacher->email;
-                                        $teacher['phone1'] = $fullteacher->phone1;
-                                        $teacher['phone2'] = $fullteacher->phone2;
+                                        if (get_config('local_musi', 'substitutionspoolshowphonenumbers')) {
+                                            $teacher['phone1'] = $fullteacher->phone1;
+                                            $teacher['phone2'] = $fullteacher->phone2;
+                                        }
                                         $substitutionteachers[] = $teacher;
                                     }
                                 }

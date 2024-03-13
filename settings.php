@@ -77,11 +77,6 @@ if ($hassiteconfig) {
                     $defaultcmid, $allowedinstances));
         }
 
-        $settings->add(
-            new admin_setting_configtext('local_musi/shortcodesarchivecmids',
-                get_string('shortcodesarchivecmids', 'local_musi'),
-                get_string('shortcodesarchivecmids_desc', 'local_musi'), ''));
-
         // Shortcode lists.
         $settings->add(
             new admin_setting_heading('shortcodelists',
@@ -181,5 +176,18 @@ if ($hassiteconfig) {
             new admin_setting_configtextarea('local_musi/contractformula',
                 get_string('contractformula', 'local_musi'),
                 get_string('contractformula_desc', 'local_musi'), '', PARAM_TEXT, 60, 10)); */
+
+        $settings->add(
+            new admin_setting_heading('additionalsettings',
+                get_string('additionalsettings', 'local_musi'), ''));
+
+        $settings->add(
+            new admin_setting_configtext('local_musi/shortcodesarchivecmids',
+                get_string('shortcodesarchivecmids', 'local_musi'),
+                get_string('shortcodesarchivecmids_desc', 'local_musi'), ''));
+
+        $settings->add(
+            new admin_setting_configcheckbox('local_musi/substitutionspoolshowphonenumbers',
+                get_string('substitutionspoolshowphonenumbers', 'local_musi'), '', 0));
     }
 }

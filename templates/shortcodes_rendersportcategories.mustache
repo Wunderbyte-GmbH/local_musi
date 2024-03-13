@@ -99,12 +99,16 @@
                           <td class="pl-3">
                             {{#email}}<i class="fa fa-envelope" aria-hidden="true"></i>&nbsp;<a href="mailto:{{.}}">{{.}}</a>{{/email}}
                           </td>
+                          {{#phone2}}
                           <td class="pl-3">
-                            {{#phone2}}<i class="fa fa-mobile" aria-hidden="true"></i>&nbsp;{{.}}{{/phone2}}
+                            <i class="fa fa-mobile" aria-hidden="true"></i>&nbsp;{{.}}
                           </td>
+                          {{/phone2}}
+                          {{#phone1}}
                           <td class="pl-3">
-                            {{#phone1}}<i class="fa fa-phone" aria-hidden="true"></i>&nbsp;{{.}}{{/phone1}}
+                            <i class="fa fa-phone" aria-hidden="true"></i>&nbsp;{{.}}
                           </td>
+                          {{/phone1}}
                         </tr>
                       {{/substitutionteachers}}
                       </table>

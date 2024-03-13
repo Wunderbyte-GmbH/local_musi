@@ -33,11 +33,13 @@ $string['musi:cansendmessages'] = 'Kann Nachrichten schicken.';
 $string['musi:editavailability'] = 'Kann die Verfügbarkeit von Buchungsoptionen ändern und Vorreservierungen anlegen';
 $string['musi:editsubstitutionspool'] = 'Kann den Vertretungspool für einzelne Sportarten bearbeiten';
 $string['musi:viewsubstitutionspool'] = 'Kann den Vertretungspool für einzelne Sportarten sehen und E-Mails an den Vertretungspool senden';
+$string['substitutionspoolshowphonenumbers'] = 'Telefonnummern der Trainer:innen im Vertretungspool anzeigen';
 
 // Caches.
 $string['cachedef_cachedpaymenttable'] = 'Zahlungstransaktionen (Cache)';
 
 // Settings.
+$string['additionalsettings'] = 'Sonstige Einstellungen';
 $string['newslettersettingsheading'] = 'Newsletter-Einstellungen';
 $string['newslettersettingsdesc'] = 'Nach korrekter Konfiguration können Sie folgende Shortcodes verwenden:<br>
 <b>[newslettersubscribe], [newsletterunsubscribe], [newslettersubscribe button=true], [newsletterunsubscribe button=true]</b>';
