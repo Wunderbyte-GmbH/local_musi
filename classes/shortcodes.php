@@ -728,7 +728,7 @@ class shortcodes {
         return $table;
     }
 
-    private static function define_filtercolumns(&$table) {
+    private static function add_standardfilters(&$table) {
 
         $standardfilter = new standardfilter('sport', get_string('sport', 'local_musi'));
         $table->add_filter($standardfilter);
@@ -817,7 +817,7 @@ class shortcodes {
         $table->set_display_options($args);
 
         if (!empty($args['filter'])) {
-            self::define_filtercolumns($table);
+            self::add_standardfilters($table);
         }
 
         if (!empty($args['search'])) {
