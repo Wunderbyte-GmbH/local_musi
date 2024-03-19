@@ -30,6 +30,7 @@ use renderer_base;
 use templatable;
 use stdClass;
 use local_musi\musi_payment_helper;
+use local_wunderbyte_table\filters\types\standardfilter;
 
 /**
  * This class prepares to data to render transactionstable in mustache template
@@ -71,13 +72,12 @@ class transactionslist implements renderable, templatable {
         $table->sortable(true, 'timecreated', SORT_DESC);
 
         // Define Filters.
-        $table->define_filtercolumns([
-            'status' => [
-                'localizedname' => get_string('status', 'local_musi'),
-                '0' => get_string('openorder', 'local_musi'),
-                '3' => get_string('bookedorder', 'local_musi'),
-            ]
+        $standardfilter = new standardfilter('status', get_string('status', 'local_musi'));
+        $standardfilter->add_options([
+            '0' => get_string('openorder', 'local_musi'),
+            '3' => get_string('bookedorder', 'local_musi'),
         ]);
+        $table->add_filter($standardfilter);
 
         // Full text search columns.
         $table->define_fulltextsearchcolumns(['id', 'timecreated', 'timemodified', 'tid', 'itemid',
