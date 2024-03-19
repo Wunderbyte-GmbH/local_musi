@@ -730,13 +730,11 @@ class shortcodes {
 
     private static function define_filtercolumns(&$table) {
 
-        $filtercolumns = [];
-
         $standardfilter = new standardfilter('sport', get_string('sport', 'local_musi'));
-        $standardfilter->add_filter($filtercolumns);
+        $table->add_filter($standardfilter);
 
         $standardfilter = new standardfilter('sportsdivision', get_string('sportsdivision', 'local_musi'));
-        $standardfilter->add_filter($filtercolumns);
+        $table->add_filter($standardfilter);
 
         $standardfilter = new standardfilter('dayofweek', get_string('dayofweek', 'local_musi'));
         $standardfilter->add_options([
@@ -748,13 +746,13 @@ class shortcodes {
             'saturday' => get_string('saturday', 'mod_booking'),
             'sunday' => get_string('sunday', 'mod_booking')
         ]);
-        $standardfilter->add_filter($filtercolumns);
+        $table->add_filter($standardfilter);
 
         $standardfilter = new standardfilter('location', get_string('location', 'mod_booking'));
-        $standardfilter->add_filter($filtercolumns);
+        $table->add_filter($standardfilter);
 
         $standardfilter = new standardfilter('botags', get_string('tags', 'core'));
-        $standardfilter->add_filter($filtercolumns);
+        $table->add_filter($standardfilter);
 
         if (get_config('local_musi', 'musishortcodesshowfiltercoursetime')) {
 
@@ -771,7 +769,7 @@ class shortcodes {
                 'now + 1 year'
             );
 
-            $datepicker->add_filter($filtercolumns);
+            $table->add_filter($datepicker);
         }
 
         if (get_config('local_musi', 'musishortcodesshowfilterbookingtime')) {
@@ -790,10 +788,8 @@ class shortcodes {
                 'now + 1 year'
             );
 
-            $datepicker->add_filter($filtercolumns);
+            $table->add_filter($datepicker);
         }
-
-        $table->define_filtercolumns($filtercolumns);
     }
 
     private static function get_booking($args) {
