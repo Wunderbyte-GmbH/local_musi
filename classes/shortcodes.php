@@ -736,6 +736,10 @@ class shortcodes {
         $standardfilter = new standardfilter('sportsdivision', get_string('sportsdivision', 'local_musi'));
         $table->add_filter($standardfilter);
 
+        $standardfilter = new standardfilter('teacherobjects', get_string('teachers', 'mod_booking'));
+        $standardfilter->add_options(['jsonattribute' => 'name']);
+        $table->add_filter($standardfilter);
+
         $standardfilter = new standardfilter('dayofweek', get_string('dayofweek', 'local_musi'));
         $standardfilter->add_options([
             'monday' => get_string('monday', 'mod_booking'),
