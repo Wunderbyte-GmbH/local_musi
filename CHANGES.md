@@ -1,3 +1,11 @@
+## Version 0.9.2 (2024032500)
+* Improvement: New wunderbyte table filters.
+* Improvement: Add edit component to MUSI tables.
+* Improvement: Apply new filter logic to MUSI transaction list.
+* Improvement: Rename define_filtercolumns to add_standardfilters to avoid confusion with old logic.
+* Bugfix: Fix errors in datepickers.
+* Bugfix: Add teacher filter again.
+
 ## Version 0.9.1 (2024031300)
 * New feature: New setting to turn off phone numbers in substitutions pool.
 * Bugfix: Fix broken easy availability modal form.
