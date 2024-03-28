@@ -90,6 +90,7 @@ class sap_daily_sums {
         }
 
         $selectorderidpart = "";
+        $gatewayspart = "";
         if (!empty($colselects)) {
             $selectorderidpart = ", pgw.orderid, pgw.paymentbrand";
             $colselectsstring = implode(' UNION ', $colselects);
