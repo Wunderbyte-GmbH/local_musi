@@ -164,8 +164,8 @@ class easy_availability_modal_form extends \core_form\dynamic_form {
         $alloweditavailability = (
             has_capability('local/musi:editavailability', $context) &&
             (has_capability('mod/booking:updatebooking', $context) ||
-            (has_capability('mod/booking:limitededitownoption', $context) && $this->check_if_teacher($optionid)) ||
-            (has_capability('mod/booking:addeditownoption', $context) && $this->check_if_teacher($optionid)))
+            (has_capability('mod/booking:limitededitownoption', $context) && booking_check_if_teacher($optionid)) ||
+            (has_capability('mod/booking:addeditownoption', $context) && booking_check_if_teacher($optionid)))
         );
         if (!$alloweditavailability) {
             throw new moodle_exception('norighttoaccess', 'local_musi');
@@ -179,20 +179,5 @@ class easy_availability_modal_form extends \core_form\dynamic_form {
 
     protected function get_page_url_for_dynamic_submission(): \moodle_url {
         return new \moodle_url('/local/musi/dashboard.php');
-    }
-
-    /**
-     * Check if logged in user is a teacher of the option.
-     * @param int $optionid
-     * @return bool true if it's a teacher, false if not
-     */
-    private function check_if_teacher(int $optionid) {
-        global $USER;
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        if (in_array($USER->id, $settings->teacherids)) {
-            return true;
-        } else {
-            return false;
-        }
     }
 }
