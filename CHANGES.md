@@ -1,3 +1,7 @@
+## Version 0.9.3 (2024040200)
+* Bugfix: Add missing initialization for $gatewayspart.
+* Bugfix: MUSI must not use its own check_if_teacher function but has to use the one from Booking.
+
 ## Version 0.9.2 (2024032500)
 * Improvement: New wunderbyte table filters.
 * Improvement: Add edit component to MUSI tables.
