@@ -1,3 +1,6 @@
+## Version 0.9.4 (2024041000)
+* New feature: Show attachments right within booking options.
+
 ## Version 0.9.3 (2024040200)
 * Bugfix: Add missing initialization for $gatewayspart.
 * Bugfix: MUSI must not use its own check_if_teacher function but has to use the one from Booking.
