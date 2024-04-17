@@ -29,6 +29,7 @@ namespace local_musi;
 use Closure;
 use context_system;
 use html_writer;
+use local_wunderbyte_table\filters\types\hourlist;
 use mod_booking\output\page_allteachers;
 use local_musi\output\userinformation;
 use local_musi\table\musi_table;
@@ -757,6 +758,9 @@ class shortcodes {
 
         $standardfilter = new standardfilter('botags', get_string('tags', 'core'));
         $table->add_filter($standardfilter);
+
+        $hourlist = new hourlist('coursestarttime', 'start');
+        $table->add_filter($hourlist);
 
         if (get_config('local_musi', 'musishortcodesshowfiltercoursetime')) {
 
