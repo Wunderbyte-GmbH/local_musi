@@ -759,25 +759,9 @@ class shortcodes {
         $standardfilter = new standardfilter('botags', get_string('tags', 'core'));
         $table->add_filter($standardfilter);
 
-        $hourlist = new hourlist('coursestarttime', 'start');
-        $table->add_filter($hourlist);
-
         if (get_config('local_musi', 'musishortcodesshowfiltercoursetime')) {
-
-            $datepicker = new datepicker(
-                'coursestarttime',
-                get_string('timefilter:coursetime', 'mod_booking'),
-                'courseendtime'
-            );
-            $datepicker->add_options(
-                'in between',
-                '<',
-                get_string('apply_filter', 'local_wunderbyte_table'),
-                'now',
-                'now + 1 year'
-            );
-
-            $table->add_filter($datepicker);
+            $hourlist = new hourlist('coursestarttime', get_string('timeofdaycoursestart', 'local_musi'));
+            $table->add_filter($hourlist);
         }
 
         if (get_config('local_musi', 'musishortcodesshowfilterbookingtime')) {

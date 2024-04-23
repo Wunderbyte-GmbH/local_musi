@@ -72,7 +72,7 @@ $string['musishortcodes:showstart'] = 'Show "Start time of the course"';
 $string['musishortcodes:showend'] = 'Show "End time of the course"';
 $string['musishortcodes:showbookablefrom'] = 'Show "Bookable from"';
 $string['musishortcodes:showbookableuntil'] = 'Show "Bookable until"';
-$string['musishortcodes:showfiltercoursetime'] = 'Show filter "Course time"';
+$string['musishortcodes:showfiltercoursetime'] = 'Show filter "Course starts at"';
 $string['musishortcodes:showfilterbookingtime'] = 'Show filter "Booking time"';
 
 // General strings.
@@ -85,6 +85,7 @@ $string['editavailabilityanddescription'] = 'Edit availability & description';
 $string['editavailability'] = 'Edit availability';
 $string['editdescription'] = 'Edit description';
 $string['substitutionspool'] = 'Substitutions pool for {$a}';
+$string['timeofdaycoursestart'] = 'Course starts at';
 $string['editsubstitutionspool'] = 'Edit substitutions pool';
 $string['viewsubstitutionspool'] = 'View substitutions pool';
 $string['mailtosubstitutionspool'] = 'Send email to substitutions pool';

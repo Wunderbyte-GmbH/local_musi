@@ -71,7 +71,7 @@ $string['musishortcodes:showstart'] = 'Kursbeginn anzeigen';
 $string['musishortcodes:showend'] = 'Kursende anzeigen';
 $string['musishortcodes:showbookablefrom'] = '"Buchbar ab" anzeigen';
 $string['musishortcodes:showbookableuntil'] = '"Buchbar bis" anzeigen';
-$string['musishortcodes:showfiltercoursetime'] = 'Filter "Kurszeiten" anzeigen';
+$string['musishortcodes:showfiltercoursetime'] = 'Filter "Kurs beginnt um" anzeigen';
 $string['musishortcodes:showfilterbookingtime'] = 'Filter "Anmeldezeiten" anzeigen';
 
 // General strings.
@@ -86,6 +86,7 @@ $string['editavailability'] = 'Verfügbarkeit bearbeiten';
 $string['editdescription'] = 'Beschreibung bearbeiten';
 $string['substitutionspool'] = 'Vertretungspool für {$a}';
 $string['editsubstitutionspool'] = 'Vertretungspool bearbeiten';
+$string['timeofdaycoursestart'] = 'Kurs beginnt um';
 $string['viewsubstitutionspool'] = 'Vertretungspool ansehen';
 $string['mailtosubstitutionspool'] = 'E-Mail an Vertretungspool senden';
 $string['substitutionspool:infotext'] = 'Trainer:innen, die <b>{$a}</b> vertreten dürfen:';
