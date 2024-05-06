@@ -147,7 +147,7 @@ class shortcodes {
             || !is_int((int)$args['perpage'])
             || !$perpage = ((int)$args['perpage'])
         ) {
-            $perpage = 1000;
+            $perpage = 100;
         }
 
         $table = self::inittableforcourses($booking);
@@ -228,7 +228,7 @@ class shortcodes {
             || !is_int((int)$args['perpage'])
             || !$perpage = ($args['perpage'])
         ) {
-            $perpage = 1000;
+            $perpage = 100;
         }
 
         $table = self::inittableforcourses($booking);
@@ -355,7 +355,7 @@ class shortcodes {
             || !is_int((int)$args['perpage'])
             || !$perpage = ($args['perpage'])
         ) {
-            $perpage = 1000;
+            $perpage = 100;
         }
 
         $table = self::inittableforcourses($booking);
@@ -427,7 +427,7 @@ class shortcodes {
             || !is_int((int)$args['perpage'])
             || !$perpage = ($args['perpage'])
         ) {
-            $perpage = 1000;
+            $perpage = 100;
         }
 
         $table = self::inittableforcourses($booking);
@@ -498,7 +498,7 @@ class shortcodes {
             || !is_int((int)$args['perpage'])
             || !$perpage = ($args['perpage'])
         ) {
-            $perpage = 1000;
+            $perpage = 100;
         }
 
         $table = self::inittableforcourses($booking);
@@ -565,7 +565,7 @@ class shortcodes {
             || !is_int((int)$args['perpage'])
             || !$perpage = ($args['perpage'])
         ) {
-            $perpage = 1000;
+            $perpage = 100;
         }
 
         if (empty($args['countlabel'])) {
