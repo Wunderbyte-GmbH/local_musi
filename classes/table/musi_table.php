@@ -130,7 +130,7 @@ class musi_table extends wunderbyte_table {
             }
         }
         $output = singleton_service::get_renderer('local_musi');
-        return $output->render_col_teacher($data);;
+        return $output->render_col_teacher($data);
     }
 
     /**
@@ -672,6 +672,11 @@ class musi_table extends wunderbyte_table {
             $emailstring = " ($user->email)";
             if ($this->is_downloading()) {
                 $ret = $userstring . $emailstring;
+            } else if (in_array($settings->responsiblecontact, $settings->teacherids)) {
+                // For teachers, use link to teacher page.
+                $teacherurl = new moodle_url('/mod/booking/teacher.php', ['teacherid' => $settings->responsiblecontact]);
+                $ret = get_string('responsible', 'mod_booking')
+                    . ":&nbsp;" . html_writer::link($teacherurl, $userstring);
             } else {
                 $profileurl = new moodle_url('/user/profile.php', ['id' => $settings->responsiblecontact]);
                 $ret = get_string('responsible', 'mod_booking')
