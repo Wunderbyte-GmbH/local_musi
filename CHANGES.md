@@ -1,3 +1,8 @@
+## Version 0.9.5 (2024050800)
+* Improvement: Add hourfilter as standardfilter.
+* Improvement: Standard number per page 100 instead of 1000.
+* Improvement: For teachers responsible for a bookingoption, link to teacherpage instead of user profile.
+
 ## Version 0.9.4 (2024041000)
 * New feature: Show attachments right within booking options.
 
