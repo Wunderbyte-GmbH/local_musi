@@ -28,7 +28,6 @@ defined('MOODLE_INTERNAL') || die();
 $functions = array(
         'local_musi_get_all_itemids' => array(
                 'classname' => 'local_musi\external\get_all_itemids',
-                'classpath' => '',
                 'description' => 'Get all item ids',
                 'type' => 'write',
                 'capabilities' => '',
