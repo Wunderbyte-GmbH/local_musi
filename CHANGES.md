@@ -1,3 +1,6 @@
+## Version 0.9.6 (2024061200)
+* Bugfix: Remove classpath.
+
 ## Version 0.9.5 (2024050800)
 * Improvement: Add hourfilter as standardfilter.
 * Improvement: Standard number per page 100 instead of 1000.
