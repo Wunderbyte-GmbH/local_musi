@@ -54,6 +54,8 @@ $string['newsletterunsubscribed:title'] = 'Unsubscribe from newsletter';
 $string['newsletterunsubscribed:description'] = 'You have successfully removed your subscription from the newsletter.';
 $string['newslettersubscribed:error'] = 'There was an error with the newsletter subscription. Please contact an admin.';
 $string['newsletterunsubscribed:error'] = 'There was an error with unsubscribing from newsletter. Please contact an admin.';
+$string['birthdateprofilefield'] = 'Birthdate profile field';
+$string['birthdateprofilefielddesc'] = 'Choose the custom user profile field which is used to store the birthdate.';
 
 // Shortcodes.
 $string['shortcodelists'] = 'Shortcode lists';

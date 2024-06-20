@@ -53,6 +53,8 @@ $string['newsletterunsubscribed:title'] = 'Vom Newsletter abmelden';
 $string['newsletterunsubscribed:description'] = 'Sie wurden erfolgreich vom Newsletter abgemeldet.';
 $string['newslettersubscribed:error'] = 'Bei der Newsletter-Anmeldung ist ein Fehler aufgetreten. Bitte wenden Sie sich an einen Admin.';
 $string['newsletterunsubscribed:error'] = 'Bei der Newsletter-Abmeldung ist ein Fehler aufgetreten. Bitte wenden Sie sich an einen Admin.';
+$string['birthdateprofilefield'] = 'Profilfeld für das Geburtsdatum';
+$string['birthdateprofilefielddesc'] = 'Wählen Sie das benutzerdefinierte Nutzerprofilfeld, in dem das Geburtsdatum gespeichert wird.';
 
 // Shortcodes.
 $string['shortcodelists'] = 'Shortcode-Listen';

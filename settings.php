@@ -189,5 +189,11 @@ if ($hassiteconfig) {
         $settings->add(
             new admin_setting_configcheckbox('local_musi/substitutionspoolshowphonenumbers',
                 get_string('substitutionspoolshowphonenumbers', 'local_musi'), '', 0));
+
+        $settings->add(
+            new admin_setting_configselect('local_musi/birthdateprofilefield',
+                get_string('birthdateprofilefield', 'local_musi'),
+                get_string('birthdateprofilefielddesc', 'local_musi'),
+                0, $userprofilefieldsarray));
     }
 }
