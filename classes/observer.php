@@ -26,6 +26,8 @@
 namespace local_musi;
 
 use cache_helper;
+use local_musi\form\substitutionspool_form;
+use mod_booking\singleton_service;
 
 /**
  * Event observer for local_musi.
@@ -47,9 +49,26 @@ class observer {
     }
 
     /**
-     * Observer for the payment_successful event
+     * Observer for the bookingoption_updated event
+     *
+     * @param \mod_booking\event\bookingoption_updated $event
+     *
+     * @return void
+     *
      */
-    public static function payment_successful() {
-        cache_helper::purge_by_event('setbackcachedpaymenttable');
+    public static function bookingoption_updated(\mod_booking\event\bookingoption_updated $event) {
+        $optionid = $event->objectid;
+        $cmid = $event->contextinstanceid;
+
+        $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+        $settings = $bookingoption->settings;
+
+        if (!empty($settings->teachers) && get_config('local_musi', 'autoaddtosubstitutionspool')) {
+            $teacherids = array_keys($settings->teachers);
+            if (isset($settings->customfieldsfortemplates['sport']) && isset ($settings->customfieldsfortemplates['sport']['value'])) {
+                $value = $settings->customfieldsfortemplates['sport']['value'];
+                substitutionspool_form::add_or_update_substitution_for_sport($value, $teacherids, false);
+            }
+        }
     }
 }

@@ -55,6 +55,7 @@ $string['newslettersubscribed:error'] = 'Bei der Newsletter-Anmeldung ist ein Fe
 $string['newsletterunsubscribed:error'] = 'Bei der Newsletter-Abmeldung ist ein Fehler aufgetreten. Bitte wenden Sie sich an einen Admin.';
 $string['birthdateprofilefield'] = 'Profilfeld für das Geburtsdatum';
 $string['birthdateprofilefielddesc'] = 'Wählen Sie das benutzerdefinierte Nutzerprofilfeld, in dem das Geburtsdatum gespeichert wird.';
+$string['autoaddtosubstitutionspool'] = 'LehrerInnen automatisch in VertreterInnen-Pool ihrer Sportart eintragen?';
 
 // Shortcodes.
 $string['shortcodelists'] = 'Shortcode-Listen';

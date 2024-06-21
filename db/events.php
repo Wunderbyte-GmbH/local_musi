@@ -73,4 +73,9 @@ $observers = [
         'eventname' => '\paygw_unigraz\event\payment_successful',
         'callback' => '\local_musi\observer::payment_successful',
     ],
+    // Other events.
+    [
+        'eventname' => '\mod_booking\event\bookingoption_updated',
+        'callback' => '\local_musi\observer::bookingoption_updated',
+    ],
 ];

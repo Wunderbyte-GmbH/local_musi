@@ -106,16 +106,47 @@ class substitutionspool_form extends \core_form\dynamic_form {
         $sport = $data->sport;
 
         $teacheridsarr = $data->substitutionspoolteachers;
-        $teacherids = trim(implode(',', $teacheridsarr), ',');
+
+        return self::add_or_update_substitution_for_sport($sport, $teacheridsarr, true);
+    }
+
+    /**
+     * Add or update substitution teacher pool for sport.
+     *
+     * @param string $sport
+     * @param array $teacheridsarr
+     * @param bool $overwriteteachers
+     *
+     * @return bool
+     *
+     */
+    public static function add_or_update_substitution_for_sport(
+        string $sport,
+        array $teacheridsarr,
+        bool $overwriteteachers): bool {
+        global $DB, $USER;
         $now = time();
 
         if ($existingrecord = $DB->get_record('local_musi_substitutions', ['sport' => $sport])) {
+            $newteachersasstrings = trim(implode(',', $teacheridsarr), ',');
+            if ($existingrecord->teachers == $newteachersasstrings) {
+                // No change.
+                return true;
+            }
+            if (!$overwriteteachers) {
+                // Don't overwrite -> merge given records first.
+                $existingteachersarray = explode(',', $existingrecord->teachers);
+                $teacheridsarr = array_merge($existingteachersarray, $teacheridsarr);
+            }
+            $teacherids = trim(implode(',', $teacheridsarr), ',');
             $existingrecord->teachers = $teacherids;
+
             $existingrecord->usermodified = $USER->id;
             $existingrecord->timemodified = $now;
             $DB->update_record('local_musi_substitutions', $existingrecord);
             return true;
         } else {
+            $teacherids = trim(implode(',', $teacheridsarr), ',');
             $newrecord = new stdClass();
             $newrecord->sport = $sport;
             $newrecord->teachers = $teacherids;
@@ -129,8 +160,6 @@ class substitutionspool_form extends \core_form\dynamic_form {
                 return false;
             }
         }
-
-        return true;
     }
 
     public function validation($data, $files) {

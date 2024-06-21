@@ -187,6 +187,10 @@ if ($hassiteconfig) {
                 get_string('shortcodesarchivecmids_desc', 'local_musi'), ''));
 
         $settings->add(
+            new admin_setting_configcheckbox('local_musi/autoaddtosubstitutionspool',
+                get_string('autoaddtosubstitutionspool', 'local_musi'), '', 0));
+
+        $settings->add(
             new admin_setting_configcheckbox('local_musi/substitutionspoolshowphonenumbers',
                 get_string('substitutionspoolshowphonenumbers', 'local_musi'), '', 0));
 
