@@ -155,9 +155,7 @@ class shortcodes {
         $table->showcountlabel = $args['countlabel'];
         $wherearray = ['bookingid' => (int)$booking->id];
 
-        if (!empty($category)) {
-            $wherearray['sport'] = $category;
-        };
+        self::set_wherearray_from_arguments($args, $wherearray);
 
         // If we want to find only the teacher relevant options, we chose different sql.
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
@@ -361,6 +359,8 @@ class shortcodes {
         $table = self::inittableforcourses($booking);
 
         $wherearray = ['bookingid' => (int)$booking->id];
+
+        self::set_wherearray_from_arguments($args, $wherearray);
 
         if (!empty($category)) {
             $wherearray['sport'] = $category;
@@ -1140,5 +1140,33 @@ class shortcodes {
             $value = str_replace('"', '', $value);
             $value = str_replace("'", "", $value);
         }
+    }
+
+    /**
+     * Modify there wherearray via arguments.
+     *
+     * @param array $args
+     *
+     * @return void
+     *
+     */
+    private static function set_wherearray_from_arguments(array &$args, &$wherearray) {
+
+        if (!empty($args['wherearray'])) {
+
+            list($customfield, $argument) = explode(':', $args['wherearray']);
+            if (!empty($customfield) && !empty($argument)) {
+                $customfield = strip_tags($customfield);
+                $customfield = trim($customfield);
+                $argument = strip_tags($argument);
+                $arguemnt = trim($argument);
+                $wherearray[$customfield] = $arguemnt;
+            }
+        }
+
+        // This is special treatment of sport
+        if (!empty($category)) {
+            $wherearray['sport'] = $category;
+        };
     }
 }
