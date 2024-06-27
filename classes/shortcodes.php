@@ -30,6 +30,7 @@ use Closure;
 use context_system;
 use html_writer;
 use local_wunderbyte_table\filters\types\hourlist;
+use mod_booking\customfield\booking_handler;
 use mod_booking\output\page_allteachers;
 use local_musi\output\userinformation;
 use local_musi\table\musi_table;
@@ -1152,19 +1153,28 @@ class shortcodes {
      */
     private static function set_wherearray_from_arguments(array &$args, &$wherearray) {
 
-        if (!empty($args['wherearray'])) {
-
-            list($customfield, $argument) = explode(':', $args['wherearray']);
-            if (!empty($customfield) && !empty($argument)) {
-                $customfield = strip_tags($customfield);
-                $customfield = trim($customfield);
+        $customfields = booking_handler::get_customfields();
+        // Set given customfields (shortnames) as arguments.
+        $fields = [];
+        if (!empty($customfields) && !empty($args)) {
+            foreach ($args as $key => $value) {
+                foreach ($customfields as $customfield) {
+                    if ($customfield->shortname == $key) {
+                        $fields[$key] = $value;
+                        break;
+                    }
+                }
+            }
+        }
+        if (!empty($fields)) {
+            foreach ($fields as $customfield => $argument) {
                 $argument = strip_tags($argument);
                 $arguemnt = trim($argument);
                 $wherearray[$customfield] = $arguemnt;
             }
         }
 
-        // This is special treatment of sport
+        // This is special treatment of sport.
         if (!empty($category)) {
             $wherearray['sport'] = $category;
         };
