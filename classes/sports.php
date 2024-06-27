@@ -193,20 +193,7 @@ class sports {
                             }
                         }
                         // Generate mailto-Link.
-                        $emailstring = '';
-                        if (!empty($substitutionteachers)) {
-                            foreach ($substitutionteachers as $teacher) {
-                                if (!empty($teacher['email']) && ($teacher['email'] != $USER->email)) {
-                                    $emailstring .= $teacher['email'] . ";";
-                                }
-                            }
-                            if (!empty($emailstring)) {
-                                $emailstring = trim($emailstring, ';');
-                                $loggedinuseremail = $USER->email;
-                                $mailtolink = str_replace(' ', '%20', htmlspecialchars("mailto:$loggedinuseremail?bcc=$emailstring",
-                                    ENT_QUOTES));
-                            }
-                        }
+                        $mailstrings = self::generate_mailstring($substitutionteachers);
                     }
 
                     $category['sports'][] = [
@@ -214,8 +201,8 @@ class sports {
                         'editsubstitutionspool' => $editsubstitutionspool,
                         'viewsubstitutionspool' => $viewsubstitutionspool,
                         'substitutionteachers' => empty($substitutionteachers) ? null : $substitutionteachers,
-                        'mailtolink' => $mailtolink ?? null,
-                        'emailstring' => $emailstring ?? null,
+                        'mailtolink' => $mailstrings['mailtolink'] ?? null,
+                        'emailstring' => $mailstrings['emailstring'] ?? null,
                         'description' => $description,
                         'id' => $cmid,
                         'table' => $print ? format_text('[allekurseliste sort=1 search=1 lazy=1 requirelogin=false category="' .
@@ -223,10 +210,57 @@ class sports {
                     ];
                 }
             }
+            // Group teachers of all sports to this category.
+            $substitutionteachers = [];
+            foreach ($category['sports'] as $sport) {
+                if (isset($sport['substitutionteachers']) && is_array($sport['substitutionteachers'])) {
+                    $substitutionteachers = array_merge($substitutionteachers, $sport['substitutionteachers']);
+                }
+            }
+            $mailstrings = self::generate_mailstring($substitutionteachers);
+            $category['categorydata'] = [
+                'viewsubstitutionspool' => $viewsubstitutionspool,
+                'substitutionteachers' => empty($substitutionteachers) ? null : $substitutionteachers,
+                'mailtolink' => $mailstrings['mailtolink'] ?? null,
+                'emailstring' => $mailstrings['emailstring'] ?? null,
+                'id' => $category['categoryid'] ?? null,
+            ];
             $data['categories'][] = $category;
         }
 
         return $data;
+    }
+
+    /**
+     * Resolve array of teachers into link list string.
+     *
+     * @param array $substitutionteachers
+     *
+     * @return array
+     *
+     */
+    private static function generate_mailstring(array $substitutionteachers): array {
+        global $USER;
+        $emailstring = '';
+        $mailtolink = '';
+        if (!empty($substitutionteachers)) {
+            foreach ($substitutionteachers as $teacher) {
+                if (!empty($teacher['email']) && ($teacher['email'] != $USER->email)) {
+                    $emailstring .= $teacher['email'] . ";";
+                }
+            }
+            if (!empty($emailstring)) {
+                $emailstring = trim($emailstring, ';');
+                $loggedinuseremail = $USER->email;
+                $mailtolink = str_replace(' ', '%20', htmlspecialchars("mailto:$loggedinuseremail?bcc=$emailstring",
+                    ENT_QUOTES));
+            }
+        }
+        return [
+            'mailtolink' => $mailtolink ?? null,
+            'emailstring' => $emailstring ?? null
+        ];
+
     }
 
     public static function return_list_of_boids_with_sport(string $sportname, $bookingid = 0) {
