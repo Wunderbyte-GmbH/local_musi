@@ -1,3 +1,9 @@
+## Version 0.9.7 (2024062700)
+* Improvement: Setting to select birthdate custom user profile field.
+* Improvement: Enable insert teachers into substitutionpool on bookingoption update.
+* Improvement: Display all substitutionteachers of sportsdivision.
+* Improvement: Add shortcode filter for customfields.
+
 ## Version 0.9.6 (2024061200)
 * Bugfix: Remove classpath.
 
