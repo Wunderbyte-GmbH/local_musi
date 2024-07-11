@@ -96,6 +96,8 @@ class userinformation implements renderable, templatable {
                 continue;
             }
             $localized = $DB->get_field('user_info_field', 'name', ['shortname' => $key]);
+            // Replace "div" with "span" because we want to display element in same line with value of info field.
+            $localized = str_replace('div', 'span', (format_text($localized)));
 
             // Convert unix timestamps to rendered dates.
             if (is_numeric($value)) {
