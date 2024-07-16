@@ -465,6 +465,9 @@ class shortcodes {
 
         $table->tabletemplate = 'local_musi/table_card';
 
+        // We override the cache, because the my cache has to be invalidated with every booking.
+        $table->define_cache('mod_booking', 'mybookingoptionstable');
+
         // If we find "nolazy='1'", we return the table directly, without lazy loading.
         if (!empty($args['lazy'])) {
 
@@ -604,6 +607,9 @@ class shortcodes {
         $table->cardsort = true;
 
         $table->tabletemplate = 'local_musi/table_list';
+
+        // We override the cache, because the my cache has to be invalidated with every booking.
+        $table->define_cache('mod_booking', 'mybookingoptionstable');
 
         // If we find "nolazy='1'", we return the table directly, without lazy loading.
         if (!empty($args['lazy'])) {
