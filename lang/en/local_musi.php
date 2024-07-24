@@ -259,5 +259,17 @@ $string['easyavailability:heading'] = '<div class="alert alert-info">You are edi
 $string['create_sap_files'] = 'Create the daily SAP files';
 $string['add_sports_division'] = 'Add sport divisions to sports';
 
+// Scheduler
+$string['taskrunner'] = 'Task runner';
+$string['task_executed'] = 'Task execution (MUSI scheduler extension)';
+$string['parsing_failed'] = 'Parsing Failed';
+$string['scheduler:enable'] = 'Enable Scheduler';
+$string['scheduler:description'] = 'Switch for enabling or disabling the processing of the task list below';
+$string['scheduler:tasklist'] = 'Tasklist JSON';
+$string['scheduler:tasklistdescription'] = 'Tasks to be processed at a certain time in JSON conform format e.g. <br><br>
+                <code>[{"config": "schedulerenable", "scope" : "local_musi", "time" : "27.02.2024 12:00",
+                "value" : 0, "text" : "Disable scheduler task processing at 12 o\'clock"}]</code><br><br>Once processed, the task
+                will get removed from the task list.';
+
 // Sports division.
 $string['nosportsdivision'] = 'No sports divisions set on this site';

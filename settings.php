@@ -199,5 +199,23 @@ if ($hassiteconfig) {
                 get_string('birthdateprofilefield', 'local_musi'),
                 get_string('birthdateprofilefielddesc', 'local_musi'),
                 0, $userprofilefieldsarray));
+
+        // Scheduler extension.
+        $settings->add(
+            new admin_setting_configcheckbox(
+                "local_musi/schedulerenable",
+                get_string('scheduler:enable', 'local_musi'),
+                get_string('scheduler:description', 'local_musi'),
+                0
+            )
+        );
+        $settings->add(
+            new admin_setting_configtextarea(
+                "local_musi/schedulertasks",
+                get_string('scheduler:tasklist', 'local_musi'),
+                get_string('scheduler:tasklistdescription', 'local_musi'),
+                "[]"
+            )
+        );
     }
 }
