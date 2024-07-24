@@ -18,19 +18,20 @@
  * Plugin version and other meta-data are defined here.
  *
  * @package     local_musi
- * @copyright   2022 Wunderbyte Gmbh <info@wunderbyte.at>
+ * @copyright   2023 Wunderbyte Gmbh <info@wunderbyte.at>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_musi';
-$plugin->release = '0.4.6';
-$plugin->version = 2023032000;
-$plugin->requires = 2021051700;
-$plugin->maturity = MATURITY_ALPHA;
+$plugin->release = '0.9.7';
+$plugin->version = 2024062700;
+$plugin->requires = 2022112800; // Requires this Moodle version. Current: Moodle 4.1.
+$plugin->maturity = MATURITY_STABLE;
 $plugin->dependencies = [
-    'mod_booking' => 2023032000,
-    'local_wunderbyte_table' => 2023031300,
-    'local_shopping_cart' => 2023032000,
+    'mod_booking' => 2024041000,
+    'local_wunderbyte_table' => 2024041000,
+    'local_shopping_cart' => 2024041000,
+    'local_entities' => 2024031400,
 ];

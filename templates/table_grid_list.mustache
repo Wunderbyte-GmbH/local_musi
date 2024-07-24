@@ -69,7 +69,7 @@
      </div>
 </div>
 {{/table}}
-
+{{^norecords}}
 {{#js}}
     require(['local_wunderbyte_table/init'], function(init) {
     init.init('{{idstring}}', '{{encodedtable}}');
@@ -84,3 +84,4 @@
     init.init();
     });
 {{/js}}
+{{/norecords}}

@@ -75,9 +75,9 @@ class renderer extends plugin_renderer_base {
 
     public function render_col_availableplaces($data) {
         $o = '';
-        $template_data = $data->export_for_template($this);
-        $template_data['showmaxanswers'] = $data->showmaxanswers;
-        $o .= $this->render_from_template('local_musi/col_availableplaces', $template_data);
+        $templatedata = $data->export_for_template($this);
+        $templatedata['showmaxanswers'] = $data->showmaxanswers;
+        $o .= $this->render_from_template('local_musi/col_availableplaces', $templatedata);
         return $o;
     }
 
@@ -89,6 +89,40 @@ class renderer extends plugin_renderer_base {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('local_musi/col_teacher', $data);
+        return $o;
+    }
+
+    /** Function to render the overview cards in user dashboard
+     * @param any $data
+     * @param string $data
+     * @return string
+     */
+    public function render_user_dashboard_overview($data) {
+        $o = '';
+        $o .= $this->render_from_template('local_musi/userdashboardoverview', $data);
+        return $o;
+    }
+
+    /** Function to render the transactions list.
+     * @param any $data
+     * @return string
+     */
+    public function render_transactions_list($page): string {
+        $o = '';
+        $data = $page->export_for_template($this);
+        $o .= $this->render_from_template('local_musi/transactions_list', $data);
+        return $o;
+    }
+
+    /**
+     * Function to render booking option menu for local_musi.
+     * @param any $data
+     * @return string
+     */
+    public function render_musi_bookingoption_menu($data): string {
+        $o = '';
+        $data = (array)$data;
+        $o .= $this->render_from_template('local_musi/musi_bookingoption_menu', $data);
         return $o;
     }
 

@@ -23,16 +23,24 @@
     Data attributes required for JS:
     * data-region
 }}
-
-<div class="userinformation card">
-    <div class="card-header">{{#str}}userinformation, local_musi{{/str}}</div>
-    <div class="card-body">
-        <div class="card-text">
-            {{#user}}
-            <div class="{{key}}-field">
-                    <b>{{key}}:</b> {{value}}
+{{#user}}
+    <div class="userinformation card">
+        <div class="card-body row">
+            <div class="col-2">
+                {{{picture}}}
             </div>
-            {{/user}}
+            <div class="col-10">
+                <h3 class="card-title d-inline-block">{{firstname}} {{lastname}}</h3><span class="text-muted ml-3 d-inline-block">(ID: {{id}})</span>
+                <h5 class="card-subtitle mb-2 text-muted">{{email}}   </h5>
+                <div class="card-text">
+                    {{#additionaldata}}
+                        <div class="{{key}}-field">
+                            <b>{{{key}}}:</b> {{{value}}}
+                        </div>
+                    {{/additionaldata}}
+                </div>
+            </div>
+
         </div>
     </div>
-</div>
+{{/user}}

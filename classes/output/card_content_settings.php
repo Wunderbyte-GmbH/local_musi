@@ -94,11 +94,18 @@ class card_content_settings implements renderable, templatable {
         $url = new moodle_url('#');
         $data->editbotags = ['link' => $url->out(false), 'data-action' => 'openbotagsmodal'];
 
-        $url = new moodle_url('/local/musi/createsapdailysums.php');
+        $url = new moodle_url('/local/musi/viewsapdailysums.php');
         $data->sapdailysums = ['link' => $url->out(false)];
 
-        $url = new moodle_url('/admin/category.php?category=local_musi');
-        $data->editcontractformula = ['link' => $url->out(false)];
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $url = new moodle_url('/admin/category.php?category=local_musi');
+        $data->editcontractformula = ['link' => $url->out(false)]; */
+
+        $url = new moodle_url('/local/musi/transactionlist.php');
+        $data->transactionslist = ['link' => $url->out(false)];
+
+        $url = new moodle_url('/mod/booking/edit_campaigns.php');
+        $data->campaigns = ['link' => $url->out(false)];
 
         return $data;
     }

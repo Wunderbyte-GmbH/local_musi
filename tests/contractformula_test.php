@@ -30,6 +30,8 @@ require_login(0, false);
 
 global $DB, $PAGE, $OUTPUT, $USER;
 
+// NOTE: THIS IS CURRENTLY NEVER USED!
+
 $userid = required_param('userid', PARAM_INT);
 
 if (!$context = context_system::instance()) {

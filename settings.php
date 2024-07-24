@@ -77,13 +77,97 @@ if ($hassiteconfig) {
                     $defaultcmid, $allowedinstances));
         }
 
+        // Shortcode lists.
         $settings->add(
-            new admin_setting_configtext('local_musi/shortcodesarchivecmids',
-                get_string('shortcodesarchivecmids', 'local_musi'),
-                get_string('shortcodesarchivecmids_desc', 'local_musi'), ''));
+            new admin_setting_heading('shortcodelists',
+                get_string('shortcodelists', 'local_musi'),
+                get_string('shortcodelists_desc', 'local_musi')));
+
+        $settings->add(
+            new admin_setting_configcheckbox('local_musi/shortcodelists_showdescriptions',
+                get_string('shortcodelists_showdescriptions', 'local_musi'), '', 0));
+
+        $settings->add(
+            new admin_setting_configcheckbox('local_musi/musishortcodesshowstart',
+                get_string('musishortcodes:showstart', 'local_musi'), '', 0));
+
+        $settings->add(
+            new admin_setting_configcheckbox('local_musi/musishortcodesshowend',
+                get_string('musishortcodes:showend', 'local_musi'), '', 0));
+
+        $settings->add(
+            new admin_setting_configcheckbox('local_musi/musishortcodesshowbookablefrom',
+                get_string('musishortcodes:showbookablefrom', 'local_musi'), '', 0));
+
+        $settings->add(
+            new admin_setting_configcheckbox('local_musi/musishortcodesshowbookableuntil',
+                get_string('musishortcodes:showbookableuntil', 'local_musi'), '', 0));
+
+        $showfiltercoursetimesetting = new admin_setting_configcheckbox('local_musi/musishortcodesshowfiltercoursetime',
+            get_string('musishortcodes:showfiltercoursetime', 'local_musi'), '', 0);
+        $showfiltercoursetimesetting->set_updatedcallback(function() {
+            cache_helper::purge_by_event('setbackoptionstable');
+        });
+        $settings->add($showfiltercoursetimesetting);
+
+        $showfilterbookingtimesetting = new admin_setting_configcheckbox('local_musi/musishortcodesshowfilterbookingtime',
+            get_string('musishortcodes:showfilterbookingtime', 'local_musi'), '', 0);
+        $showfilterbookingtimesetting->set_updatedcallback(function() {
+            cache_helper::purge_by_event('setbackoptionstable');
+        });
+        $settings->add($showfilterbookingtimesetting);
+
+        $collapsedescriptionoptions = [
+            0 => get_string('collapsedescriptionoff', 'local_musi'),
+            100 => "100",
+            200 => "200",
+            300 => "300",
+            400 => "400",
+            500 => "500",
+            600 => "600",
+            700 => "700",
+            800 => "800",
+            900 => "900",
+        ];
+        $settings->add(
+            new admin_setting_configselect('local_musi/collapsedescriptionmaxlength',
+                get_string('collapsedescriptionmaxlength', 'local_musi'),
+                get_string('collapsedescriptionmaxlength_desc', 'local_musi'),
+                300, $collapsedescriptionoptions));
+
+        // Newsletter settings.
+        $settings->add(
+            new admin_setting_heading('newslettersettingsheading',
+                get_string('newslettersettingsheading', 'local_musi'), get_string('newslettersettingsdesc', 'local_musi')));
+
+        // Choose the user profile field which is used to store each user's price category.
+        $userprofilefieldsarray[0] = get_string('choose...', 'mod_booking');
+        $userprofilefields = profile_get_custom_fields();
+        if (!empty($userprofilefields)) {
+            // Create an array of key => value pairs for the dropdown.
+            foreach ($userprofilefields as $userprofilefield) {
+                $userprofilefieldsarray[$userprofilefield->shortname] = $userprofilefield->name;
+            }
+        }
+        $settings->add(
+            new admin_setting_configselect('local_musi/newsletterprofilefield',
+                get_string('newsletterprofilefield', 'local_musi'),
+                get_string('newsletterprofilefielddesc', 'local_musi'),
+                0, $userprofilefieldsarray));
+
+        $settings->add(
+            new admin_setting_configtext('local_musi/newslettersubscribed',
+                get_string('newslettersubscribed', 'local_musi'),
+                '', get_string('yes')));
+
+        $settings->add(
+            new admin_setting_configtext('local_musi/newsletterunsubscribed',
+                get_string('newsletterunsubscribed', 'local_musi'),
+                '', get_string('no')));
 
         // CONTRACT MANAGEMENT.
-        $settings->add(
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $settings->add(
             new admin_setting_heading('contractmanagement_heading',
                 get_string('contractmanagementsettings', 'local_musi'),
                 get_string('contractmanagementsettings_desc', 'local_musi')));
@@ -91,6 +175,29 @@ if ($hassiteconfig) {
         $settings->add(
             new admin_setting_configtextarea('local_musi/contractformula',
                 get_string('contractformula', 'local_musi'),
-                get_string('contractformula_desc', 'local_musi'), '', PARAM_TEXT, 60, 10));
+                get_string('contractformula_desc', 'local_musi'), '', PARAM_TEXT, 60, 10)); */
+
+        $settings->add(
+            new admin_setting_heading('additionalsettings',
+                get_string('additionalsettings', 'local_musi'), ''));
+
+        $settings->add(
+            new admin_setting_configtext('local_musi/shortcodesarchivecmids',
+                get_string('shortcodesarchivecmids', 'local_musi'),
+                get_string('shortcodesarchivecmids_desc', 'local_musi'), ''));
+
+        $settings->add(
+            new admin_setting_configcheckbox('local_musi/autoaddtosubstitutionspool',
+                get_string('autoaddtosubstitutionspool', 'local_musi'), '', 0));
+
+        $settings->add(
+            new admin_setting_configcheckbox('local_musi/substitutionspoolshowphonenumbers',
+                get_string('substitutionspoolshowphonenumbers', 'local_musi'), '', 0));
+
+        $settings->add(
+            new admin_setting_configselect('local_musi/birthdateprofilefield',
+                get_string('birthdateprofilefield', 'local_musi'),
+                get_string('birthdateprofilefielddesc', 'local_musi'),
+                0, $userprofilefieldsarray));
     }
 }

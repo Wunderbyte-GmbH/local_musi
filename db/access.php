@@ -26,7 +26,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
-
     'local/musi:canedit' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
@@ -34,13 +33,34 @@ $capabilities = [
             'manager' => CAP_ALLOW
         ],
     ],
-
+    'local/musi:editavailability' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW
+        ],
+    ],
+    'local/musi:editsubstitutionspool' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW
+        ],
+    ],
+    'local/musi:viewsubstitutionspool' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
+        ],
+    ],
     'local/musi:cansendmessages' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
             'manager' => CAP_ALLOW
         ],
-    ]
-
+    ],
 ];

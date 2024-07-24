@@ -59,31 +59,92 @@
        ]
     }
 }}
-
-{{#table}}
-<div class="wunderbyte-table-list">
-    <div class="rows-container container-fluid">
-        {{#rows}}
-            {{> local_musi/table_list_row }}
-        {{/rows}}
+{{#norecords}}
+    <div class="norecordsfound">
+        <div class="alert alert-warning" role="alert">{{#str}} norecords, local_wunderbyte_table {{/str}}</div>
     </div>
-</div>
-{{/table}}
+{{/norecords}}
+{{^norecords}}
+     {{#table}}
 
+     {{#infinitescroll}}
+          <div>
+          {{> local_wunderbyte_table/component_actionbutton }}
+          </div>
+     {{/infinitescroll}}
+     {{#displayelementsontop}}
+          <div>
+          {{> local_wunderbyte_table/component_actionbutton }}
+          </div>
+          <br>
+          <div>
+               {{> local_wunderbyte_table/component_pagination }}
+               <div class="float-right">{{> local_wunderbyte_table/component_selectrows }}</div>
+          </div>
+     {{/displayelementsontop}}
+     <div class="wunderbyte-table-table wunderbyte-table-list {{moodleversionminfourtwo}}">
+          {{> local_wunderbyte_table/component_countlabel }}
+          <div {{#stickyheader}} class="scroll-y" {{/stickyheader}} {{#tableheight}}
+          style="height: {{tableheight}};" {{/tableheight}}>
+               <table class="table" id="{{uniqueid}}">
+                    <thead>
+                         <tr>
+                              {{#header}}
+                                   {{#headers}}
+                                        <th class="{{key}} wb-table-column {{sortclass}}"
+                                        data-columnname="{{key}}"
+                                        {{#sortable}}
+                                        data-sortable="{{sortable}}"
+                                        {{/sortable}}>
+                                             {{{localized}}}
+                                        </th>
+                                   {{/headers}}
+                              {{/header}}
+                         </tr>
+                    </thead>
+                    <tbody class="rows-container container-fluid ml-0">
+                         {{#rows}}
+                                {{> local_musi/table_list_row }}
+                         {{/rows}}
+                    </tbody>
+               </table>
+          </div>
+     </div>
+     {{/table}}
 {{#js}}
-require(['local_wunderbyte_table/init'], function(init) {
-    init.init('{{idstring}}', '{{encodedtable}}');
-});
-require(['local_shopping_cart/cart'], function(cart) {
-    cart.buttoninit(null, 'mod_booking');
-});
-require(['mod_booking/modal_init'], function(init) {
-    init.init();
-});
-require(['mod_booking/button_notifyme'], function(init) {
-    init.init();
-});
-require(['mod_booking/bookit'], function(init) {
-    init.initprepagemodal(null, null, null, null);
-});
+    require(['local_wunderbyte_table/init'], function(init) {
+        init.init('{{idstring}}', '{{encodedtable}}');
+    });
+    require(['local_shopping_cart/cart'], function(cart) {
+        cart.buttoninit(null, 'mod_booking');
+    });
+    require(['mod_booking/modal_init'], function(init) {
+        init.init();
+    });
+    require(['mod_booking/button_notifyme'], function(init) {
+        init.init();
+    });
+    require(['mod_booking/bookit'], function(init) {
+        init.initprepagemodal(null, null, null, null);
+    });
+    require(['mod_booking/bookit'], function(init) {
+        init.initprepageinline(null, null, null, null);
+    });
+    require(['mod_booking/bookit'], function(init) {
+        init.initbookitbutton(null, null);
+    });
 {{/js}}
+{{/norecords}}
+
+{{^infinitescroll}}
+{{^displayelementsontop}}
+<div class="float-right">{{> local_wunderbyte_table/component_selectrows }}</div>
+          {{> local_wunderbyte_table/component_pagination }}
+          {{> local_wunderbyte_table/component_actionbutton }}
+{{/displayelementsontop}}
+{{/infinitescroll}}
+{{#errormessage}}
+     <div class="alert alert-danger" role="alert">
+          {{errormessage}}
+     </div>
+{{/errormessage}}

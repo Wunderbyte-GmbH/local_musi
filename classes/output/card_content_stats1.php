@@ -72,20 +72,20 @@ class card_content_stats1 implements renderable, templatable {
             $coursesavailable = 0;
         }
 
-        $coursesbooked = $DB->count_records('booking_answers', ['waitinglist' => MUSI_STATUSPARAM_BOOKED]);
-        $coursesincart = $DB->count_records('booking_answers', ['waitinglist' => MUSI_STATUSPARAM_RESERVED]);
+        $coursesbooked = $DB->count_records('booking_answers', ['waitinglist' => LOCAL_MUSI_STATUSPARAM_BOOKED]);
+        $coursesincart = $DB->count_records('booking_answers', ['waitinglist' => LOCAL_MUSI_STATUSPARAM_RESERVED]);
         // M:USI does not use the normal waiting list but observer list instead.
-        $bookinganswersdeleted = $DB->count_records('booking_answers', ['waitinglist' => MUSI_STATUSPARAM_DELETED]);
+        $bookinganswersdeleted = $DB->count_records('booking_answers', ['waitinglist' => LOCAL_MUSI_STATUSPARAM_DELETED]);
 
-        $coursesboughtcard = $DB->count_records('local_shopping_cart_history', ['payment' => PAYMENT_SUCCESS]);
-        $coursespending = $DB->count_records('local_shopping_cart_history', ['payment' => PAYMENT_PENDING]);
-        $paymentsaborted = $DB->count_records('local_shopping_cart_history', ['payment' => PAYMENT_ABORTED]);
+        $coursesboughtcard = $DB->count_records('local_shopping_cart_history', ['payment' => LOCAL_SHOPPING_CART_PAYMENT_SUCCESS]);
+        $coursespending = $DB->count_records('local_shopping_cart_history', ['payment' => LOCAL_SHOPPING_CART_PAYMENT_PENDING]);
+        $paymentsaborted = $DB->count_records('local_shopping_cart_history', ['payment' => LOCAL_SHOPPING_CART_PAYMENT_ABORTED]);
 
-        // We have a couple of payment methods for cashier, they are all bigger (or equal) than 3 (PAYMENT_METHOD_CASHIER_CASH).
+        // We have a couple of payment methods for cashier, they are all bigger (or equal) than 3 (LOCAL_SHOPPING_CART_PAYMENT_METHOD_CASHIER_CASH).
         $sql = "SELECT COUNT(*)
             FROM {local_shopping_cart_history}
             WHERE payment >= :cashpayment";
-        $params = ['cashpayment' => PAYMENT_METHOD_CASHIER_CASH];
+        $params = ['cashpayment' => LOCAL_SHOPPING_CART_PAYMENT_METHOD_CASHIER_CASH];
 
         $coursesboughtcashier = $DB->count_records_sql($sql, $params);
 

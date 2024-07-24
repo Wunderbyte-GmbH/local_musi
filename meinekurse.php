@@ -78,7 +78,7 @@ if (!empty($archivecmids)) {
     echo "<hr class='w-100 border border-light'/>";
     echo "<div class='text-center h1'>$archive</div>";
 
-    // Archive: Courses I teached.
+    // Archive: Courses I taught.
     if ($isteacher) {
         echo html_writer::div(get_string('coursesiteacharchive', 'local_musi'), 'h2 mt-2 mb-2 text-center  text-secondary');
 

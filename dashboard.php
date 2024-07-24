@@ -38,7 +38,7 @@ if (!$context = context_system::instance()) {
 $PAGE->set_context($context);
 $PAGE->set_url('/local/musi/dashboard.php');
 
-if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mod/booking:addeditownoption', $context)) == false) {
+if (!has_capability('mod/booking:updatebooking', $context)) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('accessdenied', 'mod_booking'), 4);
     echo get_string('nopermissiontoaccesspage', 'mod_booking');
@@ -50,6 +50,7 @@ $title = get_string('pluginname', 'local_musi');
 $PAGE->navbar->add($title);
 $PAGE->set_title(format_string($title));
 $PAGE->set_heading($title);
+
 $PAGE->set_pagelayout('standard');
 $PAGE->add_body_class('local_musi-dashboard');
 

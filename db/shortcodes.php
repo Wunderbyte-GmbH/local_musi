@@ -30,41 +30,61 @@ $shortcodes = [
     'allekurseliste' => [
         'callback' => 'local_musi\shortcodes::allcourseslist',
         'wraps' => false,
-        'description' => 'shortcodeslistofbookingoptions'
+        'description' => 'shortcodeslistofbookingoptions',
     ],
     'allekursekarten' => [
         'callback' => 'local_musi\shortcodes::allcoursescards',
         'wraps' => false,
-        'description' => 'shortcodeslistofbookingoptionsascards'
+        'description' => 'shortcodeslistofbookingoptionsascards',
     ],
     'allekursegrid' => [
         'callback' => 'local_musi\shortcodes::allcoursesgrid',
         'wraps' => false,
-        'description' => 'shortcodeslistofbookingoptionsascards'
+        'description' => 'shortcodeslistofbookingoptionsascards',
     ],
     'meinekursekarten' => [
         'callback' => 'local_musi\shortcodes::mycoursescards',
         'wraps' => false,
-        'description' => 'shortcodeslistofmybookingoptionsascards'
+        'description' => 'shortcodeslistofmybookingoptionsascards',
     ],
     'trainerkursekarten' => [
-        'callback' => 'local_musi\shortcodes::myteachedcoursescards',
+        'callback' => 'local_musi\shortcodes::mytaughtcoursescards',
         'wraps' => false,
-        'description' => 'shortcodeslistofmyteachedbookingoptionsascards'
+        'description' => 'shortcodeslistofmytaughtbookingoptionsascards',
     ],
     'meinekurseliste' => [
         'callback' => 'local_musi\shortcodes::mycourseslist',
         'wraps' => false,
-        'description' => 'shortcodeslistofmybookingoptionsaslist'
+        'description' => 'shortcodeslistofmybookingoptionsaslist',
     ],
     'alletrainerkarten' => [
         'callback' => 'local_musi\shortcodes::allteacherscards',
         'wraps' => false,
-        'description' => 'shortcodeslistofteachersascards'
+        'description' => 'shortcodeslistofteachersascards',
     ],
     'userinformation' => [
         'callback' => 'local_musi\shortcodes::userinformation',
         'wraps' => false,
-        'description' => 'shortcodesuserinformation'
+        'description' => 'shortcodesuserinformation',
+    ],
+    'showallsports' => [
+        'callback' => 'local_musi\shortcodes::showallsports',
+        'wraps' => false,
+        'description' => 'shortcodesshowallsports',
+    ],
+    'sparten' => [
+        'callback' => 'local_musi\shortcodes::showallsports',
+        'wraps' => false,
+        'description' => 'shortcodesshowallsports',
+    ],
+    'newslettersubscribe' => [
+        'callback' => 'local_musi\shortcodes::newslettersubscribe',
+        'wraps' => false,
+        'description' => 'shortcodesnewslettersubscribe',
+    ],
+    'newsletterunsubscribe' => [
+        'callback' => 'local_musi\shortcodes::newsletterunsubscribe',
+        'wraps' => false,
+        'description' => 'shortcodesnewsletterunsubscribe',
     ],
 ];

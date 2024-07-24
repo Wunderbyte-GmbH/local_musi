@@ -60,10 +60,10 @@
     }
 }}
 
-<div class="card border py-1 px-3 sk-fade mb-2 flex-md-row align-items-center row gx-0 shadow-sm" {{#datafields}} data-{{key}}="{{value}}" {{/datafields}}>
+<div class="card border py-1 px-3 sk-fade ml-0 mr-0 mb-2 flex-md-row align-items-center row gx-0 shadow-sm" {{#datafields}} data-{{key}}="{{value}}" {{/datafields}}>
   <div class="content w-100">
 
-    <div class="row" {{#cardimage}}style="margin-right: -55px;"{{/cardimage}}>
+    <div class="row foroptionid-{{#optionid}}{{#value}}{{.}}{{/value}}{{/optionid}}" {{#cardimage}}style="margin-right: -55px;"{{/cardimage}}>
     {{#cardimage}}
         <div class="{{cardimageclass}} col-md-2">
             {{#cardimage}}
@@ -188,3 +188,14 @@
     </div>
   </div>
 </div>
+{{#js}}
+{{^norecords}}
+  require(['local_musi/easyavailabilitymodal'], function(fn) {
+    fn.init(
+      '{{#optionid}}{{#value}}{{{value}}}{{/value}}{{/optionid}}',
+      'a.editavailability[data-optionid="{{#optionid}}{{#value}}{{{.}}}{{/value}}{{/optionid}}"]',
+      '{{#str}} editavailabilityanddescription, local_musi {{/str}}',
+    );
+  });
+{{/norecords}}
+{{/js}}

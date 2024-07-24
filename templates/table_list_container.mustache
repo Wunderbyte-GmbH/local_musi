@@ -60,12 +60,20 @@
     }
 }}
 
-<div class="wunderbyte_table_container_{{idstring}} {{#showcomponentstoggle}}wunderbyte_table_filter_on{{/showcomponentstoggle}} mt-2 px-2 musi-courses-container">
-     <div class="container-fluid">
+{{#norecords}}
+    <div class="norecordsfound">
+        <div class="alert alert-warning" role="alert">{{#str}} norecords, local_wunderbyte_table {{/str}}</div>
+    </div>
+{{/norecords}}
+{{^norecords}}
+<div class="wunderbyte_table_container_{{idstring}} {{#showcomponentstoggle}}wunderbyte_table_filter_on{{/showcomponentstoggle}}
+     mt-2 px-2 musi-courses-container local_musi-v081">
+     <div class="container-fluid ml-0">
           <div class="row mb-2">
                <div>
                     {{> local_wunderbyte_table/component_toggle }}
                     {{> local_wunderbyte_table/component_reload }}
+                    {{> local_wunderbyte_table/component_edit }}
                     {{> local_wunderbyte_table/component_print }}
                </div>
                <div class="ml-auto">
@@ -82,14 +90,13 @@
                {{> local_wunderbyte_table/component_infinitescroll }}
           </aside>
           <div class= "wunderbyteTableClass" id='a{{idstring}}'>
-               {{> local_wunderbyte_table/component_countlabel }}
                {{> local_musi/table_list }}
           </div>
      </div>
 </div>
-
 {{#js}}
     require(['local_wunderbyte_table/init'], function(init) {
     init.init('{{idstring}}', '{{encodedtable}}');
     });
 {{/js}}
+{{/norecords}}

@@ -60,12 +60,13 @@
     }
 }}
 <div class="wunderbyte_table_container_{{idstring}} {{#showcomponentstoggle}}wunderbyte_table_filter_on{{/showcomponentstoggle}} mt-2 px-2 musi-courses-container">
-     <div class="container-fluid">
+     <div class="container-fluid ml-0">
           <div class="row mb-2">
                <div class="">
                     <div>
                          {{> local_wunderbyte_table/component_toggle }}
                          {{> local_wunderbyte_table/component_reload }}
+                         {{> local_wunderbyte_table/component_edit }}
                          {{> local_wunderbyte_table/component_print }}
                     </div>
                </div>
@@ -87,9 +88,10 @@
           </div>
      </div>
 </div>
-
+{{^norecords}}
 {{#js}}
     require(['local_wunderbyte_table/init'], function(init) {
     init.init('{{idstring}}', '{{encodedtable}}');
     });
 {{/js}}
+{{/norecords}}

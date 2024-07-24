@@ -21,14 +21,14 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
+use mod_booking\singleton_service;
 
 // Define booking status parameters.
-define('MUSI_STATUSPARAM_BOOKED', 0);
-define('MUSI_STATUSPARAM_WAITINGLIST', 1);
-define('MUSI_STATUSPARAM_RESERVED', 2);
-define('MUSI_STATUSPARAM_NOTBOOKED', 4);
-define('MUSI_STATUSPARAM_DELETED', 5);
+define('LOCAL_MUSI_STATUSPARAM_BOOKED', 0);
+define('LOCAL_MUSI_STATUSPARAM_WAITINGLIST', 1);
+define('LOCAL_MUSI_STATUSPARAM_RESERVED', 2);
+define('LOCAL_MUSI_STATUSPARAM_NOTBOOKED', 4);
+define('LOCAL_MUSI_STATUSPARAM_DELETED', 5);
 
 /**
  * Adds module specific settings to the settings block
@@ -77,7 +77,7 @@ function local_musi_render_navbar_output(\renderer_base $renderer) {
     }
 
     $output = '<div class="popover-region nav-link icon-no-margin dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button"
+        <button class="btn btn-light dropdown-toggle" type="button"
         id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         '. get_string('musi', 'local_musi') .'
         </button>
@@ -87,7 +87,7 @@ function local_musi_render_navbar_output(\renderer_base $renderer) {
             . get_string('dashboard', 'local_musi') . '</a>
             <a class="dropdown-item" href="'
                 . $CFG->wwwroot . '/local/shopping_cart/cashier.php"">'
-                . get_string('cachier', 'local_musi') . '</a>
+                . get_string('cashier', 'local_musi') . '</a>
             <a class="dropdown-item" href="'
                 . $CFG->wwwroot . '/local/entities/entities.php">'
                 . get_string('entities', 'local_musi') . '</a>

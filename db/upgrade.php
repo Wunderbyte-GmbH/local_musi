@@ -23,8 +23,6 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Execute local_musi upgrade from the given old version.
  *
@@ -105,6 +103,126 @@ function xmldb_local_musi_upgrade($oldversion) {
 
         // Musi savepoint reached.
         upgrade_plugin_savepoint(true, 2022080400, 'local', 'musi');
+    }
+
+    if ($oldversion < 2023041700) {
+
+        // Define table local_musi_globals to be created.
+        $table = new xmldb_table('local_musi_globals');
+
+        // Adding fields to table local_musi_globals.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('type', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('fieldname', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('fieldvalue_num', XMLDB_TYPE_NUMBER, '10, 2', null, null, null, '0');
+        $table->add_field('fieldvalue_char', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+
+        // Adding keys to table local_musi_globals.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for local_musi_globals.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Musi savepoint reached.
+        upgrade_plugin_savepoint(true, 2023041700, 'local', 'musi');
+    }
+
+    if ($oldversion < 2023091401) {
+
+        // We need to run a correction on all the booking option.
+
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+
+            global $DB;
+
+            // Get the record with all the entities relations and their parents.
+            $sql = "SELECT ler.*, e.name, (
+                                        SELECT pe.name
+                                        FROM {local_entities} pe
+                                        WHERE pe.id=e.parentid) as parentname
+
+                                FROM {local_entities_relations} ler
+                                JOIN {local_entities} e
+                                ON e.id=ler.entityid
+                                WHERE component='mod_booking'
+                                AND area='option'";
+
+            $records = $DB->get_records_sql($sql);
+
+            foreach ($records as $record) {
+
+                $data = (object)[
+                    'id' => $record->instanceid,
+                    'location' => $record->parentname ?? $record->name,
+                ];
+
+                $DB->update_record('booking_options', $data, true);
+            }
+
+        }
+
+        // Musi savepoint reached.
+        upgrade_plugin_savepoint(true, 2023091401, 'local', 'musi');
+    }
+
+    if ($oldversion < 2023092900) {
+
+        // Define table local_musi_substitutions to be created.
+        $table = new xmldb_table('local_musi_substitutions');
+
+        // Adding fields to table local_musi_substitutions.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('sport', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('teachers', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table local_musi_substitutions.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('usermodified', XMLDB_KEY_FOREIGN, ['usermodified'], 'user', ['id']);
+
+        // Conditionally launch create table for local_musi_substitutions.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Musi savepoint reached.
+        upgrade_plugin_savepoint(true, 2023092900, 'local', 'musi');
+    }
+
+    if ($oldversion < 2023120400) {
+
+        // Define table local_musi_sap to be created.
+        $table = new xmldb_table('local_musi_sap');
+
+        // Adding fields to table local_musi_sap.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('identifier', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('paymentid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('pu_openorderid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('sap_line', XMLDB_TYPE_CHAR, '1023', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('filename', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('error', XMLDB_TYPE_CHAR, '1023', null, null, null, null);
+        $table->add_field('info', XMLDB_TYPE_CHAR, '1023', null, null, null, null);
+        $table->add_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table local_musi_sap.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('usermodified', XMLDB_KEY_FOREIGN, ['usermodified'], 'user', ['id']);
+
+        // Conditionally launch create table for local_musi_sap.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Musi savepoint reached.
+        upgrade_plugin_savepoint(true, 2023120400, 'local', 'musi');
     }
 
     return true;

@@ -16,15 +16,20 @@
 /**
  * Add dates to option.
  *
- * @package local_musi
- * @copyright 2022 Georg Maißer <info@wunderbyte.at>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     local_musi
+ * @copyright   2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author      Bernhard Fischer
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_musi\task\add_sports_division;
+
+// phpcs:ignore moodle.Files.RequireLogin.Missing
 require_once(__DIR__ . '/../../config.php');
 
-// No guest autologin.
-require_login(0, false);
+// Second param: allow guest autologin.
+// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+/* require_login(0, true); */
 
 global $DB, $PAGE, $OUTPUT, $USER;
 
@@ -34,26 +39,15 @@ if (!$context = context_system::instance()) {
 
 // Check if optionid is valid.
 $PAGE->set_context($context);
-$PAGE->set_url('/local/musi/editsports.php');
-
-if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mod/booking:addeditownoption', $context)) == false) {
-    echo $OUTPUT->header();
-    echo $OUTPUT->heading(get_string('accessdenied', 'mod_booking'), 4);
-    echo get_string('nopermissiontoaccesspage', 'mod_booking');
-    echo $OUTPUT->footer();
-    die();
-}
-
-$title = get_string('editsports', 'local_musi');
-
+$title = get_string('sportsdivisions', 'local_musi');
+$PAGE->set_url('/local/musi/sparten.php');
 $PAGE->navbar->add($title);
 $PAGE->set_title(format_string($title));
 $PAGE->set_heading($title);
-$PAGE->set_pagelayout('standard');
-$PAGE->add_body_class('local_musi-editsports');
-
+$PAGE->set_pagelayout('base');
+$PAGE->add_body_class('local_musi-sparten');
 echo $OUTPUT->header();
-
-echo 'hier kommt das form';
-
+echo "<div style='margin-left: 3%'>";
+echo format_text("[sparten]", FORMAT_HTML);
+echo "</div>";
 echo $OUTPUT->footer();

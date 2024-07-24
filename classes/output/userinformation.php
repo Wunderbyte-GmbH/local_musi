@@ -51,7 +51,7 @@ class userinformation implements renderable, templatable {
      */
     public function __construct(int $userid, string $fields) {
 
-        global $CFG, $DB;
+        global $CFG, $DB, $OUTPUT;
 
         if (empty($fields)) {
             return 'You can add fields like this in the shortcode \'fields="firstname,lastname"\'';
@@ -62,13 +62,27 @@ class userinformation implements renderable, templatable {
         $user = singleton_service::get_instance_of_user($userid);
 
         $fields = explode(',', $fields);
+        $this->data['firstname'] = $user->firstname;
+        $this->data['lastname'] = $user->lastname;
+        $this->data['email'] = $user->email;
+        $this->data['id'] = $user->id;
+
+        $options = array(
+            'visibletoscreenreaders' => false,
+            'size' => 150,
+            'link' => true, // Make image clickable - the link leads to user profile.
+            'popup' => true, // Open in popup.
+        );
+
+        $this->data['picture'] = $OUTPUT->user_picture($user, $options);
 
         foreach ($user as $key => $value) {
 
             if (!in_array($key, $fields)) {
                 continue;
             }
-            $this->data[] = [
+
+            $additionaldata[] = [
                 'key' => get_string($key, 'core'),
                 'value' => $value,
             ];
@@ -82,11 +96,33 @@ class userinformation implements renderable, templatable {
                 continue;
             }
             $localized = $DB->get_field('user_info_field', 'name', ['shortname' => $key]);
-            $this->data[] = [
+            // Replace "div" with "span" because we want to display element in same line with value of info field.
+            $localized = str_replace('div', 'span', (format_text($localized)));
+
+            // Convert unix timestamps to rendered dates.
+            if (is_numeric($value)) {
+                if (strlen((string)$value) > 8 && strlen((string)$value) < 12) {
+                    // Localized time format.
+                    switch(current_language()) {
+                        case 'de':
+                            $format = "d.m.Y";
+                            break;
+                        default:
+                            $format = "Y-m-d";
+                            break;
+                    }
+                    $value = date($format, $value);
+                }
+            }
+
+            $additionaldata[] = [
                 'key' => $localized,
                 'value' => $value,
             ];
         }
+
+        $this->data['additionaldata'] = $additionaldata ?? [];
+
     }
 
     /**

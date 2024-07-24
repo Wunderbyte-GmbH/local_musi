@@ -20,11 +20,12 @@
  * @copyright 2022 Georg Maißer <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+// phpcs:ignore moodle.Files.RequireLogin.Missing
 require_once(__DIR__ . '/../../config.php');
 
 // No guest autologin.
-require_login(0, false);
+// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+/* require_login(0, false); */
 
 global $DB, $PAGE, $OUTPUT, $USER;
 
@@ -43,21 +44,21 @@ $PAGE->set_url('/local/musi/allekurse.php');
 $PAGE->navbar->add($title);
 $PAGE->set_title(format_string($title));
 $PAGE->set_heading($title);
-$PAGE->set_pagelayout('standard');
+$PAGE->set_pagelayout('base');
 $PAGE->add_body_class('local_musi-allcourses');
 
 echo $OUTPUT->header();
 
 switch ($type) {
     case 'karten':
-        echo format_text("[allekursekarten filter=1 search=1 sort=1]", FORMAT_HTML);
+        echo format_text("[allekursekarten filter=1 search=1 sort=1 sortby=text sortorder=asc requirelogin=false]", FORMAT_HTML);
         break;
     case 'grid':
-        echo format_text("[allekursegrid filter=1 search=1 sort=1]", FORMAT_HTML);
+        echo format_text("[allekursegrid filter=1 search=1 sort=1 sortby=text sortorder=asc requirelogin=false]", FORMAT_HTML);
         break;
     case 'liste':
     default:
-        echo format_text("[allekurseliste filter=1 search=1 sort=1]", FORMAT_HTML);
+        echo format_text("[allekurseliste filter=1 search=1 sort=1 sortby=text sortorder=asc requirelogin=false]", FORMAT_HTML);
         break;
 }
 

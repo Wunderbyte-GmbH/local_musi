@@ -61,6 +61,11 @@ class card_content_sports implements renderable, templatable {
 
         $data = new stdClass();
 
+        $url = new moodle_url('/local/musi/sparten.php');
+        $sportsdivisions = get_string('sportsdivisions', 'local_musi');
+        $data->{$sportsdivisions} = ['link' => $url->out(false)];
+        $data->html = ['html' => '<hr>'];
+
         $sportspages = $DB->get_records_sql(
             "SELECT cm.id, p.name
             FROM {page} p

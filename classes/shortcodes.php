@@ -26,15 +26,22 @@
 
 namespace local_musi;
 
-use context_module;
+use Closure;
 use context_system;
+use html_writer;
+use local_wunderbyte_table\filters\types\hourlist;
+use mod_booking\customfield\booking_handler;
 use mod_booking\output\page_allteachers;
 use local_musi\output\userinformation;
 use local_musi\table\musi_table;
 use local_shopping_cart\shopping_cart;
+use local_shopping_cart\shopping_cart_credits;
+use local_wunderbyte_table\filters\types\datepicker;
+use local_wunderbyte_table\filters\types\standardfilter;
 use mod_booking\booking;
 use mod_booking\singleton_service;
 use moodle_url;
+use stdClass;
 
 /**
  * Deals with local_shortcodes regarding booking.
@@ -52,9 +59,41 @@ class shortcodes {
      * @param Closure $next
      * @return void
      */
+    public static function showallsports($shortcode, $args, $content, $env, $next) {
+
+        global $OUTPUT;
+
+        self::fix_args($args);
+
+        // Get the ID of the course containing the sports categories.
+        $courseid = sports::return_courseid();
+
+        // If it's not set, we do nothing.
+        if (empty($courseid)) {
+            return get_string('nosportsdivision', 'local_musi');
+        }
+
+        $data = sports::get_all_sportsdivisions_data($courseid);
+
+        return $OUTPUT->render_from_template('local_musi/shortcodes_rendersportcategories', $data);
+    }
+
+    /**
+     * Prints out list of bookingoptions.
+     * Arguments can be 'category' or 'perpage'.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return void
+     */
     public static function userinformation($shortcode, $args, $content, $env, $next) {
 
         global $USER, $PAGE;
+
+        self::fix_args($args);
 
         $userid = $args['userid'] ?? 0;
         // If the id argument was not passed on, we have a fallback in the connfig.
@@ -88,7 +127,9 @@ class shortcodes {
      */
     public static function allcourseslist($shortcode, $args, $content, $env, $next) {
 
-        $booking = self::getBooking($args);
+        self::fix_args($args);
+
+        $booking = self::get_booking($args);
 
         if (!isset($args['category']) || !$category = ($args['category'])) {
             $category = '';
@@ -98,31 +139,24 @@ class shortcodes {
             $showimage = false;
         }
 
-        if (!isset($args['countlabel']) || !$countlabel = ($args['countlabel'])) {
-            $countlabel = false;
+        if (empty($args['countlabel'])) {
+            $args['countlabel'] = false;
         }
-
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* if (!isset($args['infinitescrollpage']) || !$infinitescrollpage = ($args['infinitescrollpage'])) {
-            $infinitescrollpage = 20;
-        } */
 
         if (
             !isset($args['perpage'])
             || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
+            || !$perpage = ((int)$args['perpage'])
         ) {
-            $perpage = 1000;
+            $perpage = 100;
         }
 
-        $table = self::initTableForCourses($booking);
+        $table = self::inittableforcourses($booking);
 
-        $table->showcountlabel = $countlabel;
+        $table->showcountlabel = $args['countlabel'];
         $wherearray = ['bookingid' => (int)$booking->id];
 
-        if (!empty($category)) {
-            $wherearray['sport'] = $category;
-        };
+        self::set_wherearray_from_arguments($args, $wherearray);
 
         // If we want to find only the teacher relevant options, we chose different sql.
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
@@ -145,20 +179,16 @@ class shortcodes {
             $table->add_subcolumns('cardimage', ['image']);
         }
 
-        self::setTableOptionsFromArguments($table, $args);
+        self::set_table_options_from_arguments($table, $args);
         self::generate_table_for_list($table, $args);
-
-
 
         $table->cardsort = true;
 
-        // This allows us to use infinite scrolling, No pages will be used.
-        $table->infinitescroll = 60;
-
         $table->tabletemplate = 'local_musi/table_list';
+        $table->showcountlabel = true;
 
         // If we find "nolazy='1'", we return the table directly, without lazy loading.
-        if (isset($args['lazy']) && ($args['lazy'] == 1)) {
+        if (!empty($args['lazy'])) {
 
             list($idstring, $encodedtable, $out) = $table->lazyouthtml($perpage, true);
 
@@ -184,26 +214,23 @@ class shortcodes {
      */
     public static function allcoursesgrid($shortcode, $args, $content, $env, $next) {
 
-        $booking = self::getBooking($args);
+        self::fix_args($args);
+
+        $booking = self::get_booking($args);
 
         if (!isset($args['category']) || !$category = ($args['category'])) {
             $category = '';
         }
-
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* if (!isset($args['infinitescrollpage']) || !$infinitescrollpage = ($args['infinitescrollpage'])) {
-            $infinitescrollpage = 20;
-        } */
 
         if (
             !isset($args['perpage'])
             || !is_int((int)$args['perpage'])
             || !$perpage = ($args['perpage'])
         ) {
-            $perpage = 1000;
+            $perpage = 100;
         }
 
-        $table = self::initTableForCourses($booking);
+        $table = self::inittableforcourses($booking);
 
         $wherearray = ['bookingid' => (int)$booking->id];
 
@@ -228,8 +255,8 @@ class shortcodes {
 
         $table->define_cache('mod_booking', 'bookingoptionstable');
 
-        $table->add_subcolumns('entrybody', ['text', 'dayofweektime', 'sport', 'teacher', 'location', 'bookings', 'minanswers',
-            'price', 'action']);
+        $table->add_subcolumns('entrybody', ['text', 'dayofweektime', 'sport', 'sportsdivision',
+            'teacher', 'location', 'bookings', 'minanswers', 'price', 'action']);
 
         // This avoids showing all keys in list view.
         $table->add_classes_to_subcolumns('entrybody', ['columnkeyclass' => 'd-md-none']);
@@ -241,6 +268,9 @@ class shortcodes {
 
         $table->add_classes_to_subcolumns('entrybody', ['columnclass' => 'grid-area-sport'], ['sport']);
         $table->add_classes_to_subcolumns('entrybody', ['columnvalueclass' => 'sport-badge bg-info text-light'], ['sport']);
+
+        $table->add_classes_to_subcolumns('entrybody', ['columnclass' => 'grid-area-sportsdivision'], ['sportsdivision']);
+        $table->add_classes_to_subcolumns('entrybody', ['columnvalueclass' => 'sportsdivision-badge'], ['sportsdivision']);
 
         $table->add_classes_to_subcolumns('entrybody', ['columnclass' => 'grid-area-teacher'], ['teacher']);
 
@@ -274,28 +304,15 @@ class shortcodes {
             ['keystring' => get_string('tableheader_maxoverbooking', 'booking')],
             ['maxoverbooking']
         );
-        $table->add_classes_to_subcolumns(
-            'cardbody',
-            ['keystring' => get_string('tableheader_coursestarttime', 'booking')],
-            ['coursestarttime']
-        );
-        $table->add_classes_to_subcolumns(
-            'cardbody',
-            ['keystring' => get_string('tableheader_courseendtime', 'booking')],
-            ['courseendtime']
-        );
 
         $table->is_downloading('', 'List of booking options');
 
-        self::setTableOptionsFromArguments($table, $args);
-
-        // This allows us to use infinite scrolling, No pages will be used.
-        $table->infinitescroll = 100;
+        self::set_table_options_from_arguments($table, $args);
 
         $table->tabletemplate = 'local_musi/table_grid_list';
 
         // If we find "nolazy='1'", we return the table directly, without lazy loading.
-        if (isset($args['lazy']) && ($args['lazy'] == 1)) {
+        if (!empty($args['lazy'])) {
 
             list($idstring, $encodedtable, $out) = $table->lazyouthtml($perpage, true);
 
@@ -320,34 +337,31 @@ class shortcodes {
      */
     public static function allcoursescards($shortcode, $args, $content, $env, $next) {
 
-        // TODO: Define capality.
+        // TODO: Define capability.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* if (!has_capability('moodle/site:config', $env->context)) {
             return '';
         } */
-
-        $booking = self::getBooking($args);
+        self::fix_args($args);
+        $booking = self::get_booking($args);
 
         if (!isset($args['category']) || !$category = ($args['category'])) {
             $category = '';
         }
-
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* if (!isset($args['infinitescrollpage']) || !$infinitescrollpage = ($args['infinitescrollpage'])) {
-            $infinitescrollpage = 20;
-        } */
 
         if (
             !isset($args['perpage'])
             || !is_int((int)$args['perpage'])
             || !$perpage = ($args['perpage'])
         ) {
-            $perpage = 1000;
+            $perpage = 100;
         }
 
-        $table = self::initTableForCourses($booking);
+        $table = self::inittableforcourses($booking);
 
         $wherearray = ['bookingid' => (int)$booking->id];
+
+        self::set_wherearray_from_arguments($args, $wherearray);
 
         if (!empty($category)) {
             $wherearray['sport'] = $category;
@@ -370,15 +384,12 @@ class shortcodes {
 
         self::generate_table_for_cards($table, $args);
 
-        self::setTableOptionsFromArguments($table, $args);
-
-        // This allows us to use infinite scrolling, No pages will be used.
-        $table->infinitescroll = 30;
+        self::set_table_options_from_arguments($table, $args);
 
         $table->tabletemplate = 'local_musi/table_card';
 
         // If we find "nolazy='1'", we return the table directly, without lazy loading.
-        if (isset($args['lazy']) && ($args['lazy'] == 1)) {
+        if (!empty($args['lazy'])) {
 
             list($idstring, $encodedtable, $out) = $table->lazyouthtml($perpage, true);
 
@@ -405,8 +416,8 @@ class shortcodes {
     public static function mycoursescards($shortcode, $args, $content, $env, $next) {
 
         global $USER;
-
-        $booking = self::getBooking($args);
+        self::fix_args($args);
+        $booking = self::get_booking($args);
 
         if (!isset($args['category']) || !$category = ($args['category'])) {
             $category = '';
@@ -417,10 +428,10 @@ class shortcodes {
             || !is_int((int)$args['perpage'])
             || !$perpage = ($args['perpage'])
         ) {
-            $perpage = 1000;
+            $perpage = 100;
         }
 
-        $table = self::initTableForCourses($booking);
+        $table = self::inittableforcourses($booking);
 
         $wherearray = ['bookingid' => (int)$booking->id];
 
@@ -445,7 +456,7 @@ class shortcodes {
 
         self::generate_table_for_cards($table, $args);
 
-        self::setTableOptionsFromArguments($table, $args);
+        self::set_table_options_from_arguments($table, $args);
 
         $table->cardsort = true;
 
@@ -455,7 +466,7 @@ class shortcodes {
         $table->tabletemplate = 'local_musi/table_card';
 
         // If we find "nolazy='1'", we return the table directly, without lazy loading.
-        if (isset($args['lazy']) && ($args['lazy'] == 1)) {
+        if (!empty($args['lazy'])) {
 
             list($idstring, $encodedtable, $out) = $table->lazyouthtml($perpage, true);
 
@@ -477,21 +488,21 @@ class shortcodes {
      * @param Closure $next
      * @return void
      */
-    public static function myteachedcoursescards($shortcode, $args, $content, $env, $next) {
+    public static function mytaughtcoursescards($shortcode, $args, $content, $env, $next) {
 
         global $USER;
-
-        $booking = self::getBooking($args);
+        self::fix_args($args);
+        $booking = self::get_booking($args);
 
         if (
             !isset($args['perpage'])
             || !is_int((int)$args['perpage'])
             || !$perpage = ($args['perpage'])
         ) {
-            $perpage = 1000;
+            $perpage = 100;
         }
 
-        $table =self::initTableForCourses($booking);
+        $table = self::inittableforcourses($booking);
 
         // We want to check for the currently logged in user...
         // ... if (s)he is teaching courses.
@@ -508,7 +519,7 @@ class shortcodes {
 
         self::generate_table_for_cards($table, $args);
 
-        self::setTableOptionsFromArguments($table, $args);
+        self::set_table_options_from_arguments($table, $args);
 
         $table->cardsort = true;
 
@@ -518,7 +529,7 @@ class shortcodes {
         $table->tabletemplate = 'local_musi/table_card';
 
         // If we find "nolazy='1'", we return the table directly, without lazy loading.
-        if (isset($args['lazy']) && ($args['lazy'] == 1)) {
+        if (!empty($args['lazy'])) {
 
             list($idstring, $encodedtable, $out) = $table->lazyouthtml($perpage, true);
 
@@ -543,8 +554,8 @@ class shortcodes {
     public static function mycourseslist($shortcode, $args, $content, $env, $next) {
 
         global $USER;
-
-        $booking = self::getBooking($args);
+        self::fix_args($args);
+        $booking = self::get_booking($args);
 
         if (!isset($args['category']) || !$category = ($args['category'])) {
             $category = '';
@@ -555,12 +566,16 @@ class shortcodes {
             || !is_int((int)$args['perpage'])
             || !$perpage = ($args['perpage'])
         ) {
-            $perpage = 1000;
+            $perpage = 100;
         }
 
-        $table = self::initTableForCourses($booking);
+        if (empty($args['countlabel'])) {
+            $args['countlabel'] = false;
+        }
 
-        $table->showcountlabel = $countlabel;
+        $table = self::inittableforcourses($booking);
+
+        $table->showcountlabel = $args['countlabel'];
         $wherearray = ['bookingid' => (int)$booking->id];
 
         if (!empty($category)) {
@@ -584,17 +599,14 @@ class shortcodes {
 
         self::generate_table_for_list($table, $args);;
 
-        self::setTableOptionsFromArguments($table, $args);
+        self::set_table_options_from_arguments($table, $args);
 
         $table->cardsort = true;
-
-        // This allows us to use infinite scrolling, No pages will be used.
-        $table->infinitescroll = 60;
 
         $table->tabletemplate = 'local_musi/table_list';
 
         // If we find "nolazy='1'", we return the table directly, without lazy loading.
-        if (isset($args['lazy']) && ($args['lazy'] == 1)) {
+        if (!empty($args['lazy'])) {
 
             list($idstring, $encodedtable, $out) = $table->lazyouthtml($perpage, true);
 
@@ -603,6 +615,49 @@ class shortcodes {
 
         $out = $table->outhtml($perpage, true);
         return $out;
+    }
+
+    /**
+     * Prints out user dashboard overview as cards.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return void
+     */
+    public static function userdashboardcards($shortcode, $args, $content, $env, $next) {
+        global $DB, $PAGE, $USER;
+        self::fix_args($args);
+        // If the id argument was not passed on, we have a fallback in the connfig.
+        if (!isset($args['id'])) {
+            $args['id'] = get_config('local_musi', 'shortcodessetinstance');
+        }
+
+        // To prevent misconfiguration, id has to be there and int.
+        if (!(isset($args['id']) && $args['id'] && is_int((int)$args['id']))) {
+            return 'Set id of booking instance';
+        }
+
+        if (!$booking = singleton_service::get_instance_of_booking_by_cmid($args['id'])) {
+            return 'Couldn\'t find right booking instance ' . $args['id'];
+        }
+
+        $user = $USER;
+
+        $booked = $booking->get_user_booking_count($USER);
+        $asteacher = $DB->get_fieldset_select('booking_teachers', 'optionid',
+            "userid = {$USER->id} AND bookingid = $booking->id ");
+        $credits = shopping_cart_credits::get_balance($USER->id);
+
+        $data['booked'] = $booked;
+        $data['teacher'] = count($asteacher);
+        $data['credits'] = $credits[0];
+
+        $output = $PAGE->get_renderer('local_musi');
+        return $output->render_user_dashboard_overview($data);
+
     }
 
     /**
@@ -617,7 +672,7 @@ class shortcodes {
      */
     public static function allteacherscards($shortcode, $args, $content, $env, $next) {
         global $DB, $PAGE;
-
+        self::fix_args($args);
         $teacherids = [];
 
         // Now get all teachers that we're interested in.
@@ -641,106 +696,32 @@ class shortcodes {
         return $output->render_allteacherspage($data);
     }
 
-    /**
-     * Undocumented function
-     *
-     * @param [type] $shortcode
-     * @param [type] $args
-     * @param [type] $content
-     * @param [type] $env
-     * @param [type] $next
-     * @return array
-     */
-    private static function return_base_table($shortcode, $args, $content, $env, $next) {
+    private static function inittableforcourses($booking) {
 
-        // TODO: Define capality.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* if (!has_capability('moodle/site:config', $env->context)) {
-            return '';
-        } */
+        global $PAGE, $USER;
 
-        $booking = self::getBooking($args);
+        // We must make sure that we are not on cachier.
+        $url = $PAGE->url;
 
-        if (!isset($args['category']) || !$category = ($args['category'])) {
-            $category = '';
+        $url = $url->out();
+        if (strpos($url, 'cashier.php') === false) {
+            shopping_cart::buy_for_user(0);
         }
-
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* if (!isset($args['infinitescrollpage']) || !$infinitescrollpage = ($args['infinitescrollpage'])) {
-            $infinitescrollpage = 20;
-        } */
-
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 1000;
-        }
-
-        $table = self::initTableForCourses($booking);
-
-        $wherearray = ['bookingid' => (int)$booking->id];
-
-        if (!empty($category)) {
-            $wherearray['sport'] = $category;
-        };
-
-        $table->use_pages = false;
-
-        $table->define_cache('mod_booking', 'bookingoptionstable');
-
-        $table->add_subcolumns('itemcategory', ['sport']);
-        $table->add_subcolumns('itemday', ['dayofweektime']);
-        $table->add_subcolumns('cardimage', ['image']);
-        $table->add_subcolumns('optioninvisible', ['invisibleoption']);
-
-        $table->add_subcolumns('cardbody', ['invisibleoption', 'sport', 'text', 'teacher']);
-        $table->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-none']);
-        $table->add_classes_to_subcolumns(
-            'cardbody',
-            ['columnvalueclass' => 'shortcodes_option_info_invisible'],
-            ['invisibleoption']
-        );
-        $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'h6'], ['sports']);
-        $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'm-0 mb-1 h5'], ['text']);
-
-        $table->add_subcolumns('cardlist', ['dayofweektime', 'location', 'bookings', 'minanswers', 'botags']);
-        $table->add_classes_to_subcolumns('cardlist', ['columnkeyclass' => 'd-none']);
-        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-clock-o mr-1'], ['dayofweektime']);
-        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-map-marker mr-1'], ['location']);
-        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-users mr-1'], ['bookings']);
-        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-arrow-up mr-1'], ['minanswers']);
-        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-tag mr-1'], ['botags']);
-
-        $table->add_subcolumns('cardfooter', ['price']);
-        $table->add_classes_to_subcolumns('cardfooter', ['columnkeyclass' => 'd-none']);
-
-        $table->set_tableclass('cardimageclass', 'w-100');
-
-        $table->is_downloading('', 'List of booking options');
-
-        self::setTableOptionsFromArguments($table, $args);
-
-        // This allows us to use infinite scrolling, No pages will be used.
-        $table->infinitescroll = 100;
-
-        $table->tabletemplate = 'local_musi/nolazytable';
-
-        return [$table, $booking, $category];
-    }
-
-    private static function initTableForCourses($booking){
 
         $tablename = bin2hex(random_bytes(12));
 
-        $table = new musi_table($tablename, $booking);
-
         // It's important to have the baseurl defined, we use it as a return url at one point.
-        $baseurl = new moodle_url(
-            $_SERVER['REQUEST_URI'],
-            $_GET
-        );
+        $baseurl = $PAGE->url ?? new moodle_url('');
+
+        // On the cashier page, we want to buy for different users...
+        // ...else we always want to buy for ourselves.
+        if (strpos($baseurl->out(), "cashier.php") !== false) {
+            $buyforuserid = null;
+        } else {
+            $buyforuserid = $USER->id;
+        }
+
+        $table = new musi_table($tablename, $booking, $buyforuserid);
 
         $table->define_baseurl($baseurl->out());
         $table->cardsort = true;
@@ -749,28 +730,62 @@ class shortcodes {
         return $table;
     }
 
-    private static function define_filtercolumns(&$table){
-        $table->define_filtercolumns([
-            'id', 'sport' => [
-                'localizedname' => get_string('sport', 'local_musi')
-            ], 'dayofweek' => [
-                'localizedname' => get_string('dayofweek', 'local_musi'),
-                'monday' => get_string('monday', 'mod_booking'),
-                'tuesday' => get_string('tuesday', 'mod_booking'),
-                'wednesday' => get_string('wednesday', 'mod_booking'),
-                'thursday' => get_string('thursday', 'mod_booking'),
-                'friday' => get_string('friday', 'mod_booking'),
-                'saturday' => get_string('saturday', 'mod_booking'),
-                'sunday' => get_string('sunday', 'mod_booking')
-            ],  'location' => [
-                'localizedname' => get_string('location', 'mod_booking')
-            ],  'botags' => [
-                'localizedname' => get_string('tags', 'core')
-            ]
+    private static function add_standardfilters(&$table) {
+
+        $standardfilter = new standardfilter('sport', get_string('sport', 'local_musi'));
+        $table->add_filter($standardfilter);
+
+        $standardfilter = new standardfilter('sportsdivision', get_string('sportsdivision', 'local_musi'));
+        $table->add_filter($standardfilter);
+
+        $standardfilter = new standardfilter('teacherobjects', get_string('teachers', 'mod_booking'));
+        $standardfilter->add_options(['jsonattribute' => 'name']);
+        $table->add_filter($standardfilter);
+
+        $standardfilter = new standardfilter('dayofweek', get_string('dayofweek', 'local_musi'));
+        $standardfilter->add_options([
+            'monday' => get_string('monday', 'mod_booking'),
+            'tuesday' => get_string('tuesday', 'mod_booking'),
+            'wednesday' => get_string('wednesday', 'mod_booking'),
+            'thursday' => get_string('thursday', 'mod_booking'),
+            'friday' => get_string('friday', 'mod_booking'),
+            'saturday' => get_string('saturday', 'mod_booking'),
+            'sunday' => get_string('sunday', 'mod_booking')
         ]);
+        $table->add_filter($standardfilter);
+
+        $standardfilter = new standardfilter('location', get_string('location', 'mod_booking'));
+        $table->add_filter($standardfilter);
+
+        $standardfilter = new standardfilter('botags', get_string('tags', 'core'));
+        $table->add_filter($standardfilter);
+
+        if (get_config('local_musi', 'musishortcodesshowfiltercoursetime')) {
+            $hourlist = new hourlist('coursestarttime', get_string('timeofdaycoursestart', 'local_musi'));
+            $table->add_filter($hourlist);
+        }
+
+        if (get_config('local_musi', 'musishortcodesshowfilterbookingtime')) {
+
+            $datepicker = new datepicker(
+                'bookingopeningtime',
+                get_string('timefilter:bookingtime', 'mod_booking'),
+                'bookingclosingtime'
+            );
+            $datepicker->add_options(
+                'in between',
+                '<',
+                get_string('apply_filter', 'local_wunderbyte_table'),
+                'now',
+                'now + 1 year'
+            );
+
+            $table->add_filter($datepicker);
+        }
     }
 
-    private static function getBooking($args){
+    private static function get_booking($args) {
+        self::fix_args($args);
         // If the id argument was not passed on, we have a fallback in the connfig.
         if (!isset($args['id'])) {
             $args['id'] = get_config('local_musi', 'shortcodessetinstance');
@@ -788,38 +803,84 @@ class shortcodes {
         return $booking;
     }
 
-    private static function setTableOptionsFromArguments(&$table, $args){
+    private static function set_table_options_from_arguments(&$table, $args) {
+        self::fix_args($args);
 
+        /** @var musi_table $table */
         $table->set_display_options($args);
 
         if (!empty($args['filter'])) {
-            self::define_filtercolumns($table);
+            self::add_standardfilters($table);
         }
 
         if (!empty($args['search'])) {
-            $table->define_fulltextsearchcolumns(['titleprefix', 'text', 'sport', 'description', 'location', 'teacherobjects']);
+            $table->define_fulltextsearchcolumns([
+                'titleprefix', 'text', 'sportsdivision', 'sport', 'description', 'location',
+                'teacherobjects', 'botags']);
         }
 
         if (!empty($args['sort'])) {
-            $table->define_sortablecolumns([
+            $sortablecolumns = [
                 'titleprefix' => get_string('titleprefix', 'local_musi'),
                 'text' => get_string('coursename', 'local_musi'),
+                'sportsdivision' => get_string('sportsdivision', 'local_musi'),
                 'sport' => get_string('sport', 'local_musi'),
                 'location' => get_string('location', 'local_musi'),
-            ]);
-        }else{
-            $table->sortable(true, 'text');
+            ];
+            if (get_config('local_musi', 'musishortcodesshowstart')) {
+                $sortablecolumns['coursestarttime'] = get_string('coursestarttime', 'mod_booking');
+            }
+            if (get_config('local_musi', 'musishortcodesshowend')) {
+                $sortablecolumns['courseendtime'] = get_string('courseendtime', 'mod_booking');
+            }
+            if (get_config('local_musi', 'musishortcodesshowbookablefrom')) {
+                $sortablecolumns['bookingopeningtime'] = get_string('bookingopeningtime', 'mod_booking');
+            }
+            if (get_config('local_musi', 'musishortcodesshowbookableuntil')) {
+                $sortablecolumns['bookingclosingtime'] = get_string('bookingclosingtime', 'mod_booking');
+            }
+            $table->define_sortablecolumns($sortablecolumns);
+        }
+
+        $defaultorder = SORT_ASC; // Default.
+        if (!empty($args['sortorder'])) {
+            if (strtolower($args['sortorder']) === "desc") {
+                $defaultorder = SORT_DESC;
+            }
+        }
+        if (!empty($args['sortby'])) {
+            $table->sortable(true, $args['sortby'], $defaultorder);
+        } else {
+            $table->sortable(true, 'text', $defaultorder);
+        }
+
+        if (isset($args['pageable']) && ($args['pageable'] == 1 || $args['pageable'] == true)) {
+            $table->pageable(true);
+            $table->stickyheader = true;
+        }
+
+        if (!isset($args['pageable']) || $args['pageable'] == 0 || $args['pageable'] == "false" || $args['pageable'] == false) {
+            $infinitescrollpage = is_numeric($args['infinitescrollpage'] ?? '') ? (int)$args['infinitescrollpage'] : 30;
+            // This allows us to use infinite scrolling, No pages will be used.
+            $table->infinitescroll = $infinitescrollpage;
+        }
+
+        if (isset($args['requirelogin']) && $args['requirelogin'] == "false") {
+            $table->requirelogin = false;
         }
     }
 
-    private static function generate_table_for_cards(&$table, $args){
+    private static function generate_table_for_cards(&$table, $args) {
+        self::fix_args($args);
         $table->define_cache('mod_booking', 'bookingoptionstable');
 
-        $table->add_subcolumns('itemcategory', ['sport']);
+        // We define it here so we can pass it with the mustache template.
+        $table->add_subcolumns('optionid', ['id']);
+
         $table->add_subcolumns('cardimage', ['image']);
         $table->add_subcolumns('optioninvisible', ['invisibleoption']);
 
-        $table->add_subcolumns('cardbody', ['action', 'invisibleoption', 'sport', 'text', 'botags']);
+        $table->add_subcolumns('cardbody', ['action', 'invisibleoption', 'sportsdivision', 'sport', 'text', 'botags']);
         $table->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-none']);
         $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'float-right m-1'], ['action']);
         $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'font-size-sm'], ['botags']);
@@ -828,34 +889,67 @@ class shortcodes {
             ['columnvalueclass' => 'text-center shortcodes_option_info_invisible'],
             ['invisibleoption']
         );
-        $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'text-secondary'], ['sport']);
+        $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' =>
+            'sportsdivision-badge'], ['sportsdivision']);
+        $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'sport-badge rounded-sm text-gray-800 mt-2'],
+            ['sport']);
         $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'm-0 mt-1 mb-1 h5'], ['text']);
 
-        $subcolumns = ['teacher', 'dayofweektime', 'location','bookings'];
-        if(!empty($args['showminanswers'])){
-            $subcolumns[]='minanswers';
+        // Subcolumns.
+        $subcolumns = ['attachment', 'teacher', 'dayofweektime', 'location', 'institution', 'responsiblecontact'];
+        if (get_config('local_musi', 'musishortcodesshowstart')) {
+            $subcolumns[] = 'coursestarttime';
         }
-
+        if (get_config('local_musi', 'musishortcodesshowend')) {
+            $subcolumns[] = 'courseendtime';
+        }
+        if (get_config('local_musi', 'musishortcodesshowbookablefrom')) {
+            $subcolumns[] = 'bookingopeningtime';
+        }
+        if (get_config('local_musi', 'musishortcodesshowbookableuntil')) {
+            $subcolumns[] = 'bookingclosingtime';
+        }
+        $subcolumns[] = 'bookings';
+        if (!empty($args['showminanswers'])) {
+            $subcolumns[] = 'minanswers';
+        }
 
         $table->add_subcolumns('cardlist', $subcolumns);
         $table->add_classes_to_subcolumns('cardlist', ['columnkeyclass' => 'd-none']);
         $table->add_classes_to_subcolumns('cardlist', ['columnvalueclass' => 'text-secondary']);
-        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'text-secondary fa-fw']);
-        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-map-marker'], ['location']);
-        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-clock-o'], ['dayofweektime']);
-        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-users'], ['bookings']);
-        if(!empty($args['showminanswers'])) {
-            $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-arrow-up'], ['minanswers']);
+        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'text-secondary']);
+        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-map-marker'], ['location']);
+        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-building-o'], ['institution']);
+        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-user'], ['responsiblecontact']);
+
+        if (get_config('local_musi', 'musishortcodesshowstart')) {
+            $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-play'], ['coursestarttime']);
+        }
+        if (get_config('local_musi', 'musishortcodesshowend')) {
+            $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-stop'], ['courseendtime']);
+        }
+        if (get_config('local_musi', 'musishortcodesshowbookablefrom')) {
+            $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-forward'], ['bookingopeningtime']);
+        }
+        if (get_config('local_musi', 'musishortcodesshowbookableuntil')) {
+            $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-step-forward'],
+                ['bookingclosingtime']);
         }
 
-        //Set additional descriptions
+        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-clock-o'], ['dayofweektime']);
+        $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-users'], ['bookings']);
+        if (!empty($args['showminanswers'])) {
+            $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-arrow-up'], ['minanswers']);
+        }
+
+        // Set additional descriptions.
         $table->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('teacheralt', 'local_musi')], ['teacher']);
         $table->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('locationalt', 'local_musi')], ['location']);
         $table->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('dayofweekalt', 'local_musi')], ['dayofweektime']);
         $table->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('bookingsalt', 'local_musi')], ['bookings']);
         $table->add_classes_to_subcolumns('cardimage', ['cardimagealt' => get_string('imagealt', 'local_musi')], ['image']);
 
-        $table->add_subcolumns('cardfooter', ['price']);
+        $table->add_subcolumns('cardfooter', ['course', 'price']);
         $table->add_classes_to_subcolumns('cardfooter', ['columnkeyclass' => 'd-none']);
         $table->add_classes_to_subcolumns('cardfooter', ['columnclass' => 'theme-text-color bold '], ['price']);
         $table->set_tableclass('cardimageclass', 'w-100');
@@ -863,57 +957,98 @@ class shortcodes {
         $table->is_downloading('', 'List of booking options');
     }
 
-    private static function generate_table_for_list(&$table, $args){
-        $subcolumns_info = ['teacher', 'dayofweektime', 'location','bookings'];
-        if(!empty($args['showminanswers'])){
-            $subcolumns_info[]='minanswers';
+    private static function generate_table_for_list(&$table, $args) {
+
+        self::fix_args($args);
+
+        $subcolumnsleftside = ['text'];
+        $subcolumnsinfo = ['teacher', 'dayofweektime', 'location', 'institution', 'responsiblecontact'];
+        if (get_config('local_musi', 'musishortcodesshowstart')) {
+            $subcolumnsinfo[] = 'coursestarttime';
         }
-        $subcolumns_leftside = ['text'];
+        if (get_config('local_musi', 'musishortcodesshowend')) {
+            $subcolumnsinfo[] = 'courseendtime';
+        }
+        if (get_config('local_musi', 'musishortcodesshowbookablefrom')) {
+            $subcolumnsinfo[] = 'bookingopeningtime';
+        }
+        if (get_config('local_musi', 'musishortcodesshowbookableuntil')) {
+            $subcolumnsinfo[] = 'bookingclosingtime';
+        }
+        $subcolumnsinfo[] = 'bookings';
+
+        // Check if we should add the description.
+        if (get_config('local_musi', 'shortcodelists_showdescriptions')) {
+            $subcolumnsleftside[] = 'description';
+        }
+
+        // We might need a setting here.
+        $subcolumnsleftside[] = 'attachment';
+
+        if (!empty($args['showminanswers'])) {
+            $subcolumnsinfo[] = 'minanswers';
+        }
 
         $table->define_cache('mod_booking', 'bookingoptionstable');
 
-        $table->add_subcolumns('top', ['sport', 'action']);
-        $table->add_subcolumns('leftside', ['text']);
-        $table->add_subcolumns('info', $subcolumns_info);
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $table->add_subcolumns('footer', ['botags']); */
-        $table->add_subcolumns('rightside', ['botags', 'price']);
-        $table->add_subcolumns('leftside', $subcolumns_leftside);
+        // We define it here so we can pass it with the mustache template.
+        $table->add_subcolumns('optionid', ['id']);
 
-        $table->add_subcolumns('info', $subcolumns_info);
-        //$table->add_subcolumns('footer', ['botags']);
-        $table->add_subcolumns('rightside', ['botags', 'invisibleoption', 'price']);
+        $table->add_subcolumns('top', ['sportsdivision', 'sport', 'action']);
+        $table->add_subcolumns('leftside', $subcolumnsleftside);
+        $table->add_subcolumns('info', $subcolumnsinfo);
+
+        $table->add_subcolumns('rightside', ['botags', 'invisibleoption', 'course', 'price']);
 
         $table->add_classes_to_subcolumns('top', ['columnkeyclass' => 'd-none']);
-        $table->add_classes_to_subcolumns('top', ['columnclass' => 'text-left col-md-8'], ['sport']);
+        $table->add_classes_to_subcolumns('top', ['columnclass' => 'text-left col-md-8'], ['sport', 'sportsdivision']);
         $table->add_classes_to_subcolumns('top', ['columnvalueclass' =>
-            'sport-badge rounded-sm text-gray-800 pb-0 pt-0 mb-1'], ['sport']);
+            'sport-badge rounded-sm text-gray-800 mt-2'], ['sport']);
+        $table->add_classes_to_subcolumns('top', ['columnvalueclass' =>
+            'sportsdivision-badge'], ['sportsdivision']);
         $table->add_classes_to_subcolumns('top', ['columnclass' => 'text-right col-md-2 position-relative pr-0'], ['action']);
 
         $table->add_classes_to_subcolumns('leftside', ['columnkeyclass' => 'd-none']);
-        $table->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left mt-2 mb-2 h3 col-md-auto'], ['text']);
-
+        $table->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left mt-1 mb-1 h3 col-md-auto'], ['text']);
+        if (get_config('local_musi', 'shortcodelists_showdescriptions')) {
+            $table->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left mt-1 mb-3 col-md-auto'], ['description']);
+        }
         $table->add_classes_to_subcolumns('info', ['columnkeyclass' => 'd-none']);
         $table->add_classes_to_subcolumns('info', ['columnclass' => 'text-left text-secondary font-size-sm pr-2']);
         $table->add_classes_to_subcolumns('info', ['columnvalueclass' => 'd-flex'], ['teacher']);
         $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-clock-o'], ['dayofweektime']);
         $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-map-marker'], ['location']);
+        $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-building-o'], ['institution']);
+        $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-user'], ['responsiblecontact']);
+        if (get_config('local_musi', 'musishortcodesshowstart')) {
+            $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-play'], ['coursestarttime']);
+        }
+        if (get_config('local_musi', 'musishortcodesshowend')) {
+            $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-stop'], ['courseendtime']);
+        }
+        if (get_config('local_musi', 'musishortcodesshowbookablefrom')) {
+            $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-forward'], ['bookingopeningtime']);
+        }
+        if (get_config('local_musi', 'musishortcodesshowbookableuntil')) {
+            $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-step-forward'], ['bookingclosingtime']);
+        }
         $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-ticket'], ['bookings']);
-        if(!empty($args['showminanswers'])) {
+        if (!empty($args['showminanswers'])) {
             $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-arrow-up'], ['minanswers']);
         }
 
-        //Set additional descriptions
+        // Set additional descriptions.
         $table->add_classes_to_subcolumns('info', ['columnalt' => get_string('teacheralt', 'local_musi')], ['teacher']);
         $table->add_classes_to_subcolumns('info', ['columnalt' => get_string('dayofweekalt', 'local_musi')], ['dayofweektime']);
         $table->add_classes_to_subcolumns('info', ['columnalt' => get_string('locationalt', 'local_musi')], ['location']);
         $table->add_classes_to_subcolumns('info', ['columnalt' => get_string('bookingsalt', 'local_musi')], ['bookings']);
 
-        $table->add_classes_to_subcolumns('rightside', ['columnvalueclass' => 'text-right mb-auto align-self-end shortcodes_option_info_invisible '],
+        $table->add_classes_to_subcolumns('rightside',
+            ['columnvalueclass' => 'text-right mb-auto align-self-end shortcodes_option_info_invisible '],
             ['invisibleoption']);
         $table->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right mb-auto align-self-end '], ['botags']);
         $table->add_classes_to_subcolumns('rightside', ['columnclass' =>
-            'text-right mt-auto align-self-end theme-text-color bold '], ['price']);
+            'text-right mt-auto w-100 align-self-end theme-text-color bold '], ['price']);
 
         // Override naming for columns. one could use getstring for localisation here.
         $table->add_classes_to_subcolumns(
@@ -926,14 +1061,6 @@ class shortcodes {
             ['keystring' => get_string('tableheader_text', 'booking')],
             ['text']
         );
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /*
-        $table->add_classes_to_subcolumns(
-            'leftside',
-            ['keystring' => get_string('tableheader_teacher', 'booking')],
-            ['teacher']
-        );
-        */
         $table->add_classes_to_subcolumns(
             'info',
             ['keystring' => get_string('tableheader_maxanswers', 'booking')],
@@ -944,17 +1071,112 @@ class shortcodes {
             ['keystring' => get_string('tableheader_maxoverbooking', 'booking')],
             ['maxoverbooking']
         );
-        $table->add_classes_to_subcolumns(
-            'info',
-            ['keystring' => get_string('tableheader_coursestarttime', 'booking')],
-            ['coursestarttime']
-        );
-        $table->add_classes_to_subcolumns(
-            'info',
-            ['keystring' => get_string('tableheader_courseendtime', 'booking')],
-            ['courseendtime']
-        );
 
         $table->is_downloading('', 'List of booking options');
+    }
+
+    /**
+     * Prints a link to subscribe to the newsletter
+     * Supported $args: 'button' => if true, the link will be shown as button.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return void
+     */
+    public static function newslettersubscribe($shortcode, $args, $content, $env, $next) {
+
+        self::fix_args($args);
+
+        $moodleurl = new moodle_url('/local/musi/newsletter.php?action=subscribe');
+        $link = $moodleurl->out(false);
+        $renderedlink = html_writer::link($link, get_string('newslettersubscribed:title', 'local_musi'), ['target' => '_blank']);
+        if (isset($args['button']) && ($args['button'] == 1 || $args['button'] == true || $args['button'] == "true")) {
+            $renderedlink = html_writer::link($link, get_string('newslettersubscribed:title', 'local_musi'), [
+                'class' => 'btn btn-sm btn-primary',
+                'target' => '_blank',
+            ]);
+        }
+
+        return $renderedlink;
+    }
+
+    /**
+     * Prints a link to unsubscribe from the newsletter
+     * Supported $args: 'button' => if true, the link will be shown as button.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return void
+     */
+    public static function newsletterunsubscribe($shortcode, $args, $content, $env, $next) {
+
+        self::fix_args($args);
+
+        $moodleurl = new moodle_url('/local/musi/newsletter.php?action=unsubscribe');
+        $link = $moodleurl->out(false);
+        $renderedlink = html_writer::link($link, get_string('newsletterunsubscribed:title', 'local_musi'), ['target' => '_blank']);
+        if (isset($args['button']) && ($args['button'] == 1 || $args['button'] == true || $args['button'] == "true")) {
+            $renderedlink = html_writer::link($link, get_string('newsletterunsubscribed:title', 'local_musi'), [
+                'class' => 'btn btn-sm btn-danger',
+                'target' => '_blank',
+            ]);
+        }
+
+        return $renderedlink;
+    }
+
+    /**
+     * Helper function to remove quotation marks from args.
+     * @param array &$args reference to arguments array
+     */
+    private static function fix_args(array &$args) {
+        foreach ($args as $key => &$value) {
+            // Get rid of quotation marks.
+            $value = str_replace('"', '', $value);
+            $value = str_replace("'", "", $value);
+        }
+    }
+
+    /**
+     * Modify there wherearray via arguments.
+     *
+     * @param array $args
+     *
+     * @return void
+     *
+     */
+    private static function set_wherearray_from_arguments(array &$args, &$wherearray) {
+
+        $customfields = booking_handler::get_customfields();
+        // Set given customfields (shortnames) as arguments.
+        $fields = [];
+        if (!empty($customfields) && !empty($args)) {
+            foreach ($args as $key => $value) {
+                foreach ($customfields as $customfield) {
+                    if ($customfield->shortname == $key) {
+                        $fields[$key] = $value;
+                        break;
+                    }
+                }
+            }
+        }
+        if (!empty($fields)) {
+            foreach ($fields as $customfield => $argument) {
+                $argument = strip_tags($argument);
+                $arguemnt = trim($argument);
+                $wherearray[$customfield] = $arguemnt;
+            }
+        }
+
+        // This is special treatment of sport.
+        if (!empty($category)) {
+            $wherearray['sport'] = $category;
+        };
     }
 }

@@ -1,0 +1,199 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_musi/table
+    Template which defines a mooduell view page.
+    Classes required for JS:
+    * none
+    Data attributes required for JS:
+    * none
+    Context variables required for this template:
+    * statistics - array: An array with values.
+    * opengames - array: empty array, will be filled with JS.
+    * finishedgames - array: empty array, will be filled with JS.
+    * highscores - array: empty array, will be filled with JS.
+
+    Example context (json):
+    {
+       "categories" : [
+
+          'name': 'myname',
+          'talbe': 'myrenderedtable',
+       ]
+    }
+}}
+
+<div id="accordionsportscategories" class="allsports">
+  {{#categories}}
+    <div class="card mb-3 border-1">
+      <div class="card-header bg-light border-1 pb-1" id="heading-category-{{categoryid}}"
+        data-categoryid="{{categoryid}}">
+        <div class="h4 text-primary" style="cursor: pointer;" data-toggle="collapse" data-target="#accordionsport-{{categoryid}}" aria-expanded="true"
+          aria-controls="accordionsport-{{categoryid}}">
+          {{name}}
+        </div>
+      </div>
+      <div id="accordionsport-{{categoryid}}" class="collapse mb-3 pt-1 pb-1 border-0">
+        {{#categorydata}}
+                {{#viewsubstitutionspool}}
+                  {{#mailtolink}}
+                    <a href="{{mailtolink}}" class="btn btn-sm btn-light ml-1" role="button">
+                      <i class="fa fa-envelope" aria-hidden="true"></i>&nbsp;
+                      {{#str}} mailtosubstitutionspool, local_musi {{/str}}&nbsp;
+                    </a>
+                  {{/mailtolink}}
+                  <button class="btn btn-sm btn-light ml-1" type="button" data-toggle="collapse" data-target="#substitutionteachers-category-{{id}}"
+                    aria-expanded="false" aria-controls="substitutionteachers-category-{{id}}">
+                    <i class="fa fa-eye" aria-hidden="true"></i>&nbsp;
+                    {{#str}} viewsubstitutionspool, local_musi {{/str}}
+                  </button>
+                  <div class="collapse" id="substitutionteachers-category-{{id}}">
+                    <div class="card card-body mb-3">
+                      <h5 class="mb-2">
+                        <i class="fa fa-user"></i>&nbsp;
+                        <i class="fa fa-exchange"></i>&nbsp;
+                        <i class="fa fa-users"></i>&nbsp;
+                        {{#str}} substitutionspool, local_musi, {{name}} {{/str}}
+                      </h5>
+                      <table class="border-0" style="width: fit-content;">
+                      {{#substitutionteachers}}
+                        <tr>
+                          <td>
+                            {{lastname}}, {{firstname}}
+                          </td>
+                          <td class="pl-3">
+                            {{#email}}<i class="fa fa-envelope" aria-hidden="true"></i>&nbsp;<a href="mailto:{{.}}">{{.}}</a>{{/email}}
+                          </td>
+                          {{#phone2}}
+                          <td class="pl-3">
+                            <i class="fa fa-mobile" aria-hidden="true"></i>&nbsp;{{.}}
+                          </td>
+                          {{/phone2}}
+                          {{#phone1}}
+                          <td class="pl-3">
+                            <i class="fa fa-phone" aria-hidden="true"></i>&nbsp;{{.}}
+                          </td>
+                          {{/phone1}}
+                        </tr>
+                      {{/substitutionteachers}}
+                      </table>
+                    </div>
+                  </div>
+                  {{#emailstring}}
+                  <div>
+                    <a class="small ml-3 mt-1 mb-3" data-toggle="collapse" href="#substitutionteachersemails" role="button" aria-expanded="false" aria-controls="substitutionteachersemails-category">
+                      <i class="fa fa-question-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{#str}} substitutionspool:mailproblems, local_musi {{/str}}
+                    </a>
+                    <div class="collapse" id="substitutionteachersemails-category">
+                      <div class="mt-1 ml-3 mb-3">
+                        {{#str}} substitutionspool:copypastemails, local_musi {{/str}}<br>
+                        <pre class="bg-light m-1 p-3">{{emailstring}}</pre>
+                      </div>
+                    </div>
+                  </div>
+                  {{/emailstring}}
+                {{/viewsubstitutionspool}}
+        {{/categorydata}}
+        {{#summary}}<div class="sportsdivision-summary ml-3 mt-1">{{{summary}}}</div>{{/summary}}
+        {{#sports}}
+          <div class="card border-0 pt-1">
+            <div class="card-header border-0 bg-white text-primary text-left p-1" id="heading-sport-{{id}}"
+              data-toggle="collapse" data-target="#sport-{{id}}" aria-expanded="true" aria-controls="sport-{{id}}">
+              <span class="h5 ml-3 mt-1" style="cursor: pointer;">{{name}}</span>
+            </div>
+            <div id="sport-{{id}}" class="collapse" aria-labelledby="heading-sport-{{id}}" data-parent="#accordionsport-{{categoryid}}">
+              <div class="card-body p-2 mb-3 border-0">
+                {{#editsubstitutionspool}}
+                  <button class="btn btn-sm btn-light ml-1" data-action="editsubstitutionspool-{{id}}" data-sport="{{name}}" data-id="{{id}}">
+                    <i class="fa fa-cog" aria-hidden="true"></i>&nbsp;
+                    {{#str}} editsubstitutionspool, local_musi {{/str}}
+                  </button>
+                  {{#js}}
+                    require(['local_musi/substitutionspool'], function(fn) {
+                      fn.init(
+                        '{{name}}',
+                        '[data-action="editsubstitutionspool-{{id}}"]',
+                        '{{#str}} editsubstitutionspool, local_musi {{/str}}'
+                      );
+                    });
+                  {{/js}}
+                {{/editsubstitutionspool}}
+                {{#viewsubstitutionspool}}
+                  {{#mailtolink}}
+                    <a href="{{mailtolink}}" class="btn btn-sm btn-light ml-1" role="button">
+                      <i class="fa fa-envelope" aria-hidden="true"></i>&nbsp;
+                      {{#str}} mailtosubstitutionspool, local_musi {{/str}}&nbsp;
+                    </a>
+                  {{/mailtolink}}
+                  <button class="btn btn-sm btn-light ml-1" type="button" data-toggle="collapse" data-target="#substitutionteachers-{{id}}"
+                    aria-expanded="false" aria-controls="substitutionteachers">
+                    <i class="fa fa-eye" aria-hidden="true"></i>&nbsp;
+                    {{#str}} viewsubstitutionspool, local_musi {{/str}}
+                  </button>
+                  <div class="collapse" id="substitutionteachers-{{id}}">
+                    <div class="card card-body mb-3">
+                      <h5 class="mb-2">
+                        <i class="fa fa-user"></i>&nbsp;
+                        <i class="fa fa-exchange"></i>&nbsp;
+                        <i class="fa fa-users"></i>&nbsp;
+                        {{#str}} substitutionspool, local_musi, {{name}} {{/str}}
+                      </h5>
+                      <table class="border-0" style="width: fit-content;">
+                      {{#substitutionteachers}}
+                        <tr>
+                          <td>
+                            {{lastname}}, {{firstname}}
+                          </td>
+                          <td class="pl-3">
+                            {{#email}}<i class="fa fa-envelope" aria-hidden="true"></i>&nbsp;<a href="mailto:{{.}}">{{.}}</a>{{/email}}
+                          </td>
+                          {{#phone2}}
+                          <td class="pl-3">
+                            <i class="fa fa-mobile" aria-hidden="true"></i>&nbsp;{{.}}
+                          </td>
+                          {{/phone2}}
+                          {{#phone1}}
+                          <td class="pl-3">
+                            <i class="fa fa-phone" aria-hidden="true"></i>&nbsp;{{.}}
+                          </td>
+                          {{/phone1}}
+                        </tr>
+                      {{/substitutionteachers}}
+                      </table>
+                    </div>
+                  </div>
+                  {{#emailstring}}
+                  <div>
+                    <a class="small ml-3 mt-1 mb-3" data-toggle="collapse" href="#substitutionteachersemails" role="button" aria-expanded="false" aria-controls="substitutionteachersemails">
+                      <i class="fa fa-question-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{#str}} substitutionspool:mailproblems, local_musi {{/str}}
+                    </a>
+                    <div class="collapse" id="substitutionteachersemails">
+                      <div class="mt-1 ml-3 mb-3">
+                        {{#str}} substitutionspool:copypastemails, local_musi {{/str}}<br>
+                        <pre class="bg-light m-1 p-3">{{emailstring}}</pre>
+                      </div>
+                    </div>
+                  </div>
+                  {{/emailstring}}
+                {{/viewsubstitutionspool}}
+                {{#description}}<div class="sport-description mt-3 mb-1 ml-3">{{{description}}}</div>{{/description}}
+                <div>{{{table}}}</div>
+              </div>
+            </div>
+          </div>
+        {{/sports}}
+      </div>
+    </div>
+  {{/categories}}
+</div>
