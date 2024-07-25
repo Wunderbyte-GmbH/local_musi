@@ -263,5 +263,18 @@ $string['easyavailability:heading'] = '<div class="alert alert-info">Sie bearbei
 $string['create_sap_files'] = 'Die täglichen SAP Dateien erstellen.';
 $string['add_sports_division'] = 'Die Sparten zu den Sportarten automatisch hinzufügen';
 
+// Scheduler.
+$string['taskrunner'] = 'Task runner';
+$string['task_executed'] = 'Taskausführung (MUSI scheduler extension)';
+$string['parsing_failed'] = 'Parsing fehlgeschlagen';
+$string['scheduler:enable'] = 'Aktiviere Scheduler';
+$string['scheduler:description'] = 'Einstellung, ob die Taskliste abgearbeitet werden soll.';
+$string['scheduler:tasklist'] = 'Taskliste JSON';
+$string['scheduler:tasklistdescription'] = 'Tasks welche zu einer bestimmten Zeit abgearbeitet werden sollen - JSON konformes Format z.B. <br><br>
+                <code>[{"config": "schedulerenable", "scope" : "local_musi", "time" : "27.02.2024 12:00",
+                "value" : 0, "text" : "Deaktiviere Taskausführung um 12:00 Uhr"}]</code><br><br>Einmal abgearbeitet, wird der Task aus der
+                Taskliste entfernt';
+
+
 // Sports division.
 $string['nosportsdivision'] = 'Keine Sparten auf dieser Website verfügbar';

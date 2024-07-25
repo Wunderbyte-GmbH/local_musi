@@ -259,7 +259,7 @@ $string['easyavailability:heading'] = '<div class="alert alert-info">You are edi
 $string['create_sap_files'] = 'Create the daily SAP files';
 $string['add_sports_division'] = 'Add sport divisions to sports';
 
-// Scheduler
+// Scheduler.
 $string['taskrunner'] = 'Task runner';
 $string['task_executed'] = 'Task execution (MUSI scheduler extension)';
 $string['parsing_failed'] = 'Parsing Failed';
