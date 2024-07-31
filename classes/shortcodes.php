@@ -286,7 +286,7 @@ class shortcodes {
         // Override naming for columns. one could use getstring for localisation here.
         $table->add_classes_to_subcolumns(
             'cardbody',
-            ['keystring' => get_string('tableheader_text', 'booking')],
+            ['keystring' => get_string('tableheadertext', 'booking')],
             ['text']
         );
         $table->add_classes_to_subcolumns(
@@ -296,12 +296,12 @@ class shortcodes {
         );
         $table->add_classes_to_subcolumns(
             'cardbody',
-            ['keystring' => get_string('tableheader_maxanswers', 'booking')],
+            ['keystring' => get_string('tableheadermaxanswers', 'booking')],
             ['maxanswers']
         );
         $table->add_classes_to_subcolumns(
             'cardbody',
-            ['keystring' => get_string('tableheader_maxoverbooking', 'booking')],
+            ['keystring' => get_string('tableheadermaxoverbooking', 'booking')],
             ['maxoverbooking']
         );
 
@@ -1053,22 +1053,22 @@ class shortcodes {
         // Override naming for columns. one could use getstring for localisation here.
         $table->add_classes_to_subcolumns(
             'top',
-            ['keystring' => get_string('tableheader_text', 'booking')],
+            ['keystring' => get_string('tableheadertext', 'booking')],
             ['sport']
         );
         $table->add_classes_to_subcolumns(
             'leftside',
-            ['keystring' => get_string('tableheader_text', 'booking')],
+            ['keystring' => get_string('tableheadertext', 'booking')],
             ['text']
         );
         $table->add_classes_to_subcolumns(
             'info',
-            ['keystring' => get_string('tableheader_maxanswers', 'booking')],
+            ['keystring' => get_string('tableheadermaxanswers', 'booking')],
             ['maxanswers']
         );
         $table->add_classes_to_subcolumns(
             'info',
-            ['keystring' => get_string('tableheader_maxoverbooking', 'booking')],
+            ['keystring' => get_string('tableheadermaxoverbooking', 'booking')],
             ['maxoverbooking']
         );
 
