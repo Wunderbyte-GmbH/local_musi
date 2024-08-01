@@ -291,7 +291,7 @@ class shortcodes {
         );
         $table->add_classes_to_subcolumns(
             'cardbody',
-            ['keystring' => get_string('tableheader_teacher', 'booking')],
+            ['keystring' => get_string('tableheaderteacher', 'booking')],
             ['teacher']
         );
         $table->add_classes_to_subcolumns(
