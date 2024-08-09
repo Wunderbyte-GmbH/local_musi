@@ -18,15 +18,15 @@
  * Plugin version and other meta-data are defined here.
  *
  * @package     local_musi
- * @copyright   2023 Wunderbyte Gmbh <info@wunderbyte.at>
+ * @copyright   2024 Wunderbyte Gmbh <info@wunderbyte.at>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_musi';
-$plugin->release = '0.9.7';
-$plugin->version = 2024062700;
+$plugin->release = '0.9.8';
+$plugin->version = 2024080900;
 $plugin->requires = 2022112800; // Requires this Moodle version. Current: Moodle 4.1.
 $plugin->maturity = MATURITY_STABLE;
 $plugin->dependencies = [
