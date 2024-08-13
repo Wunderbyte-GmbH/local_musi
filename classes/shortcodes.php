@@ -238,6 +238,8 @@ class shortcodes {
             $wherearray['sport'] = $category;
         };
 
+        self::set_wherearray_from_arguments($args, $wherearray);
+
         // If we want to find only the teacher relevant options, we chose different sql.
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
@@ -435,9 +437,7 @@ class shortcodes {
 
         $wherearray = ['bookingid' => (int)$booking->id];
 
-        if (!empty($category)) {
-            $wherearray['sport'] = $category;
-        };
+        self::set_wherearray_from_arguments($args, $wherearray);
 
         // If we want to find only the teacher relevant options, we chose different sql.
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
@@ -581,9 +581,7 @@ class shortcodes {
         $table->showcountlabel = $args['countlabel'];
         $wherearray = ['bookingid' => (int)$booking->id];
 
-        if (!empty($category)) {
-            $wherearray['sport'] = $category;
-        };
+        self::set_wherearray_from_arguments($args, $wherearray);
 
         // If we want to find only the teacher relevant options, we chose different sql.
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
@@ -600,7 +598,7 @@ class shortcodes {
 
         $table->use_pages = false;
 
-        self::generate_table_for_list($table, $args);;
+        self::generate_table_for_list($table, $args);
 
         self::set_table_options_from_arguments($table, $args);
 
@@ -756,7 +754,7 @@ class shortcodes {
             'thursday' => get_string('thursday', 'mod_booking'),
             'friday' => get_string('friday', 'mod_booking'),
             'saturday' => get_string('saturday', 'mod_booking'),
-            'sunday' => get_string('sunday', 'mod_booking')
+            'sunday' => get_string('sunday', 'mod_booking'),
         ]);
         $table->add_filter($standardfilter);
 
@@ -1159,6 +1157,12 @@ class shortcodes {
      */
     private static function set_wherearray_from_arguments(array &$args, &$wherearray) {
 
+        // This is special treatment of sport.
+        if (!empty($args['category'])) {
+            $wherearray['sport'] = $args['category'];
+            unset($args['category']);
+        };
+
         $customfields = booking_handler::get_customfields();
         // Set given customfields (shortnames) as arguments.
         $fields = [];
@@ -1179,10 +1183,5 @@ class shortcodes {
                 $wherearray[$customfield] = $arguemnt;
             }
         }
-
-        // This is special treatment of sport.
-        if (!empty($category)) {
-            $wherearray['sport'] = $category;
-        };
     }
 }
