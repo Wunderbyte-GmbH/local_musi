@@ -23,7 +23,7 @@ $tasks = [
             'hour' => '4',
             'day' => '*',
             'dayofweek' => '*',
-            'month' => '*'
+            'month' => '*',
         ],
         ['classname' => '\local_musi\task\add_sports_division',
             'blocking' => 0,
@@ -31,6 +31,15 @@ $tasks = [
             'hour' => '2',
             'day' => '*',
             'dayofweek' => '*',
-            'month' => '*'
+            'month' => '*',
+        ],
+        [
+            'classname' => '\local_musi\task\taskrunner',
+            'blocking' => 0,
+            'minute' => '*',
+            'hour' => '*',
+            'day' => '*',
+            'dayofweek' => '*',
+            'month' => '*',
         ],
 ];
