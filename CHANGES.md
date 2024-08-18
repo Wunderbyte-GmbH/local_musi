@@ -1,3 +1,8 @@
+## Version 0.9.8 (2024080900)
+* Improvment: allow filters for display in userinformation
+* Bugfix: Fix strings after changes in mod_booking
+* Bugfix: teacher substitution for customfield "sport" as dynamic dropdown
+
 ## Version 0.9.7 (2024062700)
 * Improvement: Setting to select birthdate custom user profile field.
 * Improvement: Enable insert teachers into substitutionpool on bookingoption update.

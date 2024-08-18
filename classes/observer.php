@@ -67,7 +67,17 @@ class observer {
             $teacherids = array_keys($settings->teachers);
             if (isset($settings->customfieldsfortemplates['sport']) && isset ($settings->customfieldsfortemplates['sport']['value'])) {
                 $value = $settings->customfieldsfortemplates['sport']['value'];
-                substitutionspool_form::add_or_update_substitution_for_sport($value, $teacherids, false);
+                // Depending on the type of customfield handle differently.
+                switch (gettype($value)) {
+                    case "string":
+                        substitutionspool_form::add_or_update_substitution_for_sport($value, $teacherids, false);
+                        break;
+                    case "array":
+                        foreach ($value as $v) {
+                            substitutionspool_form::add_or_update_substitution_for_sport($v, $teacherids, false);
+                        };
+                        break;
+                }
             }
         }
     }
