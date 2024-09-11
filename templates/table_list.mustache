@@ -86,28 +86,13 @@
           {{> local_wunderbyte_table/component_countlabel }}
           <div {{#stickyheader}} class="scroll-y" {{/stickyheader}} {{#tableheight}}
           style="height: {{tableheight}};" {{/tableheight}}>
-               <table class="table" id="{{uniqueid}}">
-                    <thead>
-                         <tr>
-                              {{#header}}
-                                   {{#headers}}
-                                        <th class="{{key}} wb-table-column {{sortclass}}"
-                                        data-columnname="{{key}}"
-                                        {{#sortable}}
-                                        data-sortable="{{sortable}}"
-                                        {{/sortable}}>
-                                             {{{localized}}}
-                                        </th>
-                                   {{/headers}}
-                              {{/header}}
-                         </tr>
-                    </thead>
-                    <tbody class="rows-container container-fluid ml-0">
+               <div>
+                    <div class="rows-container">
                          {{#rows}}
                                 {{> local_musi/table_list_row }}
                          {{/rows}}
-                    </tbody>
-               </table>
+                    </div>
+               </div>
           </div>
      </div>
      {{/table}}
