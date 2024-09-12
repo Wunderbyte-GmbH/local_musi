@@ -422,7 +422,7 @@ class musi_table extends wunderbyte_table {
         }
 
         if (!empty($settings->courseid) && (
-                $status == 0 // MOD_BOOKING_STATUSPARAM_BOOKED.
+                $status === 0 // MOD_BOOKING_STATUSPARAM_BOOKED.
                 || has_capability('mod/booking:updatebooking', $context) ||
                 $isteacherofthisoption)) {
             // The link will be shown to everyone who...
