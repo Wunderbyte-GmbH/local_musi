@@ -63,131 +63,98 @@
 <div class="card border py-1 px-3 sk-fade ml-0 mr-0 mb-2 flex-md-row align-items-center row gx-0 shadow-sm" {{#datafields}} data-{{key}}="{{value}}" {{/datafields}}>
   <div class="content w-100">
 
-    <div class="row foroptionid-{{#optionid}}{{#value}}{{.}}{{/value}}{{/optionid}}" {{#cardimage}}style="margin-right: -55px;"{{/cardimage}}>
-    {{#cardimage}}
-        <div class="{{cardimageclass}} col-md-2">
-            {{#cardimage}}
-                {{#value}}
-                    <img class="img-fluid rounded list-img" src="{{{value}}}">
-                {{/value}}
-            {{/cardimage}}
-        </div>
-        <div class="col-md-10 row pr-0">
-    {{/cardimage}}
-    <div class="col-md-9 row pr-0">
-        <div class="col-md-12 row pr-0">
-            {{#top}}
-                {{#columnclass}}<div class="{{.}} {{key}}">{{/columnclass}}
+    <div class="row foroptionid-{{#optionid}}{{#value}}{{.}}{{/value}}{{/optionid}}">
+      {{#cardimage.value}}
+      <div class="{{cardimageclass}} col-md-2">
+        <img class="img-fluid rounded list-img" src="{{{value}}}">
+      </div>
+      <div class="col-md-10">
+      {{/cardimage.value}}
+
+        <div class="row">
+          <div class="col-md-9">
+            <div class="row">
+              {{#top}}
+              <div class="col-md-12 {{columnclass}}">
                 <span {{^value}} style="display:none" {{/value}}>
-                    {{#columniclassbefore}}
-                        <i class="{{.}}" aria-hidden="true"></i>
-                    {{/columniclassbefore}}
+                  {{#columniclassbefore}}<i class="{{.}}" aria-hidden="true"></i>{{/columniclassbefore}}
                 </span>
-                {{#columnkeyclass}}<span class="key {{.}}">{{/columnkeyclass}}
-                {{^keystring}}
-                    {{{key}}}
-                {{/keystring}}
-                {{#keystring}}
-                    {{.}}
-                {{/keystring}}:
-                {{#columnkeyclass}}</span>{{/columnkeyclass}}
-                <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}} ">
-                    {{{value}}}
+                <span class="key {{columnkeyclass}}">
+                  {{#keystring}}{{.}}{{/keystring}}{{^keystring}}{{{key}}}{{/keystring}}:
                 </span>
-                        {{#columnvalueclass}}</span>{{/columnvalueclass}}
+                <span class="{{columnvalueclass}}">
+                  {{{value}}}
+                </span>
                 <span {{^value}} style="display:none" {{/value}}>
-                    {{#columniclassafter}}
-                        <i class="value {{.}}" aria-hidden="true"></i>
-                    {{/columniclassafter}}
+                  {{#columniclassafter}}<i class="value {{.}}" aria-hidden="true"></i>{{/columniclassafter}}
                 </span>
-                {{#columnclass}}</div>{{/columnclass}}
-            {{/top}}
-        </div>
-        <div class="col-md-12 d-flex flex-column p-0">
-          {{#leftside}}
-            {{#columnclass}}<div class="{{.}} {{key}}">{{/columnclass}}
-              <span {{^value}} style="display:none" {{/value}}>
-              {{#columniclassbefore}}
-                <i class="{{.}}" aria-hidden="true"></i>
-              {{/columniclassbefore}}
-              </span>
-              {{#columnkeyclass}}<span class="key {{.}}">{{/columnkeyclass}}
-                {{^keystring}}
-                {{{key}}}
-              {{/keystring}}
-              {{#keystring}}
-                {{.}}
-              {{/keystring}}:
-              {{#columnkeyclass}}</span>{{/columnkeyclass}}
-              <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}} ">
-                {{{value}}}
-              </span>
-              {{#columnvalueclass}}</span>{{/columnvalueclass}}
-              <span {{^value}} style="display:none" {{/value}}>
-              {{#columniclassafter}}
-                <i class="value {{.}}" aria-hidden="true"></i>
-              {{/columniclassafter}}
-              </span>
-            {{#columnclass}}</div>{{/columnclass}}
-          {{/leftside}}
-          <div class="d-block col-md-auto">
-              <ul class="nav mb-2">
-              {{#info}}
+              </div>
+              {{/top}}
+            </div>
+
+            <div class="row">
+              {{#leftside}}
+              <div class="col-md-12 {{columnclass}}">
                 <span {{^value}} style="display:none" {{/value}}>
+                  {{#columniclassbefore}}<i class="{{.}}" aria-hidden="true"></i>{{/columniclassbefore}}
+                </span>
+                <span class="key {{columnkeyclass}}">
+                  {{#keystring}}{{.}}{{/keystring}}{{^keystring}}{{{key}}}{{/keystring}}:
+                </span>
+                <span class="{{columnvalueclass}}">
+                  {{{value}}}
+                </span>
+                <span {{^value}} style="display:none" {{/value}}>
+                  {{#columniclassafter}}<i class="value {{.}}" aria-hidden="true"></i>{{/columniclassafter}}
+                </span>
+              </div>
+              {{/leftside}}
+            </div>
+
+            <div class="row">
+              <div class="col-md-auto">
+                <ul class="nav mb-2">
+                  {{#info}}
                   <li class="nav-item pr-3">
                     <div class="d-flex align-items-center" {{#columnalt}}title="{{.}}"{{/columnalt}}>
                       <div class="mr-2 d-flex text-secondary font-size-m icon-uxs align-middle">
-                        {{#columniclassbefore}}
-                            <i class="{{.}}  mt-auto mb-auto mr-1 fa-fw" aria-hidden="true" aria-label="
-                              {{^keystring}}
-                                {{{key}}}
-                            {{/keystring}}
-                                {{#keystring}}
-                                    {{.}}
-                                {{/keystring}}"></i>
-                        {{/columniclassbefore}}
+                        {{#columniclassbefore}}<i class="{{.}}  mt-auto mb-auto mr-1 fa-fw" aria-hidden="true"></i>{{/columniclassbefore}}
                         {{{value}}}
-                        {{#columniclassafter}}
-                            <i class="value {{.}}" aria-hidden="true"></i>
-                        {{/columniclassafter}}
+                        {{#columniclassafter}}<i class="value {{.}}" aria-hidden="true"></i>{{/columniclassafter}}
                       </div>
                     </div>
                   </li>
-                </span>
-              {{/info}}
-              </ul>
+                  {{/info}}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 d-flex flex-column p-0">
+            {{#rightside}}
+            <div class="col-md-12 {{columnclass}}">
+              <span {{^value}} style="display:none" {{/value}}>
+                {{#columniclassbefore}}<i class="{{.}}" aria-hidden="true"></i>{{/columniclassbefore}}
+              </span>
+              <span class="{{columnvalueclass}}">
+                {{{value}}}
+              </span>
+              <span {{^value}} style="display:none" {{/value}}>
+                {{#columniclassafter}}<i class="value {{.}}" aria-hidden="true"></i>{{/columniclassafter}}
+              </span>
+            </div>
+            {{/rightside}}
+          </div>
         </div>
+
+      {{#cardimage.value}}
       </div>
+      {{/cardimage.value}}
     </div>
-      <div class="col-md-3 p-0">
-        <div class="h-100 d-flex" style="
-        flex-direction: column;">
-        {{#rightside}}
-          {{#columnclass}}<div class="{{.}} {{key}}">{{/columnclass}}
-            <span {{^value}} style="display:none" {{/value}}>
-            {{#columniclassbefore}}
-              <i class="{{.}}" aria-hidden="true"></i>
-            {{/columniclassbefore}}
-            </span>
-            <span {{^value}} style="display:none" {{/value}} class="{{columnvalueclass}} ">
-              {{{value}}}
-            </span>
-            {{#columnvalueclass}}</span>{{/columnvalueclass}}
-            <span {{^value}} style="display:none" {{/value}}>
-            {{#columniclassafter}}
-              <i class="value {{.}}" aria-hidden="true"></i>
-            {{/columniclassafter}}
-            </span>
-          {{#columnclass}}</div>{{/columnclass}}
-        {{/rightside}}
-        </div>
-      </div>
-    {{#cardimage}}
-    </div>
-    {{/cardimage}}
-    </div>
+
   </div>
 </div>
+
 {{#js}}
 {{^norecords}}
   require(['local_musi/easyavailabilitymodal'], function(fn) {
