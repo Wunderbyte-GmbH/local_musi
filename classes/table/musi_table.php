@@ -177,7 +177,13 @@ class musi_table extends wunderbyte_table {
         }
 
         if (!$this->is_downloading()) {
-            $title = "<div class='musi-table-option-title'><a href='$url' target='_blank'>$title</a></div>";
+            if (get_config('booking', 'openbookingdetailinsametab')) {
+                // In this case, unset target blank to make sure, page opens in same tab.
+                $title = "<div class='musi-table-option-title'><a href='$url'>$title</a></div>";
+            } else {
+                $title = "<div class='musi-table-option-title'><a href='$url' target='_blank'>$title</a></div>";
+            }
+
         }
 
         return $title;
