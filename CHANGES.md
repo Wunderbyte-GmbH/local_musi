@@ -1,3 +1,14 @@
+## Version 0.9.10 (2024101700)
+* Improvment: Apply config about display of bo details in new tab
+* Bugfix: Fix Modal
+* Bugfix: see course material link check
+
+## Version 0.9.9 (2024082900)
+* Improvement: count places, not answers
+* Bugfix: Make sure my booking is saved in different cache
+* Bugfix: Support shortcode argument "category" on customfield "sport" again
+* Bugfix: Components container does not block left space anymore
+
 ## Version 0.9.8 (2024080900)
 * Improvment: allow filters for display in userinformation
 * Bugfix: Fix strings after changes in mod_booking
