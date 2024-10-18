@@ -278,3 +278,7 @@ $string['scheduler:tasklistdescription'] = 'Tasks welche zu einer bestimmten Zei
 
 // Sports division.
 $string['nosportsdivision'] = 'Keine Sparten auf dieser Website verfügbar';
+
+// User Roles Overview
+$string['roleoverview'] = 'Benutzerrollenübersicht';
+$string['roleaffiliation'] = 'Zugehörigkeit';

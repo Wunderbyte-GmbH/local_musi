@@ -273,3 +273,7 @@ $string['scheduler:tasklistdescription'] = 'Tasks to be processed at a certain t
 
 // Sports division.
 $string['nosportsdivision'] = 'No sports divisions set on this site';
+
+// User Roles Overview
+$string['roleoverview'] = 'User Roles Overview';
+$string['roleaffiliation'] = 'Affiliation';
