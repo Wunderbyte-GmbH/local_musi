@@ -81,7 +81,8 @@ class card_content_stats1 implements renderable, templatable {
         $coursespending = $DB->count_records('local_shopping_cart_history', ['payment' => LOCAL_SHOPPING_CART_PAYMENT_PENDING]);
         $paymentsaborted = $DB->count_records('local_shopping_cart_history', ['payment' => LOCAL_SHOPPING_CART_PAYMENT_ABORTED]);
 
-        // We have a couple of payment methods for cashier, they are all bigger (or equal) than 3 (LOCAL_SHOPPING_CART_PAYMENT_METHOD_CASHIER_CASH).
+        /* We have a couple of payment methods for cashier, they are all bigger (or equal) than 3
+        (LOCAL_SHOPPING_CART_PAYMENT_METHOD_CASHIER_CASH). */
         $sql = "SELECT COUNT(*)
             FROM {local_shopping_cart_history}
             WHERE payment >= :cashpayment";
@@ -104,6 +105,7 @@ class card_content_stats1 implements renderable, templatable {
     }
 
     /**
+     * Export for template.
      * @param renderer_base $output
      * @return array
      */
@@ -113,7 +115,7 @@ class card_content_stats1 implements renderable, templatable {
         foreach ($this->data as $key => $value) {
 
             $item = [
-                'key' => get_string($key, 'local_musi')
+                'key' => get_string($key, 'local_musi'),
             ];
 
             // We only have value & link at the time as types, but might have more at one point.

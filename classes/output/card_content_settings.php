@@ -111,6 +111,7 @@ class card_content_settings implements renderable, templatable {
     }
 
     /**
+     * Export for template.
      * @param renderer_base $output
      * @return array
      */
@@ -120,7 +121,7 @@ class card_content_settings implements renderable, templatable {
         foreach ($this->data as $key => $value) {
 
             $item = [
-                'key' => get_string($key, 'local_musi')
+                'key' => get_string($key, 'local_musi'),
             ];
 
             // We only have value & link at the time as types, but might have more at one point.
