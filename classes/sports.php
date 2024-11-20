@@ -31,7 +31,6 @@ use HTMLPurifier_Exception;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class sports {
-
     /**
      * Generate a list of all Sports.
      *
@@ -73,7 +72,8 @@ class sports {
                 AND m.name = 'page'
                 GROUP BY cm.course
                 ORDER BY count(cm.course) DESC
-            ) s1 LIMIT 1");
+            ) s1 LIMIT 1"
+        );
 
         return $courseid;
     }
@@ -103,7 +103,6 @@ class sports {
 
         // Iterate through sport categories.
         foreach ($sections as $section) {
-
             if (empty($section->name)) {
                 continue;
             }
@@ -114,7 +113,7 @@ class sports {
                 'name' => $section->name,
                 'categoryid' => $section->id,
                 'summary' => $section->summary,
-                'sports' => []
+                'sports' => [],
             ];
 
             // For performance.
@@ -133,7 +132,7 @@ class sports {
             }
 
             if (!empty($teachersarr)) {
-                list($inorequal, $params) = $DB->get_in_or_equal($teachersarr);
+                [$inorequal, $params] = $DB->get_in_or_equal($teachersarr);
                 $sql = "SELECT id, firstname, lastname, email, phone1, phone2 FROM {user} WHERE id $inorequal";
                 $teacherrecords = $DB->get_records_sql($sql, $params);
             } else {
@@ -143,9 +142,8 @@ class sports {
             // Sports.
             foreach ($cmids as $cmid) {
                 if (isset($pages[$cmid])) {
-
                     // If the page is hidden, we do not want to add it.
-                    list($course, $cm) = get_course_and_cm_from_cmid($cmid);
+                    [$course, $cm] = get_course_and_cm_from_cmid($cmid);
                     if (empty($cm->visible)) {
                         continue;
                     }
@@ -187,7 +185,7 @@ class sports {
                                     }
                                 }
                                 // Now sort the teachers by last name.
-                                usort($substitutionteachers, function($a, $b) {
+                                usort($substitutionteachers, function ($a, $b) {
                                     return $a['lastname'] <=> $b['lastname'];
                                 });
                             }
@@ -252,17 +250,30 @@ class sports {
             if (!empty($emailstring)) {
                 $emailstring = trim($emailstring, ';');
                 $loggedinuseremail = $USER->email;
-                $mailtolink = str_replace(' ', '%20', htmlspecialchars("mailto:$loggedinuseremail?bcc=$emailstring",
-                    ENT_QUOTES));
+                $mailtolink = str_replace(
+                    ' ',
+                    '%20',
+                    htmlspecialchars(
+                        "mailto:$loggedinuseremail?bcc=$emailstring",
+                        ENT_QUOTES
+                    )
+                );
             }
         }
         return [
             'mailtolink' => $mailtolink ?? null,
-            'emailstring' => $emailstring ?? null
+            'emailstring' => $emailstring ?? null,
         ];
-
     }
 
+    /**
+     * Get an array of booking option ids for a provided sport name, e.g. "Basketball".
+     *
+     * @param string $sportname e.g. "Basketball"
+     * @param int $bookingid optional
+     * @return array an array of booking option ids for the provided sport
+     * @throws dml_exception
+     */
     public static function return_list_of_boids_with_sport(string $sportname, $bookingid = 0) {
 
         global $DB;
