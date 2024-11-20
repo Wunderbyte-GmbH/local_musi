@@ -1,5 +1,8 @@
+## Version 0.9.11 (2024112000)
+* Improvement: Update plugin dependencies.
+
 ## Version 0.9.10 (2024101700)
-* Improvment: Apply config about display of bo details in new tab
+* Improvement: Apply config about display of bo details in new tab
 * Bugfix: Fix Modal
 * Bugfix: see course material link check
 
