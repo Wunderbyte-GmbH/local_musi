@@ -67,12 +67,12 @@ class userinformation implements renderable, templatable {
         $this->data['email'] = $user->email;
         $this->data['id'] = $user->id;
 
-        $options = array(
+        $options = [
             'visibletoscreenreaders' => false,
             'size' => 150,
             'link' => true, // Make image clickable - the link leads to user profile.
             'popup' => true, // Open in popup.
-        );
+        ];
 
         $this->data['picture'] = $OUTPUT->user_picture($user, $options);
 
@@ -84,7 +84,7 @@ class userinformation implements renderable, templatable {
 
             $additionaldata[] = [
                 'key' => get_string($key, 'core'),
-                'value' => $value,
+                'value' => format_string($value), // So we can use mlang filters.
             ];
         }
 
@@ -96,8 +96,7 @@ class userinformation implements renderable, templatable {
                 continue;
             }
             $localized = $DB->get_field('user_info_field', 'name', ['shortname' => $key]);
-            // Replace "div" with "span" because we want to display element in same line with value of info field.
-            $localized = str_replace('div', 'span', (format_text($localized)));
+            $localized = format_string($localized);
 
             // Convert unix timestamps to rendered dates.
             if (is_numeric($value)) {
@@ -117,23 +116,23 @@ class userinformation implements renderable, templatable {
 
             $additionaldata[] = [
                 'key' => $localized,
-                'value' => $value,
+                'value' => format_string($value), // So we can use mlang filters.
             ];
         }
 
         $this->data['additionaldata'] = $additionaldata ?? [];
-
     }
 
     /**
+     * Export for template.
      * @param renderer_base $output
      * @return array
      */
     public function export_for_template(renderer_base $output) {
 
-        $returnarray = array(
-                'user' => (array)$this->data
-        );
+        $returnarray = [
+                'user' => (array)$this->data,
+        ];
 
         return $returnarray;
     }
