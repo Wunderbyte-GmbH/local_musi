@@ -49,6 +49,13 @@ class observer {
     }
 
     /**
+     * Observer for the payment_successful event
+     */
+    public static function payment_successful() {
+        cache_helper::purge_by_event('setbackcachedpaymenttable');
+    }
+
+    /**
      * Observer for the bookingoption_updated event
      *
      * @param \mod_booking\event\bookingoption_updated $event
@@ -65,7 +72,10 @@ class observer {
 
         if (!empty($settings->teachers) && get_config('local_musi', 'autoaddtosubstitutionspool')) {
             $teacherids = array_keys($settings->teachers);
-            if (isset($settings->customfieldsfortemplates['sport']) && isset ($settings->customfieldsfortemplates['sport']['value'])) {
+            if (
+                isset($settings->customfieldsfortemplates['sport'])
+                && isset ($settings->customfieldsfortemplates['sport']['value'])
+            ) {
                 $value = $settings->customfieldsfortemplates['sport']['value'];
                 // Depending on the type of customfield handle differently.
                 switch (gettype($value)) {

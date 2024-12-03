@@ -24,13 +24,13 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$definitions = array(
-    'cachedpaymenttable' => array(
+$definitions = [
+    'cachedpaymenttable' => [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 1,
-        'invalidationevents' => ['setbackcachedpaymenttable']
-    ),
-);
+        'invalidationevents' => ['setbackcachedpaymenttable'],
+    ],
+];
 
