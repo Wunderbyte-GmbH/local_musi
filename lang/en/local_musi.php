@@ -102,6 +102,8 @@ $string['sportsdivision'] = 'Sports division';
 $string['sportsdivisions'] = 'Sports divisions';
 $string['titleprefix'] = 'Course number';
 $string['unknown'] = 'Unknown';
+$string['merchantref'] = 'MerchantRef';
+$string['customorderid'] = 'CustomOrderID';
 
 // Errors.
 $string['error:starttime'] = 'Start has to be before end.';

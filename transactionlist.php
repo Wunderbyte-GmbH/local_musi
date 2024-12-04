@@ -15,11 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Transactionlist page.
+ *
  * @package    local_musi
  * @copyright  2023 Wunderbyte GmbH
  * @author     Christian Badusch
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 use local_musi\output\transactionslist;
 
 require_once('../../config.php');

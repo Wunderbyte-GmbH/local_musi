@@ -36,8 +36,18 @@ use local_wunderbyte_table\filters\types\standardfilter;
  * This class prepares to data to render transactionstable in mustache template
  */
 class transactionslist implements renderable, templatable {
+
+    /**
+     * @var array $tabledata Holds the data for rendering the transactions table.
+     */
     private $tabledata = [];
 
+    /**
+     * Constructs a new instance of the transactionslist class.
+     *
+     * This constructor initializes the transactionslist object and can set any initial
+     * state that is needed for preparing the data to render in a mustache template.
+     */
     public function __construct() {
         global $DB;
 
@@ -51,6 +61,8 @@ class transactionslist implements renderable, templatable {
             get_string('timemodified', 'local_shopping_cart'),
             get_string('transactionid', 'local_musi'),
             get_string('itemid', 'local_musi'),
+            get_string('merchantref', 'local_musi'),
+            get_string('customorderid', 'local_musi'),
             get_string('username', 'local_musi'),
             get_string('price', 'local_musi'),
             get_string('gateway', 'local_musi'),
@@ -60,10 +72,24 @@ class transactionslist implements renderable, templatable {
         ]);
 
         // Columns.
-        $table->define_columns(['id', 'timecreated', 'timemodified', 'tid', 'itemid',
-            'username', 'price', 'gateway', 'status', 'names', 'action']);
+        $table->define_columns([
+            'id',
+            'timecreated',
+            'timemodified',
+            'tid',
+            'itemid',
+            'merchantref',
+            'customorderid',
+            'username',
+            'price',
+            'gateway',
+            'status',
+            'names',
+            'action',
+        ]);
 
         // Pass SQL to table.
+        // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
         // TODO: Add functionality for other providers.
         list($fields, $from, $where) = self::return_all_sql_transaction();
 
@@ -81,11 +107,11 @@ class transactionslist implements renderable, templatable {
 
         // Full text search columns.
         $table->define_fulltextsearchcolumns(['id', 'timecreated', 'timemodified', 'tid', 'itemid',
-            'username', 'price', 'gateway', 'status', 'names']);
+            'merchantref', 'customorderid', 'username', 'price', 'gateway', 'status', 'names']);
 
         // Sortable columns.
         $table->define_sortablecolumns(['id', 'timecreated', 'timemodified', 'tid', 'itemid',
-            'username', 'price', 'gateway', 'status', 'names']);
+            'merchantref', 'customorderid', 'username', 'price', 'gateway', 'status', 'names']);
 
         $table->define_cache('local_musi', 'cachedpaymenttable');
 
@@ -115,7 +141,7 @@ class transactionslist implements renderable, templatable {
       *
       * @return array
       */
-    private static function return_all_sql_transaction():array {
+    private static function return_all_sql_transaction(): array {
         global $DB;
 
         $concatsql = $DB->sql_group_concat("sch.itemname", "<br>", "sch.itemname");
@@ -125,10 +151,40 @@ class transactionslist implements renderable, templatable {
         $gatewayselectstring = "";
 
         foreach ($gatewaynames as $gwname) {
-            $gwselect = "SELECT " . $DB->sql_concat("'" . "{$gwname} " . "'", "$gwname.id") .
-                " AS id, $gwname.tid, $gwname.itemid, $gwname.userid, $gwname.price, $gwname.status,
-                $gwname.timecreated, $gwname.timemodified,
-                $concatusername AS username, '{$gwname}' as gateway, $concatsql AS names FROM
+
+            // For some gateways, we store a merchantref or a customorderid in the openorders table.
+            // So check if columns merchantref or customorderid exist.
+            $dbman = $DB->get_manager();
+            $openorderstable = "paygw_" . $gwname . "_openorders";
+            $merchantrefselector = "NULL AS merchantref";
+            $customorderidselector = "NULL AS customorderid";
+            if ($dbman->table_exists($openorderstable)) {
+                $openorderscols = $DB->get_columns($openorderstable);
+                foreach ($openorderscols as $key => $value) {
+                    if (strpos($key, 'merchantref') !== false) {
+                        $merchantrefselector = "$gwname.merchantref";
+                    }
+                    if (strpos($key, 'customorderid') !== false) {
+                        $customorderidselector = "$gwname.customorderid";
+                    }
+                }
+            }
+
+            $gwselect = "SELECT " .
+                $DB->sql_concat("'" . "{$gwname} " . "'", "$gwname.id") . " AS id,
+                $gwname.tid,
+                $gwname.itemid,
+                $gwname.userid,
+                $gwname.price,
+                $gwname.status,
+                $gwname.timecreated,
+                $gwname.timemodified,
+                $merchantrefselector,
+                $customorderidselector,
+                $concatusername AS username,
+                '{$gwname}' as gateway,
+                $concatsql AS names
+            FROM
             {paygw_{$gwname}_openorders} $gwname
             LEFT JOIN {local_shopping_cart_history} sch
             ON $gwname.itemid = sch.identifier AND $gwname.userid=sch.userid
