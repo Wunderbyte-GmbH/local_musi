@@ -21,6 +21,11 @@ use local_musi\sap_daily_sums;
 
 /**
  * Scheduled task creates SAP files in Moodle data directory.
+ *
+ * @package   local_musi
+ * @copyright 2024 Wunderbyte GmbH
+ * @author    David Bogner
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class create_sap_files extends scheduled_task {
 

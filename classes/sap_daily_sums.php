@@ -112,7 +112,7 @@ class sap_daily_sums {
 
         $params = [
             'startofday' => $startofday,
-            'endofday' => $endofday
+            'endofday' => $endofday,
         ];
 
         $content = '';
@@ -549,19 +549,20 @@ class sap_daily_sums {
             $message = $e->getMessage();
             $code = $e->getCode();
             // Get detailed information about $file.
-            $fileinfo = array(
+            $fileinfo = [
                     'filename' => $file->get_filename(),
                     'filepath' => $file->get_filepath(),
                     'filesize' => $file->get_filesize(),
                     'filearea' => $file->get_filearea(),
                     'timecreated' => $file->get_timecreated(),
 
-            );
+            ];
             debugging("Moodle Exception: $message (Code: $code). File Info: " . var_dump($fileinfo, true));
         }
     }
 
     /**
+     * Create SAP files for a specific date.
      * @param string $starttimestamp
      * @return void
      * @throws \file_exception
@@ -613,17 +614,16 @@ class sap_daily_sums {
                     $errorfilename = 'SAP_USI_' . date('Ymd', $starttimestamp) . '_errors';
                     $errorfile = $fs->get_file($contextid, $component, $filearea, $itemid, $filepath, $errorfilename);
                     if (!$errorfile) {
-                        $errorfileinfo = array(
+                        $errorfileinfo = [
                                 'contextid' => $contextid,
                                 'component' => $component,
                                 'filearea' => $filearea,
                                 'itemid' => $itemid,
                                 'filepath' => $filepath,
-                                'filename' => $errorfilename
-                        );
+                                'filename' => $errorfilename,
+                        ];
                         $fs->create_file_from_string($errorfileinfo, $errorcontent);
                     }
-
                 }
             }
             $starttimestamp = strtotime('+1 day', $starttimestamp);
