@@ -347,16 +347,26 @@ class sap_daily_sums {
      * @return string
      */
     private static function generate_sap_line_for_record(stdClass $record): string {
+        global $DB;
+
         $currentline = '';
+
+        /* Spezialfall für Payone / USI Wien: Bei Payone muss die Payone-spezifische
+        merchantref anstelle des Identifiers angezeigt werden! */
+        $dbman = $DB->get_manager();
+        if ($dbman->table_exists('paygw_payone_openorders')) {
+            $merchantref = $DB->get_field('paygw_payone_openorders', 'merchantref', ['itemid' => $record->identifier]);
+        }
+
         /*
-            * Mandant - 3 Stellen alphanumerisch - immer "101"
-            * Buchungskreis - 4 Stellen alphanumerisch - immer "VIE1"
-            * Währung - 3 Stellen alphanumerisch - immer "EUR"
-            * Belegart - 2 Stellen alphanumerisch - Immer "DR"
-            */
+        * Mandant - 3 Stellen alphanumerisch - immer "101"
+        * Buchungskreis - 4 Stellen alphanumerisch - immer "VIE1"
+        * Währung - 3 Stellen alphanumerisch - immer "EUR"
+        * Belegart - 2 Stellen alphanumerisch - Immer "DR"
+        */
         $currentline .= "101#VIE1#EUR#DR#";
         // Referenzbelegnummer - 16 Stellen alphanumerisch.
-        $currentline .= str_pad($record->identifier, 16, " ", STR_PAD_LEFT) . '#';
+        $currentline .= str_pad($merchantref ?? $record->identifier, 16, " ", STR_PAD_LEFT) . '#';
         // Buchungsdatum - 10 Stellen.
         $currentline .= date('d.m.Y', $record->timemodified) . '#';
         // Belegdatum - 10 Stellen.
@@ -397,7 +407,7 @@ class sap_daily_sums {
         }
         $currentline .= str_pad($buchungstext, 50, " ", STR_PAD_LEFT) . '#';
         // Zuordnung - analog "Referenzbelegnummer" - 18 Stellen alphanumerisch.
-        $currentline .= str_pad($record->identifier, 18, " ", STR_PAD_LEFT) . '#';
+        $currentline .= str_pad($merchantref ?? $record->identifier, 18, " ", STR_PAD_LEFT) . '#';
 
         // Kostenstelle - 10 Stellen - leer.
         $currentline .= str_pad('', 10, " ", STR_PAD_LEFT) . '#';
