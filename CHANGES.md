@@ -1,3 +1,9 @@
+## Version 0.9.12 (2024120500)
+* Improvement: Make sure we apply format_string to keys and values, so we can use mlang filters.
+* Improvement: Show merchantref and customorderid at the right places. (Wunderbyte-GmbH/moodle-paygw_payone#5).
+* Bugfix: Fix events and make them more generic for better maintainability. (Wunderbyte-GmbH/moodle-paygw_payone#6).
+* Bugfix: For payone we show the correct merchantref in SAP files instead of identifier (if it exists) (Wunderbyte-GmbH/moodle-paygw_payone#5).
+
 ## Version 0.9.11 (2024112000)
 * Improvement: Update plugin dependencies.
 
