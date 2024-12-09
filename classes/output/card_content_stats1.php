@@ -40,7 +40,6 @@ require_once(__DIR__ . '/../../lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class card_content_stats1 implements renderable, templatable {
-
     /** @var stdClass $title */
     public $data = null;
 
@@ -113,7 +112,6 @@ class card_content_stats1 implements renderable, templatable {
 
         // We transform the data object to an array where we can read key & value.
         foreach ($this->data as $key => $value) {
-
             $item = [
                 'key' => get_string($key, 'local_musi'),
             ];

@@ -39,7 +39,6 @@ use templatable;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class card_content_sports implements renderable, templatable {
-
     /** @var stdClass $title */
     public $data = null;
 
@@ -75,7 +74,8 @@ class card_content_sports implements renderable, templatable {
             ON m.id = cm.module
             WHERE m.name = 'page'
             AND (p.content LIKE '%allekurse%category%'
-            OR p.intro LIKE '%allekurse%category%')");
+            OR p.intro LIKE '%allekurse%category%')"
+        );
 
         foreach ($sportspages as $sportspage) {
             $url = new moodle_url('/mod/page/view.php', ['id' => $sportspage->id]);
@@ -97,9 +97,8 @@ class card_content_sports implements renderable, templatable {
 
         // We transform the data object to an array where we can read key & value.
         foreach ($this->data as $key => $value) {
-
             $item = [
-                'key' => $key
+                'key' => $key,
             ];
 
             // We only have value & link at the time as types, but might have more at one point.

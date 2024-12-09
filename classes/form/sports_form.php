@@ -33,9 +33,9 @@ use stdClass;
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
  * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package local_musi
  */
 class sports_form extends dynamic_form {
-
     /**
      * {@inheritdoc}
      * @see moodleform::definition()
@@ -145,7 +145,7 @@ class sports_form extends dynamic_form {
         if (!$cmid) {
             $cmid = $this->optional_param('cmid', '', PARAM_RAW);
         }
-        return new moodle_url('/local/musi/editoptions', array('id' => $cmid));
+        return new moodle_url('/local/musi/editoptions', ['id' => $cmid]);
     }
 
     /**
@@ -156,7 +156,7 @@ class sports_form extends dynamic_form {
      */
     public function validation($data, $files) {
 
-        $errors = array();
+        $errors = [];
 
         return $errors;
     }

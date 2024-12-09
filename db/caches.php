@@ -33,4 +33,3 @@ $definitions = [
         'invalidationevents' => ['setbackcachedpaymenttable'],
     ],
 ];
-

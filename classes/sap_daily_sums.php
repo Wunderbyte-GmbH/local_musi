@@ -120,7 +120,6 @@ class sap_daily_sums {
         $datafordb = [];
         if ($records = $DB->get_records_sql($sql, $params)) {
             foreach ($records as $record) {
-
                 // If the SAP line has errors, we need to add it to a separate file.
                 $linehaserrors = false;
                 $errorinfo = null;
@@ -204,8 +203,14 @@ class sap_daily_sums {
      * @param string $filename the filename (without _errors suffix)
      * @return void
      */
-    private static function add_sap_data_for_manual_rebookings(&$content, &$errorcontent, &$datafordb,
-        int $startofday, int $endofday, string $filename): void {
+    private static function add_sap_data_for_manual_rebookings(
+        &$content,
+        &$errorcontent,
+        &$datafordb,
+        int $startofday,
+        int $endofday,
+        string $filename
+    ): void {
         global $DB;
 
         // 1. Get one record for each manual rebooking.
@@ -231,7 +236,6 @@ class sap_daily_sums {
         }
 
         foreach ($records as $record) {
-
             // If the SAP line has errors, we need to add it to a separate file.
             $linehaserrors = false;
             $errorinfo = null;
@@ -486,7 +490,7 @@ class sap_daily_sums {
 
         // At first replace special chars.
         $umlaute = [
-            "/ß/" ,
+            "/ß/",
             "/ä/", "/à/", "/á/", "/â/", "/æ/", "/ã/", "/å/", "/ā/",
             "/Ä/", "/À/", "/Á/", "/Â/", "/Æ/", "/Ã/", "/Å/", "/Ā/",
             "/é/", "/è/", "/ê/", "/ë/", "/ė/",
@@ -502,7 +506,7 @@ class sap_daily_sums {
         ];
 
         $replace = [
-            "ss" ,
+            "ss",
             "ae", "a", "a", "a", "ae", "a", "a", "a",
             "Ae", "A", "A", "A", "Ae", "A", "A", "A",
             "e", "e", "e", "e", "e",
@@ -611,7 +615,7 @@ class sap_daily_sums {
                         'filename' => $filename,
                 ];
 
-                list($content, $errorcontent, $datafordb) =
+                [$content, $errorcontent, $datafordb] =
                     self::generate_sap_text_file_for_date($starttimestamp);
 
                 foreach ($datafordb as $recordfordb) {

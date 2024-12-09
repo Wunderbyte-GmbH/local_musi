@@ -44,7 +44,7 @@ function local_musi_extend_navigation(navigation_node $navigation) {
             $nodehome = $navigation;
         }
         $pluginname = get_string('pluginname', 'local_musi');
-        $link = new moodle_url('/local/musi/dashboard.php', array());
+        $link = new moodle_url('/local/musi/dashboard.php', []);
         $icon = new pix_icon('i/dashboard', $pluginname, 'local_musi');
         $nodecreatecourse = $nodehome->add($pluginname, $link, navigation_node::NODETYPE_LEAF, $pluginname, 'musi_editor', $icon);
         $nodecreatecourse->showinflatnavigation = true;
@@ -58,7 +58,7 @@ function local_musi_extend_navigation(navigation_node $navigation) {
  */
 function local_musi_get_fontawesome_icon_map() {
     return [
-        'local_musi:i/dashboard' => 'fa-tachometer'
+        'local_musi:i/dashboard' => 'fa-tachometer',
     ];
 }
 
@@ -79,7 +79,7 @@ function local_musi_render_navbar_output(\renderer_base $renderer) {
     $output = '<div class="popover-region nav-link icon-no-margin dropdown">
         <button class="btn btn-light dropdown-toggle" type="button"
         id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        '. get_string('musi', 'local_musi') .'
+        ' . get_string('musi', 'local_musi') . '
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
             <a class="dropdown-item" href="'
@@ -115,11 +115,11 @@ function local_musi_render_navbar_output(\renderer_base $renderer) {
  * @throws moodle_exception
  * @throws require_login_exception
  */
-function local_musi_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
+function local_musi_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = []) {
 
     // Check the contextlevel is as expected - if your plugin is a block.
     // We need context course if wee like to acces template files.
-    if (!in_array($context->contextlevel, array(CONTEXT_SYSTEM))) {
+    if (!in_array($context->contextlevel, [CONTEXT_SYSTEM])) {
         return false;
     }
 

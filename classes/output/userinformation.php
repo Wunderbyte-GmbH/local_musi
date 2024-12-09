@@ -40,7 +40,6 @@ use templatable;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class userinformation implements renderable, templatable {
-
     /** @var stdClass $data */
     public $data = [];
 
@@ -77,7 +76,6 @@ class userinformation implements renderable, templatable {
         $this->data['picture'] = $OUTPUT->user_picture($user, $options);
 
         foreach ($user as $key => $value) {
-
             if (!in_array($key, $fields)) {
                 continue;
             }
@@ -91,7 +89,6 @@ class userinformation implements renderable, templatable {
         profile_load_custom_fields($user);
 
         foreach ($user->profile as $key => $value) {
-
             if (!in_array($key, $fields)) {
                 continue;
             }
@@ -102,7 +99,7 @@ class userinformation implements renderable, templatable {
             if (is_numeric($value)) {
                 if (strlen((string)$value) > 8 && strlen((string)$value) < 12) {
                     // Localized time format.
-                    switch(current_language()) {
+                    switch (current_language()) {
                         case 'de':
                             $format = "d.m.Y";
                             break;

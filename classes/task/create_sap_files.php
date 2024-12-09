@@ -28,7 +28,6 @@ use local_musi\sap_daily_sums;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class create_sap_files extends scheduled_task {
-
     /**
      * Get name of the task.
      * @return string

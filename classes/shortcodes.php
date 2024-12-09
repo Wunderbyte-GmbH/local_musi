@@ -47,7 +47,6 @@ use stdClass;
  * Deals with local_shortcodes regarding booking.
  */
 class shortcodes {
-
     /**
      * Prints out list of bookingoptions.
      * Arguments can be 'category' or 'perpage'.
@@ -105,7 +104,6 @@ class shortcodes {
         }
 
         if (!isset($args['fields'])) {
-
             $args['fields'] = '';
         }
 
@@ -161,11 +159,10 @@ class shortcodes {
         // If we want to find only the teacher relevant options, we chose different sql.
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
-            list($fields, $from, $where, $params, $filter) =
+            [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
         } else {
-
-            list($fields, $from, $where, $params, $filter) =
+            [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
         }
 
@@ -189,8 +186,7 @@ class shortcodes {
 
         // If we find "nolazy='1'", we return the table directly, without lazy loading.
         if (!empty($args['lazy'])) {
-
-            list($idstring, $encodedtable, $out) = $table->lazyouthtml($perpage, true);
+            [$idstring, $encodedtable, $out] = $table->lazyouthtml($perpage, true);
 
             return $out;
         }
@@ -243,11 +239,10 @@ class shortcodes {
         // If we want to find only the teacher relevant options, we chose different sql.
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
-            list($fields, $from, $where, $params, $filter) =
+            [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
         } else {
-
-            list($fields, $from, $where, $params, $filter) =
+            [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
         }
 
@@ -315,8 +310,7 @@ class shortcodes {
 
         // If we find "nolazy='1'", we return the table directly, without lazy loading.
         if (!empty($args['lazy'])) {
-
-            list($idstring, $encodedtable, $out) = $table->lazyouthtml($perpage, true);
+            [$idstring, $encodedtable, $out] = $table->lazyouthtml($perpage, true);
 
             return $out;
         }
@@ -372,11 +366,10 @@ class shortcodes {
         // If we want to find only the teacher relevant options, we chose different sql.
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
-            list($fields, $from, $where, $params, $filter) =
+            [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
         } else {
-
-            list($fields, $from, $where, $params, $filter) =
+            [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
         }
 
@@ -392,8 +385,7 @@ class shortcodes {
 
         // If we find "nolazy='1'", we return the table directly, without lazy loading.
         if (!empty($args['lazy'])) {
-
-            list($idstring, $encodedtable, $out) = $table->lazyouthtml($perpage, true);
+            [$idstring, $encodedtable, $out] = $table->lazyouthtml($perpage, true);
 
             return $out;
         }
@@ -442,11 +434,10 @@ class shortcodes {
         // If we want to find only the teacher relevant options, we chose different sql.
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
-            list($fields, $from, $where, $params, $filter) =
+            [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray, $USER->id);
         } else {
-
-            list($fields, $from, $where, $params, $filter) =
+            [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray, $USER->id);
         }
 
@@ -470,8 +461,7 @@ class shortcodes {
 
         // If we find "nolazy='1'", we return the table directly, without lazy loading.
         if (!empty($args['lazy'])) {
-
-            list($idstring, $encodedtable, $out) = $table->lazyouthtml($perpage, true);
+            [$idstring, $encodedtable, $out] = $table->lazyouthtml($perpage, true);
 
             return $out;
         }
@@ -513,7 +503,7 @@ class shortcodes {
 
         // This is the important part: We only filter for booking options where the current user is a teacher!
         // Also we only want to show courses for the currently set booking instance (semester instance).
-        list($fields, $from, $where, $params, $filter) =
+        [$fields, $from, $where, $params, $filter] =
             booking::get_all_options_of_teacher_sql($teacherid, (int)$booking->id);
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
@@ -533,8 +523,7 @@ class shortcodes {
 
         // If we find "nolazy='1'", we return the table directly, without lazy loading.
         if (!empty($args['lazy'])) {
-
-            list($idstring, $encodedtable, $out) = $table->lazyouthtml($perpage, true);
+            [$idstring, $encodedtable, $out] = $table->lazyouthtml($perpage, true);
 
             return $out;
         }
@@ -586,11 +575,10 @@ class shortcodes {
         // If we want to find only the teacher relevant options, we chose different sql.
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
-            list($fields, $from, $where, $params, $filter) =
+            [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray, $USER->id);
         } else {
-
-            list($fields, $from, $where, $params, $filter) =
+            [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray, $USER->id);
         }
 
@@ -611,8 +599,7 @@ class shortcodes {
 
         // If we find "nolazy='1'", we return the table directly, without lazy loading.
         if (!empty($args['lazy'])) {
-
-            list($idstring, $encodedtable, $out) = $table->lazyouthtml($perpage, true);
+            [$idstring, $encodedtable, $out] = $table->lazyouthtml($perpage, true);
 
             return $out;
         }
@@ -651,8 +638,11 @@ class shortcodes {
         $user = $USER;
 
         $booked = $booking->get_user_booking_count($USER);
-        $asteacher = $DB->get_fieldset_select('booking_teachers', 'optionid',
-            "userid = {$USER->id} AND bookingid = $booking->id ");
+        $asteacher = $DB->get_fieldset_select(
+            'booking_teachers',
+            'optionid',
+            "userid = {$USER->id} AND bookingid = $booking->id "
+        );
         $credits = shopping_cart_credits::get_balance($USER->id);
 
         $data['booked'] = $booked;
@@ -661,7 +651,6 @@ class shortcodes {
 
         $output = $PAGE->get_renderer('local_musi');
         return $output->render_user_dashboard_overview($data);
-
     }
 
     /**
@@ -770,7 +759,6 @@ class shortcodes {
         }
 
         if (get_config('local_musi', 'musishortcodesshowfilterbookingtime')) {
-
             $datepicker = new datepicker(
                 'bookingopeningtime',
                 get_string('timefilter:bookingtime', 'mod_booking'),
@@ -895,8 +883,11 @@ class shortcodes {
         );
         $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' =>
             'sportsdivision-badge'], ['sportsdivision']);
-        $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'sport-badge rounded-sm text-gray-800 mt-2'],
-            ['sport']);
+        $table->add_classes_to_subcolumns(
+            'cardbody',
+            ['columnvalueclass' => 'sport-badge rounded-sm text-gray-800 mt-2'],
+            ['sport']
+        );
         $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'm-0 mt-1 mb-1 h5'], ['text']);
 
         // Subcolumns.
@@ -936,8 +927,11 @@ class shortcodes {
             $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-forward'], ['bookingopeningtime']);
         }
         if (get_config('local_musi', 'musishortcodesshowbookableuntil')) {
-            $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-step-forward'],
-                ['bookingclosingtime']);
+            $table->add_classes_to_subcolumns(
+                'cardlist',
+                ['columniclassbefore' => 'fa fa-fw fa-step-forward'],
+                ['bookingclosingtime']
+            );
         }
 
         $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-clock-o'], ['dayofweektime']);
@@ -1047,9 +1041,11 @@ class shortcodes {
         $table->add_classes_to_subcolumns('info', ['columnalt' => get_string('locationalt', 'local_musi')], ['location']);
         $table->add_classes_to_subcolumns('info', ['columnalt' => get_string('bookingsalt', 'local_musi')], ['bookings']);
 
-        $table->add_classes_to_subcolumns('rightside',
+        $table->add_classes_to_subcolumns(
+            'rightside',
             ['columnvalueclass' => 'text-right mb-auto align-self-end shortcodes_option_info_invisible '],
-            ['invisibleoption']);
+            ['invisibleoption']
+        );
         $table->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right mb-auto align-self-end '], ['botags']);
         $table->add_classes_to_subcolumns('rightside', ['columnclass' =>
             'text-right mt-auto w-100 align-self-end theme-text-color bold '], ['price']);

@@ -25,14 +25,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'M:USI Plugin';
-
 $string['dashboard'] = 'Dashboard';
 $string['messageprovider:sendmessages'] = 'Send messages';
 $string['musi:cansendmessages'] = 'Can send messages';
 $string['musi:editavailability'] = 'Can change availability and reservations';
 $string['musi:editsubstitutionspool'] = 'Can edit the substitutions pool of teachers for different sports';
 $string['musi:viewsubstitutionspool'] = 'Can view the substitutions pool of teachers for different sports and send emails to substitution pools';
+$string['pluginname'] = 'M:USI Plugin';
+
 $string['substitutionspoolshowphonenumbers'] = 'Show phone numbers in substitutions pool';
 
 

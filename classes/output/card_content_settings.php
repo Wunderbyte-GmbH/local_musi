@@ -40,7 +40,6 @@ use templatable;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class card_content_settings implements renderable, templatable {
-
     /** @var stdClass $title */
     public $data = null;
 
@@ -70,7 +69,6 @@ class card_content_settings implements renderable, templatable {
 
             $url = new moodle_url('/mod/booking/view.php', ['id' => $cmid, 'whichview' => 'showall']);
             $data->editbookings = ['link' => $url->out(false)];
-
         } else {
             $url = new moodle_url('/admin/category.php?category=local_musi');
             $data->addbookinginstance = ['link' => $url->out(false)];
@@ -119,7 +117,6 @@ class card_content_settings implements renderable, templatable {
 
         // We transform the data object to an array where we can read key & value.
         foreach ($this->data as $key => $value) {
-
             $item = [
                 'key' => get_string($key, 'local_musi'),
             ];

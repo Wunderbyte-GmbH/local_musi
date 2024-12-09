@@ -105,7 +105,6 @@ if (!empty($archivecmids)) {
 
         // Add a section for each cmid.
         foreach ($archivecmids as $archivecmid) {
-
             $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($archivecmid);
 
             if (!empty($bookingsettings)) {
@@ -139,7 +138,6 @@ if (!empty($archivecmids)) {
     $archivehtml = '<div class="accordion" id="coursesibookedarchive">';
     // Add a section for each cmid.
     foreach ($archivecmids as $archivecmid) {
-
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($archivecmid);
 
         if (!empty($bookingsettings)) {

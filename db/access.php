@@ -30,21 +30,21 @@ $capabilities = [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
-            'manager' => CAP_ALLOW
+            'manager' => CAP_ALLOW,
         ],
     ],
     'local/musi:editavailability' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
-            'manager' => CAP_ALLOW
+            'manager' => CAP_ALLOW,
         ],
     ],
     'local/musi:editsubstitutionspool' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
-            'manager' => CAP_ALLOW
+            'manager' => CAP_ALLOW,
         ],
     ],
     'local/musi:viewsubstitutionspool' => [
@@ -60,7 +60,7 @@ $capabilities = [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
-            'manager' => CAP_ALLOW
+            'manager' => CAP_ALLOW,
         ],
     ],
 ];

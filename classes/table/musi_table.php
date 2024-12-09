@@ -21,7 +21,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once(__DIR__ . '/../../lib.php');
-require_once($CFG->libdir.'/tablelib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 use coding_exception;
 use context_module;
@@ -46,10 +46,9 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Search results for managers are shown in a table (student search results use the template searchresults_student).
+ * @package local_musi
  */
 class musi_table extends wunderbyte_table {
-
-
     /** @var array $displayoptions */
     private $displayoptions = [];
 
@@ -183,7 +182,6 @@ class musi_table extends wunderbyte_table {
             } else {
                 $title = "<div class='musi-table-option-title'><a href='$url' target='_blank'>$title</a></div>";
             }
-
         }
 
         return $title;
@@ -203,7 +201,6 @@ class musi_table extends wunderbyte_table {
         $ret = $fulldescription;
 
         if (!empty(get_config('local_musi', 'collapsedescriptionmaxlength'))) {
-
             $maxlength = (int)get_config('local_musi', 'collapsedescriptionmaxlength');
 
             // Show collapsible for long descriptions.
@@ -281,7 +278,6 @@ class musi_table extends wunderbyte_table {
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
 
         if (isset($settings->entity) && (count($settings->entity) > 0)) {
-
             $url = new moodle_url('/local/entities/view.php', ['id' => $settings->entity['id']]);
             // Full name of the entity (NOT the shortname).
 
@@ -321,7 +317,6 @@ class musi_table extends wunderbyte_table {
 
         // The error message should only be shown to admins.
         if (has_capability('moodle/site:config', $context)) {
-
             $message = get_string('youneedcustomfieldsport', 'local_musi');
 
             $message = "<div class='alert alert-danger'>$message</div>";
@@ -370,7 +365,6 @@ class musi_table extends wunderbyte_table {
         if (isset($settings->customfields) && isset($settings->customfields['botags'])) {
             $botagsarray = $settings->customfields['botags'];
             if (!empty($botagsarray)) {
-
                 if (!is_array($botagsarray)) {
                     $botagsarray = (array)$botagsarray;
                 }
@@ -427,10 +421,13 @@ class musi_table extends wunderbyte_table {
             $context = $this->get_context();
         }
 
-        if (!empty($settings->courseid) && (
+        if (
+            !empty($settings->courseid)
+            && (
                 $status === 0 // MOD_BOOKING_STATUSPARAM_BOOKED.
-                || has_capability('mod/booking:updatebooking', $context) ||
-                $isteacherofthisoption)) {
+                || has_capability('mod/booking:updatebooking', $context)
+                || $isteacherofthisoption)
+        ) {
             // The link will be shown to everyone who...
             // ...has booked this option.
             // ...is a teacher of this option.
@@ -461,7 +458,7 @@ class musi_table extends wunderbyte_table {
             $localweekdays = dates_handler::get_localized_weekdays(current_language());
             $dayinfo = dates_handler::prepare_day_info($settings->dayofweektime);
             if (isset($dayinfo['day']) && $dayinfo['starttime'] && $dayinfo['endtime']) {
-                $ret = $localweekdays[$dayinfo['day']] . ', '.$dayinfo['starttime'] . ' - ' . $dayinfo['endtime'];
+                $ret = $localweekdays[$dayinfo['day']] . ', ' . $dayinfo['starttime'] . ' - ' . $dayinfo['endtime'];
             } else if (!empty($settings->dayofweektime)) {
                 $ret = $settings->dayofweektime;
             } else {
@@ -515,10 +512,10 @@ class musi_table extends wunderbyte_table {
 
         if (booking_answers::count_places($bookinganswers->usersonlist) > 0) {
             // Add a link to redirect to the booking option.
-            $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', array(
+            $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', [
                 'id' => $values->cmid,
-                'optionid' => $values->optionid
-            ));
+                'optionid' => $values->optionid,
+            ]);
             // Use html_entity_decode to convert "&amp;" to a simple "&" character.
             if ($CFG->version >= 2023042400) {
                 // Moodle 4.2 needs second param.
@@ -741,7 +738,6 @@ class musi_table extends wunderbyte_table {
         if (!empty($values->id)) {
             $bosettings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
             if (!empty($bosettings)) {
-
                 $context = context_module::instance($bosettings->cmid);
 
                 // ONLY users with the mod/booking:updatebooking capability can edit options.
@@ -788,7 +784,6 @@ class musi_table extends wunderbyte_table {
 
                 // If the user has no capability to editoptions, the URLs will not be added.
                 if ($canviewreports) {
-
                     if (isset($bosettings->manageresponsesurl)) {
                         // Get the URL to manage responses (answers) for the option.
                         $data->manageresponsesurl = $bosettings->manageresponsesurl;
@@ -806,8 +801,9 @@ class musi_table extends wunderbyte_table {
             // If booking option is already cancelled, we want to show the "undo cancel" button instead.
             if ($values->status == 1) {
                 $data->showundocancel = true;
-                $data->undocancellink = html_writer::link('#',
-                '<i class="fa fa-undo fa-fw" aria-hidden="true"></i> ' .
+                $data->undocancellink = html_writer::link(
+                    '#',
+                    '<i class="fa fa-undo fa-fw" aria-hidden="true"></i> ' .
                     get_string('undocancelthisbookingoption', 'mod_booking'),
                     [
                         'class' => 'dropdown-item undocancelallusers',
@@ -817,14 +813,16 @@ class musi_table extends wunderbyte_table {
                         'onclick' =>
                             "require(['mod_booking/confirm_cancel'], function(init) {
                                 init.init('" . $values->id . "', '" . $values->status . "');
-                            });"
-                    ]);
+                            });",
+                    ]
+                );
             } else {
                 // Else we show the default cancel button.
                 // We do NOT set $data->undocancel here.
                 $data->showcancel = true;
-                $data->cancellink = html_writer::link('#',
-                '<i class="fa fa-ban fa-fw" aria-hidden="true"></i> ' .
+                $data->cancellink = html_writer::link(
+                    '#',
+                    '<i class="fa fa-ban fa-fw" aria-hidden="true"></i> ' .
                     get_string('cancelallusers', 'mod_booking'),
                     [
                         'class' => 'dropdown-item cancelallusers',
@@ -834,8 +832,9 @@ class musi_table extends wunderbyte_table {
                         'onclick' =>
                             "require(['local_shopping_cart/menu'], function(menu) {
                                 menu.confirmCancelAllUsersAndSetCreditModal('" . $values->id . "', 'mod_booking', 'option');
-                            });"
-                    ]);
+                            });",
+                    ]
+                );
             }
         } else {
             $data->showcancel = null;
@@ -857,7 +856,7 @@ class musi_table extends wunderbyte_table {
         echo $output->render_bookingoptions_wbtable($table);
     }
 
-    private function add_return_url(string $urlstring):string {
+    private function add_return_url(string $urlstring): string {
 
         $returnurl = $this->baseurl->out();
 
@@ -868,9 +867,10 @@ class musi_table extends wunderbyte_table {
         $url = new moodle_url(
             $urlcomponents['path'],
             array_merge(
-                $params, [
+                $params,
+                [
                 'returnto' => 'url',
-                'returnurl' => $returnurl
+                'returnurl' => $returnurl,
                 ]
             )
         );

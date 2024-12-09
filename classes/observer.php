@@ -33,7 +33,6 @@ use mod_booking\singleton_service;
  * Event observer for local_musi.
  */
 class observer {
-
     /**
      * Observer for the payment_added event
      */
@@ -74,7 +73,7 @@ class observer {
             $teacherids = array_keys($settings->teachers);
             if (
                 isset($settings->customfieldsfortemplates['sport'])
-                && isset ($settings->customfieldsfortemplates['sport']['value'])
+                && isset($settings->customfieldsfortemplates['sport']['value'])
             ) {
                 $value = $settings->customfieldsfortemplates['sport']['value'];
                 // Depending on the type of customfield handle differently.

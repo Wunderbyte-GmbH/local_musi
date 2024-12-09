@@ -30,7 +30,6 @@ use stdClass;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class substitutionspool_form extends \core_form\dynamic_form {
-
     protected function get_context_for_dynamic_submission(): \context {
         return context_system::instance();
     }
@@ -51,7 +50,7 @@ class substitutionspool_form extends \core_form\dynamic_form {
             'multiple' => true,
             'noselectionstring' => get_string('choose...', 'mod_booking'),
             'ajax' => 'local_shopping_cart/form_users_selector',
-            'valuehtmlcallback' => function($value) {
+            'valuehtmlcallback' => function ($value) {
                 global $OUTPUT;
                 if (empty($value)) {
                     return null;
@@ -64,11 +63,18 @@ class substitutionspool_form extends \core_form\dynamic_form {
                     'lastname' => $user->lastname,
                 ];
                 return $OUTPUT->render_from_template(
-                        'mod_booking/form-user-selector-suggestion', $details);
-            }
+                    'mod_booking/form-user-selector-suggestion',
+                    $details
+                );
+            },
         ];
-        $mform->addElement('autocomplete', 'substitutionspoolteachers',
-            get_string('substitutionspool:infotext', 'local_musi', $sport), [], $options);
+        $mform->addElement(
+            'autocomplete',
+            'substitutionspoolteachers',
+            get_string('substitutionspool:infotext', 'local_musi', $sport),
+            [],
+            $options
+        );
     }
 
     /**
@@ -123,7 +129,8 @@ class substitutionspool_form extends \core_form\dynamic_form {
     public static function add_or_update_substitution_for_sport(
         string $sport,
         array $teacheridsarr,
-        bool $overwriteteachers): bool {
+        bool $overwriteteachers
+    ): bool {
         global $DB, $USER;
         $now = time();
 

@@ -36,7 +36,6 @@ use local_wunderbyte_table\filters\types\standardfilter;
  * This class prepares to data to render transactionstable in mustache template
  */
 class transactionslist implements renderable, templatable {
-
     /**
      * @var array $tabledata Holds the data for rendering the transactions table.
      */
@@ -91,7 +90,7 @@ class transactionslist implements renderable, templatable {
         // Pass SQL to table.
         // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
         // TODO: Add functionality for other providers.
-        list($fields, $from, $where) = self::return_all_sql_transaction();
+        [$fields, $from, $where] = self::return_all_sql_transaction();
 
         $table->set_filter_sql($fields, $from, $where, '');
 
@@ -118,11 +117,10 @@ class transactionslist implements renderable, templatable {
         $table->pageable(true);
 
         // Pass html to render.
-        list($idstring, $encodedtable, $html) = $table->lazyouthtml(50, true);
+        [$idstring, $encodedtable, $html] = $table->lazyouthtml(50, true);
         $this->tabledata = $html;
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         // Not lazy laod : $this->tabledata = $table->outhtml(20, true).
-
     }
 
     /**
@@ -151,7 +149,6 @@ class transactionslist implements renderable, templatable {
         $gatewayselectstring = "";
 
         foreach ($gatewaynames as $gwname) {
-
             // For some gateways, we store a merchantref or a customorderid in the openorders table.
             // So check if columns merchantref or customorderid exist.
             $dbman = $DB->get_manager();

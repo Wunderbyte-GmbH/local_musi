@@ -25,14 +25,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'M:USI Plugin';
-
 $string['dashboard'] = 'Dashboard';
 $string['messageprovider:sendmessages'] = 'Verschicke Nachrichten';
 $string['musi:cansendmessages'] = 'Kann Nachrichten schicken.';
 $string['musi:editavailability'] = 'Kann die Verfügbarkeit von Buchungsoptionen ändern und Vorreservierungen anlegen';
 $string['musi:editsubstitutionspool'] = 'Kann den Vertretungspool für einzelne Sportarten bearbeiten';
 $string['musi:viewsubstitutionspool'] = 'Kann den Vertretungspool für einzelne Sportarten sehen und E-Mails an den Vertretungspool senden';
+$string['pluginname'] = 'M:USI Plugin';
+
 $string['substitutionspoolshowphonenumbers'] = 'Telefonnummern der Trainer:innen im Vertretungspool anzeigen';
 
 // Caches.

@@ -27,7 +27,6 @@ use context_system;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class musi_payment_helper {
-
     /**
      * Helper function to get name of the orderid column for each gateway table.
      * We currently do not need it here, but we'll need it later, so keep it!
@@ -63,9 +62,7 @@ class musi_payment_helper {
         // We need the accounts to run through all the gateways.
         $accounts = \core_payment\helper::get_payment_accounts_to_manage(context_system::instance());
         foreach ($accounts as $account) {
-
             foreach ($account->get_gateways() as $gateway) {
-
                 if (empty($gateway->get('enabled'))) {
                     continue;
                 }
@@ -100,9 +97,7 @@ class musi_payment_helper {
         // We need the accounts to run through all the gateways.
         $accounts = \core_payment\helper::get_payment_accounts_to_manage(context_system::instance());
         foreach ($accounts as $account) {
-
             foreach ($account->get_gateways() as $gateway) {
-
                 $name = $gateway->get('gateway');
 
                 // Check if there is an openorders table. If not, the gateway is not supported by transactions list.
@@ -115,5 +110,4 @@ class musi_payment_helper {
 
         return $unsupportedgateways;
     }
-
 }

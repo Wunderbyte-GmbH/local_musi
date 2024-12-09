@@ -37,7 +37,6 @@ use templatable;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class card implements renderable, templatable {
-
     /** @var string $title */
     public $title = null;
 
@@ -73,12 +72,12 @@ class card implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
 
-        $returnarray = array(
+        $returnarray = [
                 'title' => $this->title,
                 'content' => $this->content,
                 'footer' => $this->footer,
-                'headerbgcolor' => $this->headerbgcolor
-        );
+                'headerbgcolor' => $this->headerbgcolor,
+        ];
 
         return $returnarray;
     }
