@@ -30,11 +30,12 @@ global $DB;
 if ($hassiteconfig) {
     // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 
-     // TODO: Define the plugin settings page - {@link https://docs.moodle.org/dev/Admin_settings}.
+    // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
+    // TODO: Define the plugin settings page - {@link https://docs.moodle.org/dev/Admin_settings}.
 
-     $settings = new admin_settingpage('Musi', '');
-     $ADMIN->add('localplugins', new admin_category('local_musi', get_string('pluginname', 'local_musi')));
-     $ADMIN->add('local_musi', $settings);
+    $settings = new admin_settingpage('Musi', '');
+    $ADMIN->add('localplugins', new admin_category('local_musi', get_string('pluginname', 'local_musi')));
+    $ADMIN->add('local_musi', $settings);
 
     if ($ADMIN->fulltree) {
         $settings->add(
@@ -185,6 +186,11 @@ if ($hassiteconfig) {
             new admin_setting_configtext('local_musi/shortcodesarchivecmids',
                 get_string('shortcodesarchivecmids', 'local_musi'),
                 get_string('shortcodesarchivecmids_desc', 'local_musi'), ''));
+
+        $settings->add(
+            new admin_setting_configtext('local_musi/shortcodesarchivecmidsexclude',
+                get_string('shortcodesarchivecmidsexclude', 'local_musi'),
+                '', ''));
 
         $settings->add(
             new admin_setting_configcheckbox('local_musi/autoaddtosubstitutionspool',

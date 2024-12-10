@@ -25,6 +25,7 @@
  */
 
 use mod_booking\singleton_service;
+use mod_booking\booking;
 
 require_once(__DIR__ . '/../../config.php');
 
@@ -58,6 +59,17 @@ if (!empty($archivecmidsstring)) {
     $archivecmidsstring = str_replace(';', ',', $archivecmidsstring);
     $archivecmidsstring = str_replace(' ', '', $archivecmidsstring);
     $archivecmids = explode(',', $archivecmidsstring);
+} else {
+    // If shortcodesarchivecmids config field is empty, we show ALL instances.
+    $archivecmids = booking::get_all_cmids();
+    $cmidstoexclude = [];
+    $cmidstoexcludestring = get_config('local_musi', 'shortcodesarchivecmidsexclude');
+    if (!empty($cmidstoexcludestring)) {
+        $cmidstoexcludestring = str_replace(';', ',', $cmidstoexcludestring);
+        $cmidstoexcludestring = str_replace(' ', '', $cmidstoexcludestring);
+        $cmidstoexclude = explode(',', $cmidstoexcludestring);
+    }
+    $archivecmids = array_diff($archivecmids, $cmidstoexclude);
 }
 
 echo $OUTPUT->header();
