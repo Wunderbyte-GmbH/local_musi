@@ -188,7 +188,8 @@ $string['shortcodesnobookinginstancedesc'] = 'Sie müssen mindestens eine Buchun
 $string['shortcodesuserinformation'] = 'Zeige Informationen von NutzerInnen';
 $string['shortcodesarchivecmids'] = 'Liste von IDs für das "Meine Kurse"-Archiv';
 $string['shortcodesarchivecmids_desc'] = 'Geben Sie eine Komma-getrennte Liste von Kursmodul-IDs (cmids) der Semester-Instanzen (Buchungsinstanzen) an,
-die im "Meine Kurse"-Archiv aufscheinen sollen.';
+die im "Meine Kurse"-Archiv aufscheinen sollen. Leer lassen, um ALLE Instanzen anzuzeigen, einzelne Instanzen können im nächsten Setting ausgeschlossen werden';
+$string['shortcodesarchivecmidsexclude'] = 'Liste von IDs, die im "Meine Kurse"-Archiv NICHT angezeigt werden sollen';
 
 $string['archive'] = '<i class="fa fa-archive" aria-hidden="true"></i> Archiv';
 $string['mycourses'] = 'Meine Kurse';

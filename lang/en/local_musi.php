@@ -186,8 +186,10 @@ So no need to specify the ID';
 $string['shortcodesnobookinginstance'] = '<div class="text-danger font-weight-bold">No booking instance created yet!</div>';
 $string['shortcodesnobookinginstancedesc'] = 'You need to create at least one booking instance within a moodle course before you can choose one.';
 $string['shortcodesuserinformation'] = 'Display user information';
-$string['shortcodesarchivecmids'] = 'List of IDs for "My courses"-archive';
-$string['shortcodesarchivecmids_desc'] = 'Enter a comma-separated list of course module ids (cmids) of booking instances you want to show in the "My courses"-archive.';
+$string['shortcodesarchivecmids'] = 'List of IDs for "My courses" archive';
+$string['shortcodesarchivecmids_desc'] = 'Enter a comma-separated list of course module ids (cmids) of booking instances you want to show in the "My courses" archive.
+Leave this empty if you want to show ALL instances.';
+$string['shortcodesarchivecmidsexclude'] = 'List of IDs to exclude in the "My courses" archive';
 
 $string['archive'] = '<i class="fa fa-archive" aria-hidden="true"></i> Archive';
 $string['mycourses'] = 'My courses';
