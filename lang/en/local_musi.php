@@ -104,6 +104,7 @@ $string['titleprefix'] = 'Course number';
 $string['unknown'] = 'Unknown';
 $string['merchantref'] = 'MerchantRef';
 $string['customorderid'] = 'CustomOrderID';
+$string['icalexportuserevents'] = 'Download an ical file of your upcoming events';
 
 // Errors.
 $string['error:starttime'] = 'Start has to be before end.';

@@ -104,6 +104,7 @@ $string['titleprefix'] = 'Kursnummer';
 $string['unknown'] = 'Unbekannt';
 $string['merchantref'] = 'MerchantRef';
 $string['customorderid'] = 'CustomOrderID';
+$string['icalexportuserevents'] = 'iCal-Datei Ihrer kommenden Veranstaltungen herunterladen';
 
 // Errors.
 $string['error:starttime'] = 'Start muss vor dem Ende sein.';

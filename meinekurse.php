@@ -80,7 +80,7 @@ echo $OUTPUT->header();
 
 echo "<div class='text-center h1'>$title</div>";
 echo '<a href="' . $subscriptionlink . '" class="btn btn-primary">' .
-    '<i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;ical export</a>';
+    '<i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;' . get_string('icalexportuserevents', 'local_musi') . '</a>';
 echo "<hr class='w-100 border border-light'/>";
 
 if ($DB->get_records('booking_teachers', ['userid' => $USER->id])) {
