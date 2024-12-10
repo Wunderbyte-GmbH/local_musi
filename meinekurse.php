@@ -26,6 +26,7 @@
 
 use mod_booking\singleton_service;
 use mod_booking\booking;
+use mod_booking\booking_utils;
 
 require_once(__DIR__ . '/../../config.php');
 
@@ -52,6 +53,9 @@ $PAGE->set_title(format_string($title));
 $PAGE->set_pagelayout('base');
 $PAGE->add_body_class('local_musi-meinekurse');
 
+$bu = new booking_utils();
+$subscriptionlink = $bu->booking_generate_calendar_subscription_link($USER);
+
 // Get archive cmids.
 $archivecmids = [];
 $archivecmidsstring = get_config('local_musi', 'shortcodesarchivecmids');
@@ -75,6 +79,8 @@ if (!empty($archivecmidsstring)) {
 echo $OUTPUT->header();
 
 echo "<div class='text-center h1'>$title</div>";
+echo '<a href="' . $subscriptionlink . '" class="btn btn-primary">' .
+    '<i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;ical export</a>';
 echo "<hr class='w-100 border border-light'/>";
 
 if ($DB->get_records('booking_teachers', ['userid' => $USER->id])) {
