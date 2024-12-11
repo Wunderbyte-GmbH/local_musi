@@ -353,10 +353,12 @@ class sap_daily_sums {
 
         /* Spezialfall für Payone / USI Wien: Bei Payone muss die Payone-spezifische
         merchantref anstelle des Identifiers angezeigt werden! */
-        $dbman = $DB->get_manager();
+        // Payone merchantref darf im SAP doch nicht verwendet werden, weil zu lange!
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /*$dbman = $DB->get_manager();
         if ($dbman->table_exists('paygw_payone_openorders')) {
             $merchantref = $DB->get_field('paygw_payone_openorders', 'merchantref', ['itemid' => $record->identifier]);
-        }
+        }*/
 
         /*
         * Mandant - 3 Stellen alphanumerisch - immer "101"
@@ -366,7 +368,8 @@ class sap_daily_sums {
         */
         $currentline .= "101#VIE1#EUR#DR#";
         // Referenzbelegnummer - 16 Stellen alphanumerisch.
-        $currentline .= str_pad($merchantref ?? $record->identifier, 16, " ", STR_PAD_LEFT) . '#';
+        // Payone merchantref darf im SAP doch nicht verwendet werden, weil zu lange!
+        $currentline .= str_pad($record->identifier, 16, " ", STR_PAD_LEFT) . '#';
         // Buchungsdatum - 10 Stellen.
         $currentline .= date('d.m.Y', $record->timemodified) . '#';
         // Belegdatum - 10 Stellen.
@@ -407,7 +410,8 @@ class sap_daily_sums {
         }
         $currentline .= str_pad($buchungstext, 50, " ", STR_PAD_LEFT) . '#';
         // Zuordnung - analog "Referenzbelegnummer" - 18 Stellen alphanumerisch.
-        $currentline .= str_pad($merchantref ?? $record->identifier, 18, " ", STR_PAD_LEFT) . '#';
+        // Payone merchantref darf im SAP doch nicht verwendet werden, weil zu lange!
+        $currentline .= str_pad($record->identifier, 18, " ", STR_PAD_LEFT) . '#';
 
         // Kostenstelle - 10 Stellen - leer.
         $currentline .= str_pad('', 10, " ", STR_PAD_LEFT) . '#';
