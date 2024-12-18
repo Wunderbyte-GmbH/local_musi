@@ -1,3 +1,8 @@
+## Version 0.9.13 (2024121800)
+* New feature: Add ical export to meinekurse.php (#16).
+* Improvement: Automatically fill my courses archive and add posibility to exclude instances (#16).
+* Bugfix: Decision from Dec.11th: Do not show merchantref in SAP files (might be too long).
+
 ## Version 0.9.12 (2024120500)
 * Improvement: Make sure we apply format_string to keys and values, so we can use mlang filters.
 * Improvement: Show merchantref and customorderid at the right places. (Wunderbyte-GmbH/moodle-paygw_payone#5).
