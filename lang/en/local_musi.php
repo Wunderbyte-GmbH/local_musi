@@ -35,6 +35,8 @@ $string['pluginname'] = 'M:USI Plugin';
 
 $string['substitutionspoolshowphonenumbers'] = 'Show phone numbers in substitutions pool';
 
+$string['bookable'] = 'Bookable';
+$string['notbookable'] = 'Not bookable';
 $string['freeplaces'] = 'Free places';
 
 // Caches.

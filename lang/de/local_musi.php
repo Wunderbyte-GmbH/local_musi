@@ -40,6 +40,9 @@ $string['freeplaces'] = 'Freie Plätze';
 // Caches.
 $string['cachedef_cachedpaymenttable'] = 'Zahlungstransaktionen (Cache)';
 
+$string['bookable'] = 'Buchbar';
+$string['notbookable'] = 'Nicht buchbar';
+
 // Settings.
 $string['additionalsettings'] = 'Sonstige Einstellungen';
 $string['newslettersettingsheading'] = 'Newsletter-Einstellungen';

@@ -29,7 +29,9 @@ namespace local_musi;
 use Closure;
 use context_system;
 use html_writer;
+use local_wunderbyte_table\filters\types\callback;
 use local_wunderbyte_table\filters\types\hourlist;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\customfield\booking_handler;
 use mod_booking\output\page_allteachers;
 use local_musi\output\userinformation;
@@ -41,7 +43,6 @@ use local_wunderbyte_table\filters\types\standardfilter;
 use mod_booking\booking;
 use mod_booking\singleton_service;
 use moodle_url;
-use stdClass;
 
 /**
  * Deals with local_shortcodes regarding booking.
@@ -748,7 +749,24 @@ class shortcodes {
         return $table;
     }
 
+    /**
+     * Add the musi standard filters to the table.
+     *
+     * @param mixed $table
+     *
+     * @return void
+     *
+     */
     private static function add_standardfilters(&$table) {
+        $callbackfilter = callback::get_instance('bookable', get_string('bookable', 'local_musi'));
+        $callbackfilter->add_options([
+            0 => get_string('notbookable', 'local_musi'),
+            1 => get_string('bookable', 'local_musi'),
+        ]);
+        // This filter expects a record from booking options table.
+        // We check if it is bookable for the user.
+        $callbackfilter->define_callbackfunction('local_musi\shortcodes::filter_bookable');
+        $table->add_filter($callbackfilter);
 
         $standardfilter = new standardfilter('sport', get_string('sport', 'local_musi'));
         $table->add_filter($standardfilter);
@@ -1231,5 +1249,33 @@ class shortcodes {
                 $wherearray[$customfield] = $arguemnt;
             }
         }
+    }
+
+    /**
+     * Static function to be called by the callback filter.
+     *
+     * @param mixed $record
+     *
+     * @return [type]
+     *
+     */
+    public static function filter_bookable($record) {
+        $userid = shopping_cart::return_buy_for_userid();
+        $settings = singleton_service::get_instance_of_booking_option_settings($record->id);
+            $boinfo = new bo_info($settings);
+            // We only filter on the hard blocking options.
+            [$id] = $boinfo->is_available($settings->id, $userid, true);
+            return in_array(
+                $id,
+                [
+                    MOD_BOOKING_BO_COND_BOOKITBUTTON,
+                    MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                    MOD_BOOKING_BO_COND_PRICEISSET,
+                    MOD_BOOKING_BO_COND_CONFIRMATION,
+                    MOD_BOOKING_BO_COND_BOOKWITHCREDITS,
+                    MOD_BOOKING_BO_COND_CONFIRMBOOKWITHCREDITS,
+                    MOD_BOOKING_BO_COND_CONFIRMBOOKWITHSUBSCRIPTION,
+                ]
+            ) ? 1 : 0;
     }
 }
