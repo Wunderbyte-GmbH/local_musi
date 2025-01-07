@@ -125,6 +125,8 @@ class shortcodes {
      */
     public static function allcourseslist($shortcode, $args, $content, $env, $next) {
 
+        global $DB;
+
         self::fix_args($args);
 
         $booking = self::get_booking($args);
@@ -152,23 +154,43 @@ class shortcodes {
         $table = self::inittableforcourses($booking);
 
         $table->showcountlabel = $args['countlabel'];
-        $wherearray = ['bookingid' => (int)$booking->id];
+
+        if (empty($args['includeoptions'])) {
+            $wherearray = ['bookingid' => (int)$booking->id];
+            $additionalwhere = '';
+        } else {
+            $wherearray = [];
+            [$inorequal, $addiontalparams] = $DB->get_in_or_equal(explode(',', $args['includeoptions']), SQL_PARAMS_NAMED);
+            $additionalwhere = " (bookingid = " . (int)$booking->id . " OR id $inorequal )";
+        }
 
         self::set_wherearray_from_arguments($args, $wherearray);
 
         // If we want to find only the teacher relevant options, we chose different sql.
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
-            [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
-        } else {
-            [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+        }
+        [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $booking->context,
+                    [],
+                    $wherearray,
+                    null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere
+                );
+
+        foreach ($addiontalparams as $key => $value) {
+            $params[$key] = $value;
         }
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
-        $table->use_pages = false;
+        $table->use_pages = true;
 
         if ($showimage !== false) {
             $table->set_tableclass('cardimageclass', 'pr-0 pl-1');
@@ -452,7 +474,7 @@ class shortcodes {
         $table->cardsort = true;
 
         // This allows us to use infinite scrolling, No pages will be used.
-        $table->infinitescroll = 30;
+        // $table->infinitescroll = 30;
 
         $table->tabletemplate = 'local_musi/table_card';
 
@@ -818,7 +840,30 @@ class shortcodes {
                 'sportsdivision' => get_string('sportsdivision', 'local_musi'),
                 'sport' => get_string('sport', 'local_musi'),
                 'location' => get_string('location', 'local_musi'),
+                'bookedplaces' => get_string('freeplaces', 'local_musi'),
             ];
+
+            $sortbycallback = new \local_wunderbyte_table\local\sortables\types\callback(
+                'freeplaces',
+                get_string('freeplaces', 'local_musi')
+            );
+            // $sortbycallback->define_callbackfunction('local_musi\shortcodes::sort_freeplaces');
+            // $table->add_sortable($sortbycallback);
+
+            $standardsortable = new \local_wunderbyte_table\local\sortables\types\standardsortable(
+                'freeplaces',
+                get_string('freeplaces', 'local_musi')
+            );
+            $select = '(SELECT COALESCE(NULLIF(s1.maxanswers, 0), 999999) - COUNT(ba.id)
+                       FROM {booking_answers} ba
+                       WHERE ba.optionid = s1.id AND ba.waitinglist < 3) AS freeplaces';
+            $from = '';
+            $where = '';
+            $standardsortable->define_sql($select, $from, $where);
+
+            $standardsortable->define_cache('mod_booking', 'bookedusertable');
+            $table->add_sortable($standardsortable);
+
             if (get_config('local_musi', 'musishortcodesshowstart')) {
                 $sortablecolumns['coursestarttime'] = get_string('coursestarttime', 'mod_booking');
             }

@@ -36,6 +36,8 @@ $string['pluginname'] = 'M:USI Plugin';
 $string['substitutionspoolshowphonenumbers'] = 'Show phone numbers in substitutions pool';
 
 
+$string['freeplaces'] = 'Free places';
+
 // Caches.
 $string['cachedef_cachedpaymenttable'] = 'Cached payment table (transaction list).';
 
