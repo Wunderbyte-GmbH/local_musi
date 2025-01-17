@@ -160,7 +160,7 @@ class shortcodes {
             $additionalwhere = '';
         } else {
             $wherearray = [];
-            [$inorequal, $addiontalparams] = $DB->get_in_or_equal(explode(',', $args['includeoptions']), SQL_PARAMS_NAMED);
+            [$inorequal, $additionalparams] = $DB->get_in_or_equal(explode(',', $args['includeoptions']), SQL_PARAMS_NAMED);
             $additionalwhere = " (bookingid = " . (int)$booking->id . " OR id $inorequal )";
         }
 
@@ -184,7 +184,7 @@ class shortcodes {
                     $additionalwhere
                 );
 
-        foreach ($addiontalparams as $key => $value) {
+        foreach ($additionalparams as $key => $value) {
             $params[$key] = $value;
         }
 
