@@ -262,12 +262,12 @@ if ($hassiteconfig) {
 
         $settings->add(
             new admin_setting_configtext(
-				'local_musi/shortcodesarchivecmidsexclude',
+                'local_musi/shortcodesarchivecmidsexclude',
                 get_string('shortcodesarchivecmidsexclude', 'local_musi'),
                 '',
-				''
-			)
-		);
+                ''
+            )
+        );
 
         $settings->add(
             new admin_setting_configcheckbox(
