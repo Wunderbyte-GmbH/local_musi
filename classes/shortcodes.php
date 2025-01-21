@@ -354,7 +354,7 @@ class shortcodes {
      * @return void
      */
     public static function allcoursescards($shortcode, $args, $content, $env, $next) {
-
+        // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
         // TODO: Define capability.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* if (!has_capability('moodle/site:config', $env->context)) {
@@ -474,7 +474,8 @@ class shortcodes {
         $table->cardsort = true;
 
         // This allows us to use infinite scrolling, No pages will be used.
-        // $table->infinitescroll = 30;
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $table->infinitescroll = 30; */
 
         $table->tabletemplate = 'local_musi/table_card';
 
@@ -840,9 +841,12 @@ class shortcodes {
                 'sportsdivision' => get_string('sportsdivision', 'local_musi'),
                 'sport' => get_string('sport', 'local_musi'),
                 'location' => get_string('location', 'local_musi'),
-                'bookedplaces' => get_string('freeplaces', 'local_musi'),
+                // 'bookedplaces' => get_string('freeplaces', 'local_musi'),
             ];
 
+            // As the "free places sorting" functionality is not yet tested and not yet integrated into Wunderbyte table...
+            // ... we currently comment this out. We'll add it later on...
+            /*
             $sortbycallback = new \local_wunderbyte_table\local\sortables\types\callback(
                 'freeplaces',
                 get_string('freeplaces', 'local_musi')
@@ -863,6 +867,7 @@ class shortcodes {
 
             $standardsortable->define_cache('mod_booking', 'bookedusertable');
             $table->add_sortable($standardsortable);
+            */
 
             if (get_config('local_musi', 'musishortcodesshowstart')) {
                 $sortablecolumns['coursestarttime'] = get_string('coursestarttime', 'mod_booking');

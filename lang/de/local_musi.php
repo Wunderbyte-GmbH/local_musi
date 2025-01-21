@@ -35,6 +35,8 @@ $string['pluginname'] = 'M:USI Plugin';
 
 $string['substitutionspoolshowphonenumbers'] = 'Telefonnummern der Trainer:innen im Vertretungspool anzeigen';
 
+$string['freeplaces'] = 'Freie Plätze';
+
 // Caches.
 $string['cachedef_cachedpaymenttable'] = 'Zahlungstransaktionen (Cache)';
 
