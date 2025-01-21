@@ -181,7 +181,7 @@ class sports {
                                             $teacher['phone1'] = $fullteacher->phone1;
                                             $teacher['phone2'] = $fullteacher->phone2;
                                         }
-                                        $substitutionteachers[] = $teacher;
+                                        $substitutionteachers[$fullteacher->id] = $teacher;
                                     }
                                 }
                                 // Now sort the teachers by last name.
@@ -212,7 +212,11 @@ class sports {
             $substitutionteachers = [];
             foreach ($category['sports'] as $sport) {
                 if (isset($sport['substitutionteachers']) && is_array($sport['substitutionteachers'])) {
-                    $substitutionteachers = array_merge($substitutionteachers, $sport['substitutionteachers']);
+                    foreach ($sport['substitutionteachers'] as $id => $substitutionteacher) {
+                        if (!isset($substitutionteachers[$id])) {
+                            $substitutionteachers[$id] = $substitutionteacher;
+                        }
+                    }
                 }
             }
             $mailstrings = self::generate_mailstring($substitutionteachers);
