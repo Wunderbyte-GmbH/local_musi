@@ -184,8 +184,10 @@ class shortcodes {
                     $additionalwhere
                 );
 
-        foreach ($additionalparams as $key => $value) {
-            $params[$key] = $value;
+        if (!empty($additionalparams)) {
+            foreach ($additionalparams as $key => $value) {
+                $params[$key] = $value;
+            }
         }
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
