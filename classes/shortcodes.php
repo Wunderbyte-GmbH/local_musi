@@ -758,7 +758,7 @@ class shortcodes {
      *
      */
     private static function add_standardfilters(&$table) {
-        $callbackfilter = callback::get_instance('bookable', get_string('bookable', 'local_musi'));
+        $callbackfilter = new callback('bookable', get_string('bookable', 'local_musi'));
         $callbackfilter->add_options([
             0 => get_string('notbookable', 'local_musi'),
             1 => get_string('bookable', 'local_musi'),
@@ -873,6 +873,7 @@ class shortcodes {
             );
             // $sortbycallback->define_callbackfunction('local_musi\shortcodes::sort_freeplaces');
             // $table->add_sortable($sortbycallback);
+            */
 
             $standardsortable = new \local_wunderbyte_table\local\sortables\types\standardsortable(
                 'freeplaces',
@@ -887,7 +888,6 @@ class shortcodes {
 
             $standardsortable->define_cache('mod_booking', 'bookedusertable');
             $table->add_sortable($standardsortable);
-            */
 
             if (get_config('local_musi', 'musishortcodesshowstart')) {
                 $sortablecolumns['coursestarttime'] = get_string('coursestarttime', 'mod_booking');
