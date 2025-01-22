@@ -1,3 +1,9 @@
+## Version 0.9.14 (2025012200)
+* Improvement: Add 'includeoptions' argument in shortcode.
+* Bugfix: Display substitution pool teachers not duplicated (Wunderbyte-GmbH/moodle-mod_booking#802).
+* Bugfix: Free places sorting not yet ready - so commented it out.
+* Bugfix: Missing empty check for additional params.
+
 ## Version 0.9.13 (2024121800)
 * New feature: Add ical export to meinekurse.php (#16).
 * Improvement: Automatically fill my courses archive and add posibility to exclude instances (#16).
