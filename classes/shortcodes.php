@@ -758,15 +758,18 @@ class shortcodes {
      *
      */
     private static function add_standardfilters(&$table) {
-        $callbackfilter = new callback('bookable', get_string('bookable', 'local_musi'));
-        $callbackfilter->add_options([
-            0 => get_string('notbookable', 'local_musi'),
-            1 => get_string('bookable', 'local_musi'),
-        ]);
-        // This filter expects a record from booking options table.
-        // We check if it is bookable for the user.
-        $callbackfilter->define_callbackfunction('local_musi\shortcodes::filter_bookable');
-        $table->add_filter($callbackfilter);
+        // Turn on or off.
+        if (get_config('local_musi', 'musishortcodesshowfilterbookable')) {
+            $callbackfilter = new callback('bookable', get_string('bookable', 'local_musi'));
+            $callbackfilter->add_options([
+                0 => get_string('notbookable', 'local_musi'),
+                1 => get_string('bookable', 'local_musi'),
+            ]);
+            // This filter expects a record from booking options table.
+            // We check if it is bookable for the user.
+            $callbackfilter->define_callbackfunction('local_musi\shortcodes::filter_bookable');
+            $table->add_filter($callbackfilter);
+        }
 
         $standardfilter = new standardfilter('sport', get_string('sport', 'local_musi'));
         $table->add_filter($standardfilter);
@@ -861,33 +864,23 @@ class shortcodes {
                 'sportsdivision' => get_string('sportsdivision', 'local_musi'),
                 'sport' => get_string('sport', 'local_musi'),
                 'location' => get_string('location', 'local_musi'),
-                // 'bookedplaces' => get_string('freeplaces', 'local_musi'),
             ];
 
-            // As the "free places sorting" functionality is not yet tested and not yet integrated into Wunderbyte table...
-            // ... we currently comment this out. We'll add it later on...
-            /*
-            $sortbycallback = new \local_wunderbyte_table\local\sortables\types\callback(
-                'freeplaces',
-                get_string('freeplaces', 'local_musi')
-            );
-            // $sortbycallback->define_callbackfunction('local_musi\shortcodes::sort_freeplaces');
-            // $table->add_sortable($sortbycallback);
-            */
+            if (get_config('local_musi', 'musishortcodesshowsortingfreeplaces')) {
+                $standardsortable = new \local_wunderbyte_table\local\sortables\types\standardsortable(
+                    'freeplaces',
+                    get_string('freeplaces', 'local_musi')
+                );
+                $select = '(SELECT COALESCE(NULLIF(s1.maxanswers, 0), 999999) - COUNT(ba.id)
+                           FROM {booking_answers} ba
+                           WHERE ba.optionid = s1.id AND ba.waitinglist < 3) AS freeplaces';
+                $from = '';
+                $where = '';
+                $standardsortable->define_sql($select, $from, $where);
 
-            $standardsortable = new \local_wunderbyte_table\local\sortables\types\standardsortable(
-                'freeplaces',
-                get_string('freeplaces', 'local_musi')
-            );
-            $select = '(SELECT COALESCE(NULLIF(s1.maxanswers, 0), 999999) - COUNT(ba.id)
-                       FROM {booking_answers} ba
-                       WHERE ba.optionid = s1.id AND ba.waitinglist < 3) AS freeplaces';
-            $from = '';
-            $where = '';
-            $standardsortable->define_sql($select, $from, $where);
-
-            $standardsortable->define_cache('mod_booking', 'bookedusertable');
-            $table->add_sortable($standardsortable);
+                $standardsortable->define_cache('mod_booking', 'bookedusertable');
+                $table->add_sortable($standardsortable);
+            }
 
             if (get_config('local_musi', 'musishortcodesshowstart')) {
                 $sortablecolumns['coursestarttime'] = get_string('coursestarttime', 'mod_booking');

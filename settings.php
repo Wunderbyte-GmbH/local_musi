@@ -163,6 +163,28 @@ if ($hassiteconfig) {
         });
         $settings->add($showfilterbookingtimesetting);
 
+        $showfilterbookable = new admin_setting_configcheckbox(
+            'local_musi/musishortcodesshowfilterbookable',
+            get_string('musishortcodes:showfilterbookable', 'local_musi'),
+            '',
+            0
+        );
+        $showfilterbookable->set_updatedcallback(function () {
+            cache_helper::purge_by_event('setbackoptionstable');
+        });
+        $settings->add($showfilterbookable);
+
+        $showsortingfreeplaces = new admin_setting_configcheckbox(
+            'local_musi/musishortcodesshowsortingfreeplaces',
+            get_string('musishortcodes:showsortingfreeplaces', 'local_musi'),
+            '',
+            0
+        );
+        $showsortingfreeplaces->set_updatedcallback(function () {
+            cache_helper::purge_by_event('setbackoptionstable');
+        });
+        $settings->add($showsortingfreeplaces);
+
         $collapsedescriptionoptions = [
             0 => get_string('collapsedescriptionoff', 'local_musi'),
             100 => "100",
