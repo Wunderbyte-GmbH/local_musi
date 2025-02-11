@@ -16,9 +16,13 @@
 
 namespace local_musi\form;
 
+use coding_exception;
 use context_system;
+use context;
+use dml_exception;
 use mod_booking\singleton_service;
 use moodle_exception;
+use moodle_url;
 use stdClass;
 
 /**
@@ -30,6 +34,11 @@ use stdClass;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class substitutionspool_form extends \core_form\dynamic_form {
+    /**
+     * Get the context for the dynamic submission.
+     *
+     * @return context
+     */
     protected function get_context_for_dynamic_submission(): \context {
         return context_system::instance();
     }
@@ -92,6 +101,12 @@ class substitutionspool_form extends \core_form\dynamic_form {
     }
 
 
+    /**
+     * Set data for dynamic submission.
+     *
+     * @return void
+     * @throws dml_exception
+     */
     public function set_data_for_dynamic_submission(): void {
         global $DB;
         $data = new stdClass();
@@ -104,6 +119,13 @@ class substitutionspool_form extends \core_form\dynamic_form {
         $this->set_data($data);
     }
 
+    /**
+     * Process dynamic submission.
+     *
+     * @return mixed
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     public function process_dynamic_submission() {
         global $DB, $USER;
 
@@ -169,12 +191,24 @@ class substitutionspool_form extends \core_form\dynamic_form {
         }
     }
 
+    /**
+     * Validation.
+     *
+     * @param array $data
+     * @param array $files
+     * @return array
+     */
     public function validation($data, $files) {
         $errors = [];
         // Currently not needed.
         return $errors;
     }
 
+    /**
+     * Get page URL for dynamic submission.
+     *
+     * @return moodle_url
+     */
     protected function get_page_url_for_dynamic_submission(): \moodle_url {
         return new \moodle_url('/local/musi/sparten.php');
     }
