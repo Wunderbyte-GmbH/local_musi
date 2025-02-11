@@ -53,7 +53,7 @@ class sports {
     }
 
     /**
-     * Generate a list of all Sports.
+     * Return courseid of the page with the most courses.
      *
      * @return int
      */
@@ -91,7 +91,7 @@ class sports {
      */
     public static function get_all_sportsdivisions_data(int $courseid, $print = true) {
 
-        global $DB, $USER;
+        global $DB;
 
         $sections = $DB->get_records('course_sections', ['course' => $courseid], 'section ASC');
         $pages = self::return_list_of_pages();
@@ -212,13 +212,19 @@ class sports {
             $substitutionteachers = [];
             foreach ($category['sports'] as $sport) {
                 if (isset($sport['substitutionteachers']) && is_array($sport['substitutionteachers'])) {
-                    foreach ($sport['substitutionteachers'] as $id => $substitutionteacher) {
-                        if (!isset($substitutionteachers[$id])) {
-                            $substitutionteachers[$id] = $substitutionteacher;
+                    foreach ($sport['substitutionteachers'] as $substitutionteacher) {
+                        if (!isset($substitutionteachers[(int)$substitutionteacher['id']])) {
+                            $substitutionteachers[(int)$substitutionteacher['id']] = $substitutionteacher;
                         }
                     }
                 }
             }
+            $substitutionteachers = array_values($substitutionteachers);
+            // Now sort the teachers by last name.
+            usort($substitutionteachers, function ($a, $b) {
+                return $a['lastname'] <=> $b['lastname'];
+            });
+
             $mailstrings = self::generate_mailstring($substitutionteachers);
             $category['categorydata'] = [
                 'viewsubstitutionspool' => $viewsubstitutionspool,

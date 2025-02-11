@@ -166,6 +166,8 @@ class substitutionspool_form extends \core_form\dynamic_form {
                 // Don't overwrite -> merge given records first.
                 $existingteachersarray = explode(',', $existingrecord->teachers);
                 $teacheridsarr = array_merge($existingteachersarray, $teacheridsarr);
+                // After merging, remove duplicates.
+                $teacheridsarr = array_unique($teacheridsarr);
             }
             $teacherids = trim(implode(',', $teacheridsarr), ',');
             $existingrecord->teachers = $teacherids;
