@@ -461,8 +461,8 @@ class sap_daily_sums {
         // Kostenstelle.
         $sqlkostenstelle = "SELECT s1.kst
         FROM {payments} p
-        JOIN {local_shopping_cart_history} h
-        ON h.identifier = p.itemid
+        JOIN {local_shopping_cart_ledger} l
+        ON l.identifier = p.itemid
         JOIN (
             SELECT d.instanceid AS optionid, d.value AS kst
             FROM {customfield_field} f
@@ -471,7 +471,7 @@ class sap_daily_sums {
             JOIN {customfield_data} d
             ON d.fieldid = f.id
         ) s1
-        ON s1.optionid = h.itemid
+        ON s1.optionid = l.itemid
         WHERE p.itemid = :identifier AND s1.kst <> '' AND s1.kst IS NOT NULL
         LIMIT 1";
         $paramskostenstelle = ['identifier' => $identifier];
