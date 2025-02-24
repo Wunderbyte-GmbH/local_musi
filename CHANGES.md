@@ -1,3 +1,7 @@
+## Version 0.9.16 (2025022400)
+* Bugfix: Fix sorting, duplicates and several bugs with substitutions pool.
+* Bugfix: Cost center must come from ledger - as installments are not stored in shopping_cart_history.
+
 ## Version 0.9.15 (2025012300)
 * Improvement: Add new filter for bookable options and new searchfield for free places.
 * Improvement: Filter and sorting for bookable/free places as settings to be turned on or off.
