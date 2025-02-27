@@ -191,7 +191,6 @@ $string['shortcodessetinstancedesc'] = 'If you use this setting, you can use the
 So no need to specify the ID';
 $string['shortcodesnobookinginstance'] = '<div class="text-danger font-weight-bold">No booking instance created yet!</div>';
 $string['shortcodesnobookinginstancedesc'] = 'You need to create at least one booking instance within a moodle course before you can choose one.';
-$string['shortcodesuserinformation'] = 'Display user information';
 $string['shortcodesarchivecmids'] = 'List of IDs for "My courses" archive';
 $string['shortcodesarchivecmids_desc'] = 'Enter a comma-separated list of course module ids (cmids) of booking instances you want to show in the "My courses" archive.
 Leave this empty if you want to show ALL instances.';
@@ -224,9 +223,6 @@ $string['contractformula'] = 'Contract formula';
 $string['contractformula_desc'] = 'Configure how contracts affect staff invoices and define special cases using a JSON formula.';
 $string['contractformulatest'] = 'Test the contract formula';
 $string['editcontractformula'] = 'Edit contract formula';
-
-// Userinformation.mustache.
-$string['userinformation'] = 'Benutzer-Information';
 
 // My Courses List.
 $string['tocoursecontent'] = 'Course content';

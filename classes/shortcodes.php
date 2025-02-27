@@ -34,7 +34,6 @@ use local_wunderbyte_table\filters\types\hourlist;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\customfield\booking_handler;
 use mod_booking\output\page_allteachers;
-use local_musi\output\userinformation;
 use local_musi\table\musi_table;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\shopping_cart_credits;
@@ -76,41 +75,6 @@ class shortcodes {
         $data = sports::get_all_sportsdivisions_data($courseid);
 
         return $OUTPUT->render_from_template('local_musi/shortcodes_rendersportcategories', $data);
-    }
-
-    /**
-     * Prints out list of bookingoptions.
-     * Arguments can be 'category' or 'perpage'.
-     *
-     * @param string $shortcode
-     * @param array $args
-     * @param string|null $content
-     * @param object $env
-     * @param Closure $next
-     * @return void
-     */
-    public static function userinformation($shortcode, $args, $content, $env, $next) {
-
-        global $USER, $PAGE;
-
-        self::fix_args($args);
-
-        $userid = $args['userid'] ?? 0;
-        // If the id argument was not passed on, we have a fallback in the connfig.
-        $context = context_system::instance();
-        if (empty($userid) && has_capability('local/shopping_cart:cashier', $context)) {
-            $userid = shopping_cart::return_buy_for_userid();
-        } else if (!has_capability('local/shopping_cart:cashier', $context)) {
-            $userid = $USER->id;
-        }
-
-        if (!isset($args['fields'])) {
-            $args['fields'] = '';
-        }
-
-        $data = new userinformation($userid, $args['fields']);
-        $output = $PAGE->get_renderer('local_musi');
-        return $output->render_userinformation($data);
     }
 
     /**
