@@ -1,3 +1,6 @@
+## Version 0.9.17 (2025030500)
+* Improvement: Migrate userinformation shortcode to shopping cart.
+
 ## Version 0.9.16 (2025022400)
 * Bugfix: Fix sorting, duplicates and several bugs with substitutions pool.
 * Bugfix: Cost center must come from ledger - as installments are not stored in shopping_cart_history.
