@@ -108,13 +108,7 @@ class shortcodes {
             $args['countlabel'] = false;
         }
 
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ((int)$args['perpage'])
-        ) {
-            $perpage = 100;
-        }
+        $perpage = \mod_booking\shortcodes::check_perpage($args);
 
         $table = self::inittableforcourses($booking);
 
@@ -195,7 +189,7 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return string $out
      */
     public static function allcoursesgrid($shortcode, $args, $content, $env, $next) {
 
@@ -207,13 +201,7 @@ class shortcodes {
             $category = '';
         }
 
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
+        $perpage = \mod_booking\shortcodes::check_perpage($args);
 
         $table = self::inittableforcourses($booking);
 
@@ -357,13 +345,7 @@ class shortcodes {
             $category = '';
         }
 
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
+        $perpage = \mod_booking\shortcodes::check_perpage($args);
 
         $table = self::inittableforcourses($booking);
 
@@ -452,13 +434,7 @@ class shortcodes {
             $category = '';
         }
 
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
+        $perpage = \mod_booking\shortcodes::check_perpage($args);
 
         $table = self::inittableforcourses($booking);
 
@@ -546,13 +522,7 @@ class shortcodes {
         self::fix_args($args);
         $booking = self::get_booking($args);
 
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
+        $perpage = \mod_booking\shortcodes::check_perpage($args);
 
         $table = self::inittableforcourses($booking);
 
@@ -612,13 +582,7 @@ class shortcodes {
             $category = '';
         }
 
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
+        $perpage = \mod_booking\shortcodes::check_perpage($args);
 
         if (empty($args['countlabel'])) {
             $args['countlabel'] = false;
@@ -813,7 +777,7 @@ class shortcodes {
      * @return void
      *
      */
-    private static function add_standardfilters(&$table) {
+    public static function add_standardfilters(&$table) {
         // Turn on or off.
         if (get_config('local_musi', 'musishortcodesshowfilterbookable')) {
             $callbackfilter = new callback('bookable', get_string('bookable', 'local_musi'));
@@ -896,13 +860,34 @@ class shortcodes {
 
         return $booking;
     }
-
+    /**
+     * Set table from shortcodes arguments.
+     *
+     * @param musi_table $table
+     * @param array $args
+     *
+     * @return [type]
+     *
+     */
     private static function set_table_options_from_arguments(&$table, $args) {
         self::fix_args($args);
 
         /** @var musi_table $table */
         $table->set_display_options($args);
+        \mod_booking\shortcodes::set_common_table_options_from_arguments($table, $args);
+        self::set_common_table_options_from_arguments($table, $args);
+    }
 
+    /**
+     * Setting options from shortcodes arguments common for musi_table.
+     *
+     * @param musi_table $table reference to table
+     * @param array $args
+     *
+     * @return void
+     *
+     */
+    private static function set_common_table_options_from_arguments(&$table, $args) {
         if (!empty($args['filter'])) {
             self::add_standardfilters($table);
         }
@@ -928,8 +913,8 @@ class shortcodes {
                     get_string('freeplaces', 'local_musi')
                 );
                 $select = '(SELECT COALESCE(NULLIF(s1.maxanswers, 0), 999999) - COUNT(ba.id)
-                           FROM {booking_answers} ba
-                           WHERE ba.optionid = s1.id AND ba.waitinglist < 3) AS freeplaces';
+                               FROM {booking_answers} ba
+                               WHERE ba.optionid = s1.id AND ba.waitinglist < 3) AS freeplaces';
                 $from = '';
                 $where = '';
                 $standardsortable->define_sql($select, $from, $where);
@@ -952,35 +937,7 @@ class shortcodes {
             }
             $table->define_sortablecolumns($sortablecolumns);
         }
-
-        $defaultorder = SORT_ASC; // Default.
-        if (!empty($args['sortorder'])) {
-            if (strtolower($args['sortorder']) === "desc") {
-                $defaultorder = SORT_DESC;
-            }
-        }
-        if (!empty($args['sortby'])) {
-            $table->sortable(true, $args['sortby'], $defaultorder);
-        } else {
-            $table->sortable(true, 'text', $defaultorder);
-        }
-
-        if (isset($args['pageable']) && ($args['pageable'] == 1 || $args['pageable'] == true)) {
-            $table->pageable(true);
-            $table->stickyheader = true;
-        }
-
-        if (!isset($args['pageable']) || $args['pageable'] == 0 || $args['pageable'] == "false" || $args['pageable'] == false) {
-            $infinitescrollpage = is_numeric($args['infinitescrollpage'] ?? '') ? (int)$args['infinitescrollpage'] : 30;
-            // This allows us to use infinite scrolling, No pages will be used.
-            $table->infinitescroll = $infinitescrollpage;
-        }
-
-        if (isset($args['requirelogin']) && $args['requirelogin'] == "false") {
-            $table->requirelogin = false;
-        }
     }
-
     private static function generate_table_for_cards(&$table, $args) {
         self::fix_args($args);
         $table->define_cache('mod_booking', 'bookingoptionstable');
