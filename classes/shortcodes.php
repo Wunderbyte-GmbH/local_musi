@@ -223,16 +223,39 @@ class shortcodes {
             $wherearray['sport'] = $category;
         };
 
-        self::set_wherearray_from_arguments($args, $wherearray);
+        $additionalwhere = '';
+        self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
         // If we want to find only the teacher relevant options, we chose different sql.
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
             [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $booking->context,
+                    [],
+                    $wherearray,
+                    null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere
+                );
         } else {
             [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $booking->context,
+                    [],
+                    $wherearray,
+                    null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere
+                );
         }
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
@@ -346,7 +369,8 @@ class shortcodes {
 
         $wherearray = ['bookingid' => (int)$booking->id];
 
-        self::set_wherearray_from_arguments($args, $wherearray);
+        $additionalwhere = '';
+        self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
         if (!empty($category)) {
             $wherearray['sport'] = $category;
@@ -356,10 +380,32 @@ class shortcodes {
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
             [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $booking->context,
+                    [],
+                    $wherearray,
+                    null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere
+                );
         } else {
             [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $booking->context,
+                    [],
+                    $wherearray,
+                    null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere
+                );
         }
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
@@ -418,16 +464,39 @@ class shortcodes {
 
         $wherearray = ['bookingid' => (int)$booking->id];
 
-        self::set_wherearray_from_arguments($args, $wherearray);
+        $additionalwhere = '';
+        self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
         // If we want to find only the teacher relevant options, we chose different sql.
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
             [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray, $USER->id);
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $booking->context,
+                    [],
+                    $wherearray,
+                    $USER->id,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere
+                );
         } else {
             [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray, $USER->id);
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $booking->context,
+                    [],
+                    $wherearray,
+                    $USER->id,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere
+                );
         }
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
@@ -560,16 +629,39 @@ class shortcodes {
         $table->showcountlabel = $args['countlabel'];
         $wherearray = ['bookingid' => (int)$booking->id];
 
-        self::set_wherearray_from_arguments($args, $wherearray);
+        $additionalwhere = '';
+        self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
         // If we want to find only the teacher relevant options, we chose different sql.
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
             [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray, $USER->id);
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $booking->context,
+                    [],
+                    $wherearray,
+                    $USER->id,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere
+                );
         } else {
             [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray, $USER->id);
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $booking->context,
+                    [],
+                    $wherearray,
+                    $USER->id,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere
+                );
         }
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
@@ -1214,7 +1306,10 @@ class shortcodes {
                 }
             }
             if (!empty($additionalwheres)) {
-                $additionalwhere = " (" . implode(' OR ', $additionalwheres) . ")";
+                if (!empty($additionalwhere)) {
+                    $additionalwhere .= " AND ";
+                }
+                $additionalwhere .= " (" . implode(' OR ', $additionalwheres) . ")";
             }
         }
     }
