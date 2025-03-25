@@ -129,7 +129,7 @@ class shortcodes {
             $additionalwhere = " (bookingid = " . (int)$booking->id . " OR id $inorequal )";
         }
 
-        self::set_wherearray_from_arguments($args, $wherearray);
+        self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
         // If we want to find only the teacher relevant options, we chose different sql.
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
@@ -1171,15 +1171,15 @@ class shortcodes {
     }
 
     /**
-     * Modify there wherearray via arguments.
+     * Modify wherearray and additionalwhere via arguments.
      *
      * @param array $args
+     * @param array $wherearray
+     * @param string $additionalwhere
      *
      * @return void
-     *
      */
-    private static function set_wherearray_from_arguments(array &$args, &$wherearray) {
-
+    private static function set_wherearray_from_arguments(array &$args, array &$wherearray, string &$additionalwhere = '') {
         // This is special treatment of sport.
         if (!empty($args['category'])) {
             $wherearray['sport'] = $args['category'];
@@ -1200,10 +1200,21 @@ class shortcodes {
             }
         }
         if (!empty($fields)) {
-            foreach ($fields as $customfield => $argument) {
-                $argument = strip_tags($argument);
-                $arguemnt = trim($argument);
-                $wherearray[$customfield] = $arguemnt;
+            // This should now support multiple customfields.
+            $additionalwheres = [];
+            foreach ($fields as $customfield => $value) {
+                $value = strip_tags(trim($value));
+                // We have to check for multiple values, separated by comma.
+                $values = explode(',', $value);
+                foreach ($values as $value) {
+                    $additionalwheres[] = "($customfield = '$value'
+                                OR $customfield LIKE '$value,%'
+                                OR $customfield LIKE '%,$value'
+                                OR $customfield LIKE '%,$value,%')";
+                }
+            }
+            if (!empty($additionalwheres)) {
+                $additionalwhere = " (" . implode(' OR ', $additionalwheres) . ")";
             }
         }
     }
