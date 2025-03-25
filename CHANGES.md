@@ -1,3 +1,6 @@
+## Version 0.9.18 (2025032500)
+* Improvement: Added support for multiple custom field values in shortcodes.
+
 ## Version 0.9.17 (2025030500)
 * Improvement: Migrate userinformation shortcode to shopping cart.
 
