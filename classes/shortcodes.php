@@ -56,7 +56,7 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return mixed
      */
     public static function showallsports($shortcode, $args, $content, $env, $next) {
 
@@ -86,38 +86,62 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return string
      */
     public static function allcourseslist($shortcode, $args, $content, $env, $next) {
+        self::fix_args($args);
 
+        [$table, $perpage] = self::unifiedview($shortcode, $args, $content, $env, $next, false);
+        // If we find "nolazy='1'", we return the table directly, without lazy loading.
+        if (!empty($args['lazy'])) {
+            [$idstring, $encodedtable, $out] = $table->lazyouthtml($perpage, true);
+            return $out;
+        }
+
+        return $table->outhtml($perpage, true);
+    }
+
+    /**
+     * Unifiedview for
+     *
+     * @param mixed $shortcode
+     * @param mixed $args
+     * @param mixed $content
+     * @param mixed $env
+     * @param mixed $next
+     * @param bool $renderascard
+     *
+     * @return array
+     *
+     */
+    public static function unifiedview($shortcode, $args, $content, $env, $next, $renderascard = false) {
         global $DB;
 
         self::fix_args($args);
-
         $booking = self::get_booking($args);
+
+
+        $perpage = \mod_booking\shortcodes::check_perpage($args);
+
+        if (empty($args['filterontop'])) {
+            $args['filterontop'] = false;
+        }
 
         if (!isset($args['category']) || !$category = ($args['category'])) {
             $category = '';
-        }
-
-        if (!isset($args['image']) || !$showimage = ($args['image'])) {
-            $showimage = false;
         }
 
         if (empty($args['countlabel'])) {
             $args['countlabel'] = false;
         }
 
-        $perpage = \mod_booking\shortcodes::check_perpage($args);
-
         $table = self::inittableforcourses($booking);
-
         $table->showcountlabel = $args['countlabel'];
 
-        if (empty($args['includeoptions'])) {
-            $wherearray = ['bookingid' => (int)$booking->id];
-            $additionalwhere = '';
-        } else {
+        $wherearray = ['bookingid' => (int)$booking->id];
+        $additionalwhere = '';
+
+        if (!empty($args['includeoptions'])) {
             $wherearray = [];
             [$inorequal, $additionalparams] = $DB->get_in_or_equal(explode(',', $args['includeoptions']), SQL_PARAMS_NAMED);
             $additionalwhere = " (bookingid = " . (int)$booking->id . " OR id $inorequal )";
@@ -126,57 +150,47 @@ class shortcodes {
         self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
         // If we want to find only the teacher relevant options, we chose different sql.
-        if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
+        if (isset($args['teacherid']) && is_numeric($args['teacherid'])) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
         }
+
         [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(
-                    0,
-                    0,
-                    '',
-                    null,
-                    $booking->context,
-                    [],
-                    $wherearray,
-                    null,
-                    [MOD_BOOKING_STATUSPARAM_BOOKED],
-                    $additionalwhere
-                );
+            booking::get_options_filter_sql(
+                0,
+                0,
+                '',
+                null,
+                $booking->context,
+                [],
+                $wherearray,
+                null,
+                [MOD_BOOKING_STATUSPARAM_BOOKED],
+                $additionalwhere
+            );
 
         if (!empty($additionalparams)) {
-            foreach ($additionalparams as $key => $value) {
-                $params[$key] = $value;
-            }
+            $params = array_merge($params, $additionalparams);
         }
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
-
         $table->use_pages = true;
 
-        if ($showimage !== false) {
+        if (!empty($args['image'])) {
             $table->set_tableclass('cardimageclass', 'pr-0 pl-1');
-
             $table->add_subcolumns('cardimage', ['image']);
         }
 
         self::set_table_options_from_arguments($table, $args);
-        self::generate_table_for_list($table, $args);
 
-        $table->cardsort = true;
-
-        $table->tabletemplate = 'local_musi/table_list';
-        $table->showcountlabel = true;
-
-        // If we find "nolazy='1'", we return the table directly, without lazy loading.
-        if (!empty($args['lazy'])) {
-            [$idstring, $encodedtable, $out] = $table->lazyouthtml($perpage, true);
-
-            return $out;
+        if ($renderascard) {
+            self::generate_table_for_cards($table, $args);
+            $table->tabletemplate = 'local_urise/table_card';
+        } else {
+            self::generate_table_for_list($table, $args);
+            $table->tabletemplate = 'local_urise/table_list';
         }
 
-        $out = $table->outhtml($perpage, true);
-
-        return $out;
+        return [$table, $perpage];
     }
 
     /**
