@@ -102,7 +102,7 @@ class shortcodes {
     }
 
     /**
-     * Unifiedview for
+     * Unifiedview for List, Table & Grid
      *
      * @param mixed $shortcode
      * @param mixed $args
@@ -130,6 +130,9 @@ class shortcodes {
         if (!isset($args['category']) || !$category = ($args['category'])) {
             $category = '';
         }
+        if (!empty($category)) {
+            $wherearray['sport'] = $category;
+        };
 
         if (empty($args['countlabel'])) {
             $args['countlabel'] = false;
@@ -184,10 +187,10 @@ class shortcodes {
 
         if ($renderascard) {
             self::generate_table_for_cards($table, $args);
-            $table->tabletemplate = 'local_urise/table_card';
+            $table->tabletemplate = 'local_musi/table_card';
         } else {
             self::generate_table_for_list($table, $args);
-            $table->tabletemplate = 'local_urise/table_list';
+            $table->tabletemplate = 'local_musi/table_list';
         }
 
         return [$table, $perpage];
@@ -353,66 +356,7 @@ class shortcodes {
             return '';
         } */
         self::fix_args($args);
-        $booking = self::get_booking($args);
-
-        if (!isset($args['category']) || !$category = ($args['category'])) {
-            $category = '';
-        }
-
-        $perpage = \mod_booking\shortcodes::check_perpage($args);
-
-        $table = self::inittableforcourses($booking);
-
-        $wherearray = ['bookingid' => (int)$booking->id];
-
-        $additionalwhere = '';
-        self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
-
-        if (!empty($category)) {
-            $wherearray['sport'] = $category;
-        };
-
-        // If we want to find only the teacher relevant options, we chose different sql.
-        if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
-            $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
-            [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(
-                    0,
-                    0,
-                    '',
-                    null,
-                    $booking->context,
-                    [],
-                    $wherearray,
-                    null,
-                    [MOD_BOOKING_STATUSPARAM_BOOKED],
-                    $additionalwhere
-                );
-        } else {
-            [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(
-                    0,
-                    0,
-                    '',
-                    null,
-                    $booking->context,
-                    [],
-                    $wherearray,
-                    null,
-                    [MOD_BOOKING_STATUSPARAM_BOOKED],
-                    $additionalwhere
-                );
-        }
-
-        $table->set_filter_sql($fields, $from, $where, $filter, $params);
-
-        $table->use_pages = false;
-
-        self::generate_table_for_cards($table, $args);
-
-        self::set_table_options_from_arguments($table, $args);
-
-        $table->tabletemplate = 'local_musi/table_card';
+        [$table, $perpage] = self::unifiedview($shortcode, $args, $content, $env, $next, true);
 
         // If we find "nolazy='1'", we return the table directly, without lazy loading.
         if (!empty($args['lazy'])) {
@@ -420,7 +364,6 @@ class shortcodes {
 
             return $out;
         }
-
         $out = $table->outhtml($perpage, true);
 
         return $out;
@@ -536,29 +479,7 @@ class shortcodes {
         self::fix_args($args);
         $booking = self::get_booking($args);
 
-        $perpage = \mod_booking\shortcodes::check_perpage($args);
-
-        $table = self::inittableforcourses($booking);
-
-        // We want to check for the currently logged in user...
-        // ... if (s)he is teaching courses.
-        $teacherid = $USER->id;
-
-        // This is the important part: We only filter for booking options where the current user is a teacher!
-        // Also we only want to show courses for the currently set booking instance (semester instance).
-        [$fields, $from, $where, $params, $filter] =
-            booking::get_all_options_of_teacher_sql($teacherid, (int)$booking->id);
-
-        $table->set_filter_sql($fields, $from, $where, $filter, $params);
-
-        $table->use_pages = false;
-
-        self::generate_table_for_cards($table, $args);
-
-        self::set_table_options_from_arguments($table, $args);
-
-        $table->cardsort = true;
-
+        [$table, $perpage] = self::unifiedview($shortcode, $args, $content, $env, $next, true);
         // This allows us to use infinite scrolling, No pages will be used.
         $table->infinitescroll = 30;
 
@@ -570,9 +491,7 @@ class shortcodes {
 
             return $out;
         }
-
-        $out = $table->outhtml($perpage, true);
-        return $out;
+        return $table->outhtml($perpage, true);
     }
 
     /**
@@ -856,6 +775,14 @@ class shortcodes {
         }
     }
 
+    /**
+     * Get booking from shortcode arguments.
+     *
+     * @param mixed $args
+     *
+     * @return string
+     *
+     */
     private static function get_booking($args) {
         self::fix_args($args);
         // If the id argument was not passed on, we have a fallback in the connfig.
