@@ -152,24 +152,7 @@ class shortcodes {
 
         self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
-        // If we want to find only the teacher relevant options, we chose different sql.
-        if (isset($args['teacherid']) && is_numeric($args['teacherid'])) {
-            $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
-        }
-
-        [$fields, $from, $where, $params, $filter] =
-            booking::get_options_filter_sql(
-                0,
-                0,
-                '',
-                null,
-                $booking->context,
-                [],
-                $wherearray,
-                null,
-                [MOD_BOOKING_STATUSPARAM_BOOKED],
-                $additionalwhere
-            );
+        [$fields, $from, $where, $params, $filter] = self::teacher_relevant_option($args, $booking, $wherearray, $additionalwhere);
 
         if (!empty($additionalparams)) {
             $params = array_merge($params, $additionalparams);
@@ -187,10 +170,8 @@ class shortcodes {
 
         if ($renderascard) {
             self::generate_table_for_cards($table, $args);
-            $table->tabletemplate = 'local_musi/table_card';
         } else {
             self::generate_table_for_list($table, $args);
-            $table->tabletemplate = 'local_musi/table_list';
         }
 
         return [$table, $perpage];
@@ -231,37 +212,7 @@ class shortcodes {
         $additionalwhere = '';
         self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
-        // If we want to find only the teacher relevant options, we chose different sql.
-        if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
-            $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
-            [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(
-                    0,
-                    0,
-                    '',
-                    null,
-                    $booking->context,
-                    [],
-                    $wherearray,
-                    null,
-                    [MOD_BOOKING_STATUSPARAM_BOOKED],
-                    $additionalwhere
-                );
-        } else {
-            [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(
-                    0,
-                    0,
-                    '',
-                    null,
-                    $booking->context,
-                    [],
-                    $wherearray,
-                    null,
-                    [MOD_BOOKING_STATUSPARAM_BOOKED],
-                    $additionalwhere
-                );
-        }
+        [$fields, $from, $where, $params, $filter] = self::teacher_relevant_option($args, $booking, $wherearray, $additionalwhere);
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
@@ -338,7 +289,7 @@ class shortcodes {
     }
 
     /**
-     * Prints out list of bookingoptions.
+     * Prints out list of cards bookingoptions.
      * Arguments can be 'category' or 'perpage'.
      *
      * @param string $shortcode
@@ -349,12 +300,6 @@ class shortcodes {
      * @return void
      */
     public static function allcoursescards($shortcode, $args, $content, $env, $next) {
-        // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
-        // TODO: Define capability.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* if (!has_capability('moodle/site:config', $env->context)) {
-            return '';
-        } */
         self::fix_args($args);
         [$table, $perpage] = self::unifiedview($shortcode, $args, $content, $env, $next, true);
 
@@ -371,7 +316,7 @@ class shortcodes {
 
 
     /**
-     * Prints out list of bookingoptions.
+     * Prints out list of cards of bookingoptions.
      * Arguments can be 'id', 'category' or 'perpage'.
      *
      * @param string $shortcode
@@ -379,13 +324,14 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return string
      */
     public static function mycoursescards($shortcode, $args, $content, $env, $next) {
 
         global $USER;
         self::fix_args($args);
         $booking = self::get_booking($args);
+        $userid = $USER->id;
 
         if (!isset($args['category']) || !$category = ($args['category'])) {
             $category = '';
@@ -400,37 +346,7 @@ class shortcodes {
         $additionalwhere = '';
         self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
-        // If we want to find only the teacher relevant options, we chose different sql.
-        if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
-            $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
-            [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(
-                    0,
-                    0,
-                    '',
-                    null,
-                    $booking->context,
-                    [],
-                    $wherearray,
-                    $USER->id,
-                    [MOD_BOOKING_STATUSPARAM_BOOKED],
-                    $additionalwhere
-                );
-        } else {
-            [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(
-                    0,
-                    0,
-                    '',
-                    null,
-                    $booking->context,
-                    [],
-                    $wherearray,
-                    $USER->id,
-                    [MOD_BOOKING_STATUSPARAM_BOOKED],
-                    $additionalwhere
-                );
-        }
+        [$fields, $from, $where, $params, $filter] = self::teacher_relevant_option($args, $booking, $wherearray, $additionalwhere, $userid);
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
@@ -503,11 +419,12 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return string
      */
     public static function mycourseslist($shortcode, $args, $content, $env, $next) {
 
         global $USER;
+        $userid = $USER->id;
         self::fix_args($args);
         $booking = self::get_booking($args);
 
@@ -529,37 +446,7 @@ class shortcodes {
         $additionalwhere = '';
         self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
-        // If we want to find only the teacher relevant options, we chose different sql.
-        if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
-            $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
-            [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(
-                    0,
-                    0,
-                    '',
-                    null,
-                    $booking->context,
-                    [],
-                    $wherearray,
-                    $USER->id,
-                    [MOD_BOOKING_STATUSPARAM_BOOKED],
-                    $additionalwhere
-                );
-        } else {
-            [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(
-                    0,
-                    0,
-                    '',
-                    null,
-                    $booking->context,
-                    [],
-                    $wherearray,
-                    $USER->id,
-                    [MOD_BOOKING_STATUSPARAM_BOOKED],
-                    $additionalwhere
-                );
-        }
+        [$fields, $from, $where, $params, $filter] = self::teacher_relevant_option($args, $booking, $wherearray, $additionalwhere, $userid);
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
@@ -595,7 +482,7 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return string
      */
     public static function userdashboardcards($shortcode, $args, $content, $env, $next) {
         global $DB, $PAGE, $USER;
@@ -640,7 +527,7 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return string
      */
     public static function allteacherscards($shortcode, $args, $content, $env, $next) {
         global $DB, $PAGE;
@@ -668,6 +555,14 @@ class shortcodes {
         return $output->render_allteacherspage($data);
     }
 
+    /**
+     * Initiates table of courses
+     *
+     * @param mixed $booking
+     *
+     * @return musi_table $table
+     *
+     */
     private static function inittableforcourses($booking) {
 
         global $PAGE, $USER;
@@ -879,6 +774,15 @@ class shortcodes {
             $table->define_sortablecolumns($sortablecolumns);
         }
     }
+    /**
+     * Generates Table for cards
+     *
+     * @param musi_table $table
+     * @param mixed $args
+     *
+     * @return void
+     *
+     */
     private static function generate_table_for_cards(&$table, $args) {
         self::fix_args($args);
         $table->define_cache('mod_booking', 'bookingoptionstable');
@@ -970,8 +874,18 @@ class shortcodes {
         $table->set_tableclass('cardimageclass', 'w-100');
 
         $table->is_downloading('', 'List of booking options');
+        $table->tabletemplate = 'local_musi/table_card';
     }
 
+    /**
+     * Generates Tables for List.
+     *
+     * @param musi_table $table
+     * @param mixed $args
+     *
+     * @return void
+     *
+     */
     private static function generate_table_for_list(&$table, $args) {
 
         self::fix_args($args);
@@ -1090,6 +1004,7 @@ class shortcodes {
         );
 
         $table->is_downloading('', 'List of booking options');
+        $table->tabletemplate = 'local_musi/table_list';
     }
 
     /**
@@ -1101,7 +1016,7 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return string
      */
     public static function newslettersubscribe($shortcode, $args, $content, $env, $next) {
 
@@ -1129,7 +1044,7 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return string
      */
     public static function newsletterunsubscribe($shortcode, $args, $content, $env, $next) {
 
@@ -1238,5 +1153,86 @@ class shortcodes {
                     MOD_BOOKING_BO_COND_CONFIRMBOOKWITHSUBSCRIPTION,
                 ]
             ) ? 1 : 0;
+    }
+    /**
+     * Helperfunction to filter for relevant Teachers
+     *
+     * @param mixed $args
+     * @param mixed $booking
+     * @param mixed $wherearray
+     * @param mixed $additionalwhere
+     * @param int $userid
+     *
+     * @return array
+     *
+     */
+    private static function teacher_relevant_option($args, $booking, $wherearray, $additionalwhere, $userid = null) {
+        // If we want to find only the teacher relevant options, we chose different sql.
+        if (!isset($userid)) {
+            if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
+                $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
+                [$fields, $from, $where, $params, $filter] =
+                    booking::get_options_filter_sql(
+                        0,
+                        0,
+                        '',
+                        null,
+                        $booking->context,
+                        [],
+                        $wherearray,
+                        null,
+                        [MOD_BOOKING_STATUSPARAM_BOOKED],
+                        $additionalwhere
+                    );
+                return [$fields, $from, $where, $params, $filter];
+            } else {
+                [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $booking->context,
+                    [],
+                    $wherearray,
+                    null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere
+                );
+                return [$fields, $from, $where, $params, $filter];
+            }
+        }
+        if ((isset($args['teacherid']) && (is_int((int)$args['teacherid'])))) {
+            $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
+            [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $booking->context,
+                    [],
+                    $wherearray,
+                    $userid,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere
+                );
+                return [$fields, $from, $where, $params, $filter];
+        } else {
+            [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $booking->context,
+                    [],
+                    $wherearray,
+                    $userid,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere
+                );
+                return [$fields, $from, $where, $params, $filter];
+        }
     }
 }
