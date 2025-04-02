@@ -76,39 +76,8 @@ class shortcodes {
 
         return $OUTPUT->render_from_template('local_musi/shortcodes_rendersportcategories', $data);
     }
-
     /**
-     * Prints out list of bookingoptions.
-     * Arguments can be 'category' or 'perpage'.
-     *
-     * @param string $shortcode
-     * @param array $args
-     * @param string|null $content
-     * @param object $env
-     * @param Closure $next
-     * @return string
-     */
-    public static function allcourseslist($shortcode, $args, $content, $env, $next) {
-        global $DB;
-        $booking = self::get_booking($args);
-        self::fix_args($args);
-        $additionalwhere = '';
-        $additionalparams = [];
-        if (empty($args['countlabel'])) {
-            $args['countlabel'] = false;
-        }
-        if (!empty($args['includeoptions'])) {
-            $wherearray = [];
-            [$inorequal, $additionalparams] = $DB->get_in_or_equal(explode(',', $args['includeoptions']), SQL_PARAMS_NAMED);
-            $additionalwhere = " (bookingid = " . (int)$booking->id . " OR id $inorequal )";
-        }
-        [$table, $perpage] = self::unifiedview($shortcode, $args, $content, $env, $next, false, $additionalwhere, $additionalparams);
-        $table->showcountlabel = $args['countlabel'];
-        return self::generate_output($args, $table, $perpage);
-    }
-
-    /**
-     * Unifiedview for List, Table & Grid
+     * Unifiedview for List and Table.
      *
      * @param mixed $shortcode
      * @param mixed $args
@@ -116,18 +85,20 @@ class shortcodes {
      * @param mixed $env
      * @param mixed $next
      * @param bool $renderascard
+     * @param string $additionalwhere
+     * @param array $additionalpalarms
      *
      * @return array
      *
      */
-    public static function unifiedview($shortcode, $args, $content, $env, $next, $renderascard = false, $additionalwhere = '', $additionalparams = '') {
+    public static function unifiedview($shortcode, $args, $content, $env, $next, $renderascard = false, $additionalwhere = '', $additionalparams = []) {
         global $DB;
 
         self::fix_args($args);
         $booking = self::get_booking($args);
         $perpage = \mod_booking\shortcodes::check_perpage($args);
 
-        $table = self::inittableforcourses($booking);
+        $table = self::inittableforcourses();
 
         $wherearray = ['bookingid' => (int)$booking->id];
 
@@ -136,7 +107,7 @@ class shortcodes {
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
         }
-        [$fields, $from, $where, $params, $filter] = self::get_sql_params($args, $booking, $wherearray, $additionalwhere);
+        [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere);
 
         if (!empty($additionalparams)) {
             $params = array_merge($params, $additionalparams);
@@ -161,10 +132,54 @@ class shortcodes {
     }
 
     /**
-     * Prints out grid of bookingoptions.
+     * Prints out list of all bookingoptions.
      * Arguments can be 'category' or 'perpage'.
-     * Templates table_grid...
-     * Styles Tablegrid
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
+    public static function allcourseslist($shortcode, $args, $content, $env, $next) {
+        global $DB;
+        self::fix_args($args);
+        $additionalwhere = '';
+        $additionalparams = [];
+        $booking = self::get_booking($args);
+        if (empty($args['countlabel'])) {
+            $args['countlabel'] = false;
+        }
+        if (!empty($args['includeoptions'])) {
+            $wherearray = [];
+            [$inorequal, $additionalparams] = $DB->get_in_or_equal(explode(',', $args['includeoptions']), SQL_PARAMS_NAMED);
+            $additionalwhere = " (bookingid = " . (int)$booking->id . " OR id $inorequal )";
+        }
+        [$table, $perpage] = self::unifiedview($shortcode, $args, $content, $env, $next, false, $additionalwhere, $additionalparams);
+        $table->showcountlabel = $args['countlabel'];
+        return self::generate_output($args, $table, $perpage);
+    }
+
+    /**
+     * Prints out list of cards bookingoptions.
+     * Arguments can be 'category' or 'perpage'.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
+    public static function allcoursescards($shortcode, $args, $content, $env, $next) {
+        self::fix_args($args);
+        [$table, $perpage] = self::unifiedview($shortcode, $args, $content, $env, $next, true);
+        return self::generate_output($args, $table, $perpage);
+    }
+
+    /**
+     * Prints out grid of bookingoptions.
      * @param string $shortcode
      * @param array $args
      * @param string|null $content
@@ -180,7 +195,7 @@ class shortcodes {
 
         $perpage = \mod_booking\shortcodes::check_perpage($args);
 
-        $table = self::inittableforcourses($booking);
+        $table = self::inittableforcourses();
 
         $wherearray = ['bookingid' => (int)$booking->id];
 
@@ -191,7 +206,7 @@ class shortcodes {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
         }
 
-        [$fields, $from, $where, $params, $filter] = self::get_sql_params($args, $booking, $wherearray, $additionalwhere);
+        [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere);
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
@@ -254,26 +269,8 @@ class shortcodes {
         self::set_table_options_from_arguments($table, $args);
 
         $table->tabletemplate = 'local_musi/table_grid_list';
-        self::generate_output($args, $table, $perpage);
-    }
-
-    /**
-     * Prints out list of cards bookingoptions.
-     * Arguments can be 'category' or 'perpage'.
-     *
-     * @param string $shortcode
-     * @param array $args
-     * @param string|null $content
-     * @param object $env
-     * @param Closure $next
-     * @return void
-     */
-    public static function allcoursescards($shortcode, $args, $content, $env, $next) {
-        self::fix_args($args);
-        [$table, $perpage] = self::unifiedview($shortcode, $args, $content, $env, $next, true);
         return self::generate_output($args, $table, $perpage);
     }
-
 
     /**
      * Prints out list of cards of bookingoptions.
@@ -296,7 +293,7 @@ class shortcodes {
 
         $perpage = \mod_booking\shortcodes::check_perpage($args);
 
-        $table = self::inittableforcourses($booking);
+        $table = self::inittableforcourses();
 
         $wherearray = ['bookingid' => (int)$booking->id];
 
@@ -306,7 +303,7 @@ class shortcodes {
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
         }
-        [$fields, $from, $where, $params, $filter] = self::get_sql_params($args, $booking, $wherearray, $additionalwhere, $userid);
+        [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere, $userid);
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
@@ -331,7 +328,7 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return string
      */
     public static function mytaughtcoursescards($shortcode, $args, $content, $env, $next) {
 
@@ -345,7 +342,7 @@ class shortcodes {
 
         $perpage = \mod_booking\shortcodes::check_perpage($args);
 
-        $table = self::inittableforcourses($booking);
+        $table = self::inittableforcourses();
 
         // We want to check for the currently logged in user...
         // ... if (s)he is teaching courses.
@@ -396,7 +393,7 @@ class shortcodes {
             $args['countlabel'] = false;
         }
 
-        $table = self::inittableforcourses($booking);
+        $table = self::inittableforcourses();
 
         $table->showcountlabel = $args['countlabel'];
         $wherearray = ['bookingid' => (int)$booking->id];
@@ -404,7 +401,7 @@ class shortcodes {
         $additionalwhere = '';
         self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
-        [$fields, $from, $where, $params, $filter] = self::get_sql_params($args, $booking, $wherearray, $additionalwhere, $userid);
+        [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere, $userid);
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
@@ -503,14 +500,14 @@ class shortcodes {
     }
 
     /**
-     * Initiates table of courses
+     * Initiates table of courses.
      *
      * @param mixed $booking
      *
      * @return musi_table $table
      *
      */
-    private static function inittableforcourses($booking) {
+    private static function inittableforcourses() {
 
         global $PAGE, $USER;
 
@@ -535,7 +532,7 @@ class shortcodes {
             $buyforuserid = $USER->id;
         }
 
-        $table = new musi_table($tablename, $booking, $buyforuserid);
+        $table = new musi_table($tablename);
 
         $table->define_baseurl($baseurl->out());
         $table->cardsort = true;
@@ -648,7 +645,7 @@ class shortcodes {
      * @param musi_table $table
      * @param array $args
      *
-     * @return [type]
+     * @return void
      *
      */
     private static function set_table_options_from_arguments(&$table, $args) {
@@ -1077,7 +1074,7 @@ class shortcodes {
      *
      * @param mixed $record
      *
-     * @return [type]
+     * @return int
      *
      */
     public static function filter_bookable($record) {
@@ -1100,7 +1097,7 @@ class shortcodes {
             ) ? 1 : 0;
     }
     /**
-     * Helperfunction to filter for relevant Teachers
+     * Helperfunction to get SQL Params.
      *
      * @param mixed $args
      * @param mixed $booking
@@ -1111,8 +1108,7 @@ class shortcodes {
      * @return array
      *
      */
-    private static function get_sql_params($args, $booking, $wherearray, $additionalwhere, $userid = null) {
-        // If we want to find only the teacher relevant options, we chose different sql.
+    private static function get_sql_params($booking, $wherearray, $additionalwhere, $userid = null) {
         if (!isset($userid)) {
                 [$fields, $from, $where, $params, $filter] =
                     booking::get_options_filter_sql(
@@ -1151,7 +1147,7 @@ class shortcodes {
      * @param musi_table $table
      * @param int $perpage
      *
-     * @return [type]
+     * @return string
      *
      */
     private static function generate_output($args, $table, $perpage) {
