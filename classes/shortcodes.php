@@ -498,8 +498,7 @@ class shortcodes {
 
         // Now prepare the data for all teachers.
         $data = new page_allteachers($teacherids);
-        $output = $PAGE->get_renderer('local_musi');
-        // And return the rendered page showing all teachers.
+        $output = $PAGE->get_renderer('mod_booking');        // And return the rendered page showing all teachers.
         return $output->render_allteacherspage($data);
     }
 
