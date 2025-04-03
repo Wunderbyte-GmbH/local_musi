@@ -77,7 +77,7 @@ class shortcodes {
         return $OUTPUT->render_from_template('local_musi/shortcodes_rendersportcategories', $data);
     }
     /**
-     * Unifiedview for List and Table.
+     * Unifiedview for List and Cards.
      *
      * @param mixed $shortcode
      * @param mixed $args
@@ -148,16 +148,14 @@ class shortcodes {
         $additionalwhere = '';
         $additionalparams = [];
         $booking = self::get_booking($args);
-        if (empty($args['countlabel'])) {
-            $args['countlabel'] = false;
-        }
+
         if (!empty($args['includeoptions'])) {
             $wherearray = [];
             [$inorequal, $additionalparams] = $DB->get_in_or_equal(explode(',', $args['includeoptions']), SQL_PARAMS_NAMED);
             $additionalwhere = " (bookingid = " . (int)$booking->id . " OR id $inorequal )";
         }
         [$table, $perpage] = self::unifiedview($shortcode, $args, $content, $env, $next, false, $additionalwhere, $additionalparams);
-        $table->showcountlabel = $args['countlabel'];
+        $table->showcountlabel = empty($args['countlabel']) ? false : $args['countlabel'];
         return self::generate_output($args, $table, $perpage);
     }
 
@@ -190,9 +188,7 @@ class shortcodes {
     public static function allcoursesgrid($shortcode, $args, $content, $env, $next) {
 
         self::fix_args($args);
-
         $booking = self::get_booking($args);
-
         $perpage = \mod_booking\shortcodes::check_perpage($args);
 
         $table = self::inittableforcourses();
@@ -389,13 +385,9 @@ class shortcodes {
 
         $perpage = \mod_booking\shortcodes::check_perpage($args);
 
-        if (empty($args['countlabel'])) {
-            $args['countlabel'] = false;
-        }
-
         $table = self::inittableforcourses();
 
-        $table->showcountlabel = $args['countlabel'];
+        $table->showcountlabel = empty($args['countlabel']) ? false : $args['countlabel'];
         $wherearray = ['bookingid' => (int)$booking->id];
 
         $additionalwhere = '';
@@ -544,12 +536,12 @@ class shortcodes {
     /**
      * Add the musi standard filters to the table.
      *
-     * @param mixed $table
+     * @param musi_table $table
      *
      * @return void
      *
      */
-    public static function add_standardfilters(&$table) {
+    public static function add_standardfilters($table) {
         // Turn on or off.
         if (get_config('local_musi', 'musishortcodesshowfilterbookable')) {
             $callbackfilter = new callback('bookable', get_string('bookable', 'local_musi'));
@@ -715,6 +707,16 @@ class shortcodes {
                 $sortablecolumns['bookingclosingtime'] = get_string('bookingclosingtime', 'mod_booking');
             }
             $table->define_sortablecolumns($sortablecolumns);
+        }
+        if (isset($args['pageable']) && ($args['pageable'] == 1 || $args['pageable'] == true)) {
+            $table->pageable(true);
+            $table->stickyheader = true;
+        }
+
+        if (!isset($args['pageable']) || $args['pageable'] == 0 || $args['pageable'] == "false" || $args['pageable'] == false) {
+            $infinitescrollpage = is_numeric($args['infinitescrollpage'] ?? '') ? (int)$args['infinitescrollpage'] : 30;
+            // This allows us to use infinite scrolling, No pages will be used.
+            $table->infinitescroll = $infinitescrollpage;
         }
     }
     /**
@@ -1109,8 +1111,8 @@ class shortcodes {
      *
      */
     private static function get_sql_params($booking, $wherearray, $additionalwhere, $userid = null) {
-        if (!isset($userid)) {
-                [$fields, $from, $where, $params, $filter] =
+
+        return  [$fields, $from, $where, $params, $filter] =
                     booking::get_options_filter_sql(
                         0,
                         0,
@@ -1119,27 +1121,12 @@ class shortcodes {
                         $booking->context,
                         [],
                         $wherearray,
-                        null,
+                        $userid,
                         [MOD_BOOKING_STATUSPARAM_BOOKED],
                         $additionalwhere
                     );
-                return [$fields, $from, $where, $params, $filter];
-        }
-            [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(
-                    0,
-                    0,
-                    '',
-                    null,
-                    $booking->context,
-                    [],
-                    $wherearray,
-                    $userid,
-                    [MOD_BOOKING_STATUSPARAM_BOOKED],
-                    $additionalwhere
-                );
-                return [$fields, $from, $where, $params, $filter];
     }
+
     /**
      * Helperfunction to generate output
      *
