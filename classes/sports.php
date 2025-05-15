@@ -83,13 +83,13 @@ class sports {
      * Returns the sports divisions
      * @param int $courseid
      * @param bool $noprint
-     * @return void
+     * @return array
      * @throws dml_exception
      * @throws coding_exception
      * @throws moodle_exception
      * @throws HTMLPurifier_Exception
      */
-    public static function get_all_sportsdivisions_data(int $courseid, $print = true) {
+    public static function get_all_sportsdivisions_data(int $courseid, $print = true): array {
 
         global $DB;
 

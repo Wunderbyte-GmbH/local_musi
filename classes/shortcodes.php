@@ -91,7 +91,16 @@ class shortcodes {
      * @return array
      *
      */
-    public static function unifiedview($shortcode, $args, $content, $env, $next, $renderascard = false, $additionalwhere = '', $additionalparams = []) {
+    public static function unifiedview(
+        $shortcode,
+        $args,
+        $content,
+        $env,
+        $next,
+        $renderascard = false,
+        $additionalwhere = '',
+        $additionalparams = []
+    ): array {
         global $DB;
 
         self::fix_args($args);
@@ -154,7 +163,16 @@ class shortcodes {
             [$inorequal, $additionalparams] = $DB->get_in_or_equal(explode(',', $args['includeoptions']), SQL_PARAMS_NAMED);
             $additionalwhere = " (bookingid = " . (int)$booking->id . " OR id $inorequal )";
         }
-        [$table, $perpage] = self::unifiedview($shortcode, $args, $content, $env, $next, false, $additionalwhere, $additionalparams);
+        [$table, $perpage] = self::unifiedview(
+            $shortcode,
+            $args,
+            $content,
+            $env,
+            $next,
+            false,
+            $additionalwhere,
+            $additionalparams
+        );
         $table->showcountlabel = empty($args['countlabel']) ? false : $args['countlabel'];
         return self::generate_output($args, $table, $perpage);
     }
