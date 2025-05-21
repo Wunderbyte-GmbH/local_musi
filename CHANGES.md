@@ -1,3 +1,7 @@
+## Version 0.9.19 (2025052000)
+* Bugfix: Fix for increasing gap between filter and content.
+* Improvement: Refactored shortcodes for better code quality.
+
 ## Version 0.9.18 (2025032500)
 * Improvement: Added support for multiple custom field values in shortcodes.
 
