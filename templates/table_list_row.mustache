@@ -133,8 +133,7 @@
           <div class="d-block col-md-auto">
               <ul class="nav mb-2">
               {{#info}}
-                <span {{^value}} style="display:none" {{/value}}>
-                  <li class="nav-item pr-3">
+                  <li class="nav-item pr-3" {{^value}} style="display:none" {{/value}}>
                     <div class="d-flex align-items-center" {{#columnalt}}title="{{.}}"{{/columnalt}}>
                       <div class="mr-2 d-flex text-secondary font-size-m icon-uxs align-middle">
                         {{#columniclassbefore}}
@@ -153,7 +152,6 @@
                       </div>
                     </div>
                   </li>
-                </span>
               {{/info}}
               </ul>
         </div>
