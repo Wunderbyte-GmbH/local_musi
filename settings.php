@@ -51,14 +51,17 @@ if ($hassiteconfig) {
         if (
             $records = $DB->get_records_sql(
                 "SELECT cm.id cmid, b.name bookingname
-            FROM {course_modules} cm
-            LEFT JOIN {booking} b
-            ON b.id = cm.instance
-            WHERE cm.module IN (
-                SELECT id
-                FROM {modules} m
-                WHERE m.name = 'booking'
-            )"
+                FROM {course_modules} cm
+                LEFT JOIN {booking} b
+                ON b.id = cm.instance
+                WHERE cm.visible = 1
+                AND cm.deletioninprogress <> 1
+                AND b.id IS NOT NULL
+                AND cm.module IN (
+                    SELECT id
+                    FROM {modules} m
+                    WHERE m.name = 'booking'
+                )"
             )
         ) {
             foreach ($records as $record) {
