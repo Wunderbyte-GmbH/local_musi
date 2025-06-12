@@ -56,20 +56,21 @@ class substitutionspool_form extends \core_form\dynamic_form {
         $sport = $this->_ajaxformdata['sport'];
 
         $options = [
+            'tags' => false,
             'multiple' => true,
             'noselectionstring' => get_string('choose...', 'mod_booking'),
-            'ajax' => 'local_shopping_cart/form_users_selector',
+            'ajax' => 'mod_booking/form_teachers_selector',
             'valuehtmlcallback' => function ($value) {
                 global $OUTPUT;
                 if (empty($value)) {
-                    return null;
+                    return get_string('choose...', 'mod_booking');
                 }
                 $user = singleton_service::get_instance_of_user((int)$value);
                 $details = [
-                    'id' => $user->id,
-                    'email' => $user->email,
-                    'firstname' => $user->firstname,
-                    'lastname' => $user->lastname,
+                    'id' => $user->id ?? 0,
+                    'email' => $user->email ?? '',
+                    'firstname' => $user->firstname ?? '',
+                    'lastname' => $user->lastname ?? '',
                 ];
                 return $OUTPUT->render_from_template(
                     'mod_booking/form-user-selector-suggestion',
