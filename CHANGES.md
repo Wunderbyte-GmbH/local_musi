@@ -1,3 +1,7 @@
+## Version 0.9.20 (2025061100)
+* Accessibility: Remove span from infolist.
+* Bugfix: Only allow to select actually existing and visible instance for shortcodessetinstance setting.
+
 ## Version 0.9.19 (2025052000)
 * Bugfix: Fix for increasing gap between filter and content.
 * Improvement: Refactored shortcodes for better code quality.
