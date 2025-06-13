@@ -110,6 +110,15 @@ if ($hassiteconfig) {
 
         $settings->add(
             new admin_setting_configcheckbox(
+                'local_musi/musishortcodesshowoptiondates',
+                get_string('musishortcodes:showoptiondates', 'local_musi'),
+                '',
+                0
+            )
+        );
+
+        $settings->add(
+            new admin_setting_configcheckbox(
                 'local_musi/musishortcodesshowstart',
                 get_string('musishortcodes:showstart', 'local_musi'),
                 '',

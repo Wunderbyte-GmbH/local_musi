@@ -83,6 +83,7 @@ $string['musishortcodes:showfiltercoursetime'] = 'Filter "Kurs beginnt um" anzei
 $string['musishortcodes:showfilterbookable'] = 'Filter "Buchbar" anzeigen';
 $string['musishortcodes:showfilterbookingtime'] = 'Filter "Anmeldezeiten" anzeigen';
 $string['musishortcodes:showsortingfreeplaces'] = 'Sortiermöglichkeit "Freie Plätze" anzeigen';
+$string['musishortcodes:showoptiondates'] = 'Termine anzeigen';
 
 // General strings.
 $string['campaigns'] = 'Kampagnen';

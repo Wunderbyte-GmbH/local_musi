@@ -15,22 +15,13 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace local_musi\table;
+use cache;
 use mod_booking\booking_answers;
-
-defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
-require_once(__DIR__ . '/../../lib.php');
-require_once($CFG->libdir . '/tablelib.php');
-
 use coding_exception;
 use context_module;
-use context_system;
 use dml_exception;
 use html_writer;
 use local_wunderbyte_table\wunderbyte_table;
-use mod_booking\bo_availability\bo_info;
-use mod_booking\booking;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option;
 use mod_booking\option\dates_handler;
@@ -41,6 +32,12 @@ use mod_booking\singleton_service;
 use moodle_exception;
 use moodle_url;
 use stdClass;
+
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+require_once(__DIR__ . '/../../lib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -73,6 +70,67 @@ class musi_table extends wunderbyte_table {
                 unset($this->displayoptions['showmaxanwers']);
             }
         }
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * showdates value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string a string containing collapsible dates
+     * @throws coding_exception
+     */
+    public function col_showdates($values) {
+        // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
+        if (empty($values->id)) {
+            $debugmessage = "musi_table function col_dates: ";
+            $debugmessage .= "id (optionid) is missing from values object - values: ";
+            $debugmessage .= json_encode($values);
+            debugging($debugmessage, DEBUG_DEVELOPER);
+            return '';
+        }
+
+        // NOTE: Do not use $this->cmid and $this->context because it might be that booking options come from different instances!
+        // So we always need to retrieve them via singleton service for the current booking option ($values->id).
+        $optionid = $values->id;
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        // If $settings->cmid is missing, we show the settings object in debug mode, so we can investigate what happens.
+        if (empty($settings->cmid)) {
+            $debugmessage = "musi_table function col_dates: ";
+            $debugmessage .= "cmid is missing from settings object - settings: ";
+            $debugmessage .= json_encode($settings);
+            debugging($debugmessage, DEBUG_DEVELOPER);
+            return '';
+        }
+
+        $cmid = $settings->cmid;
+        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+
+        $ret = '';
+        if ($this->is_downloading()) {
+            $datestrings = dates_handler::return_array_of_sessions_datestrings($optionid);
+            $ret = implode(' | ', $datestrings);
+        } else {
+            // Use the renderer to output this column.
+            $lang = current_language();
+
+            $cachekey = "musisessiondates$optionid$lang";
+            $cache = cache::make($this->cachecomponent, $this->rawcachename);
+
+            if (
+                !empty($settings->selflearningcourse)
+                || !$ret = $cache->get($cachekey)
+            ) {
+                $data = new \mod_booking\output\col_coursestarttime($optionid, $booking);
+                $output = singleton_service::get_renderer('mod_booking');
+                $ret = $output->render_col_coursestarttime($data);
+                if (empty($settings->selflearningcourse)) {
+                    $cache->set($cachekey, $ret);
+                }
+            }
+        }
+        return $ret;
     }
 
     /**
