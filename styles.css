@@ -245,7 +245,8 @@ div[id*="substitutionspoolteachers"] .form-autocomplete-suggestions {
     text-decoration: none;
 }
 
-.booking-optiondates-area {
+.musi-courses-container .booking-showdates-area {
+    margin-top: 5px;
     margin-left: 15px;
     margin-bottom: 10px;
 }

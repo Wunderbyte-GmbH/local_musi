@@ -905,9 +905,6 @@ class shortcodes {
             'sportsdivision-badge'], ['sportsdivision']);
         $table->add_classes_to_subcolumns('top', ['columnclass' => 'text-right col-md-2 position-relative pr-0'], ['action']);
 
-        if (get_config('local_musi', 'musishortcodesshowoptiondates')) {
-            $table->add_classes_to_subcolumns('leftside', ['columnkeyclass' => 'musi-optiondates-area'], ['showdates']);
-        }
         $table->add_classes_to_subcolumns('leftside', ['columnkeyclass' => 'd-none']);
         $table->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left mt-1 mb-1 h3 col-md-auto'], ['text']);
         if (get_config('local_musi', 'shortcodelists_showdescriptions')) {
