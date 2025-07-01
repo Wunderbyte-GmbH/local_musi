@@ -303,7 +303,7 @@ class musi_table extends wunderbyte_table {
         if (!empty($this->displayoptions['showmaxanwers'])) {
             $data->showmaxanswers = $this->displayoptions['showmaxanwers'];
         }
-        $output = singleton_service::get_renderer('local_musi');
+        $output = singleton_service::get_renderer('mod_booking');
         return $output->render_col_availableplaces($data);
     }
 
