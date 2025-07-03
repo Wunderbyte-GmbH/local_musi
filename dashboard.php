@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Add dates to option.
  *
@@ -61,7 +62,7 @@ $PAGE->requires->js_call_amd(
     'init',
     [
         '[data-action=openbotagsmodal]',
-        get_string('editbotags', 'local_musi')
+        get_string('editbotags', 'local_musi'),
     ]
 );
 

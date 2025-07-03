@@ -47,18 +47,16 @@ require_once($CFG->libdir . '/externallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class get_all_itemids extends external_api {
-
     /**
      * Describes the paramters for add_item_to_cart.
      *
      * @return external_function_parameters
      */
     public static function execute_parameters(): external_function_parameters {
-        return new external_function_parameters(array(
+        return new external_function_parameters([
             'component'  => new external_value(PARAM_RAW, 'component', VALUE_DEFAULT),
             'area'  => new external_value(PARAM_RAW, 'area', VALUE_DEFAULT),
-            )
-        );
+            ]);
     }
 
     /**
@@ -117,10 +115,10 @@ class get_all_itemids extends external_api {
     public static function execute_returns(): external_multiple_structure {
         return new external_multiple_structure(
             new external_single_structure(
-                array(
+                [
                     'id' => new external_value(PARAM_INT, 'Item id'),
                     'name' => new external_value(PARAM_TEXT, 'Item name'),
-                )
+                ]
             )
         );
     }

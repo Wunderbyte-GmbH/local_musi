@@ -20,7 +20,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once(__DIR__ . '/../../lib.php');
-require_once($CFG->libdir.'/tablelib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 use cache_helper;
 use local_shopping_cart\interfaces\interface_transaction_complete;
@@ -32,9 +32,9 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Definitions for transactionstable iteration of wb_table
+ * @package local_musi
  */
 class musi_transactions_table extends wunderbyte_table {
-
     /**
      * Changes integer values from status to meaningful strings
      *
@@ -43,7 +43,7 @@ class musi_transactions_table extends wunderbyte_table {
      */
     public function col_status($values) {
         // TODO: Comment cases.
-        switch($values->status) {
+        switch ($values->status) {
             case 0:
                 return get_string('openorder', 'local_musi');
             case 1:
@@ -98,19 +98,18 @@ class musi_transactions_table extends wunderbyte_table {
             'id' => $rowid,
             'methodname' => 'update_status', // The method needs to be added to your child of wunderbyte_table class.
             'nomodal' => true,
-            'data' => array(
+            'data' => [
                 'itemid' => $values->itemid,
                 'orderid' => $values->tid,
                 'userid' => $values->userid,
-                'gateway' => $values->gateway
-            )
+                'gateway' => $values->gateway,
+            ],
         ];
         table::transform_actionbuttons_array($data);
 
         if ($values->status == 0) {
             return $OUTPUT->render_from_template('local_wunderbyte_table/component_actionbutton', ['showactionbuttons' => $data]);
         }
-
     }
 
     /**
@@ -191,18 +190,18 @@ class musi_transactions_table extends wunderbyte_table {
                         );
                     } else {
                         throw new moodle_exception(
-                            'ERROR: transaction_complete does not implement transaction_complete interface!');
+                            'ERROR: transaction_complete does not implement transaction_complete interface!'
+                        );
                     }
                 } catch (\Throwable $e) {
                     echo($e);
                 }
             }
-
         } catch (\Exception $e) {
             // Transaction could not be verified.
             return [
                 'success' => 0,
-                'message' => get_string('statusnotchanged', 'local_musi') . " : " . $e->getMessage()
+                'message' => get_string('statusnotchanged', 'local_musi') . " : " . $e->getMessage(),
             ];
         }
         // Delete cache if successfull -> data has been changed.
@@ -210,12 +209,12 @@ class musi_transactions_table extends wunderbyte_table {
             cache_helper::purge_by_event('setbackcachedpaymenttable');
             return [
                 'success' => 1,
-                'message' => get_string('statuschanged', 'local_musi')
+                'message' => get_string('statuschanged', 'local_musi'),
             ];
         } else {
             return [
                 'success' => 0,
-                'message' => get_string('statusnotchanged', 'local_musi') . " : " . $result['message']
+                'message' => get_string('statusnotchanged', 'local_musi') . " : " . $result['message'],
             ];
         }
     }

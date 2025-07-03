@@ -26,56 +26,31 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$observers = [
+$pluginname = "local_musi";
+$paymentplugins = [
+    "paygw_payunity",
+    "paygw_mpay24",
+    "paygw_unigraz",
+    "paygw_payone",
+];
+$events = [
+    "payment_added",
+    "payment_completed",
+    "payment_successful",
+];
 
-    // Currently, we add all payment gateways separately.
-    // TODO: We should do this in a more generic way.
-    // For example, we could use a base class or wildcards.
+$observers = [];
+foreach ($paymentplugins as $paymentplugin) {
+    foreach ($events as $event) {
+        $observers[] = [
+            'eventname' => "\\{$paymentplugin}\\event\\{$event}",
+            'callback' => "\\{$pluginname}\\observer::{$event}",
+        ];
+    }
+}
 
-    // Payunity payment plugin.
-    [
-        'eventname' => '\paygw_payunity\event\payment_added',
-        'callback' => '\local_musi\observer::payment_added',
-    ],
-    [
-        'eventname' => '\paygw_payunity\event\payment_completed',
-        'callback' => '\local_musi\observer::payment_completed',
-    ],
-    [
-        'eventname' => '\paygw_payunity\event\payment_successful',
-        'callback' => '\local_musi\observer::payment_successful',
-    ],
-
-    // Mpay24 payment plugin.
-    [
-        'eventname' => '\paygw_mpay24\event\payment_added',
-        'callback' => '\local_musi\observer::payment_added',
-    ],
-    [
-        'eventname' => '\paygw_mpay24\event\payment_completed',
-        'callback' => '\local_musi\observer::payment_completed',
-    ],
-    [
-        'eventname' => '\paygw_mpay24\event\payment_successful',
-        'callback' => '\local_musi\observer::payment_successful',
-    ],
-
-    // Unigraz payment plugin.
-    [
-        'eventname' => '\paygw_unigraz\event\payment_added',
-        'callback' => '\local_musi\observer::payment_added',
-    ],
-    [
-        'eventname' => '\paygw_unigraz\event\payment_completed',
-        'callback' => '\local_musi\observer::payment_completed',
-    ],
-    [
-        'eventname' => '\paygw_unigraz\event\payment_successful',
-        'callback' => '\local_musi\observer::payment_successful',
-    ],
-    // Other events.
-    [
-        'eventname' => '\mod_booking\event\bookingoption_updated',
-        'callback' => '\local_musi\observer::bookingoption_updated',
-    ],
+// Other events (non-generic) can be added here.
+$observers[] = [
+    'eventname' => '\mod_booking\event\bookingoption_updated',
+    'callback' => '\local_musi\observer::bookingoption_updated',
 ];

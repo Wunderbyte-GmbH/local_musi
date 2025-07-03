@@ -16,9 +16,13 @@
 
 namespace local_musi\form;
 
+use coding_exception;
 use context_system;
+use context;
+use dml_exception;
 use mod_booking\singleton_service;
 use moodle_exception;
+use moodle_url;
 use stdClass;
 
 /**
@@ -30,7 +34,11 @@ use stdClass;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class substitutionspool_form extends \core_form\dynamic_form {
-
+    /**
+     * Get the context for the dynamic submission.
+     *
+     * @return context
+     */
     protected function get_context_for_dynamic_submission(): \context {
         return context_system::instance();
     }
@@ -48,27 +56,35 @@ class substitutionspool_form extends \core_form\dynamic_form {
         $sport = $this->_ajaxformdata['sport'];
 
         $options = [
+            'tags' => false,
             'multiple' => true,
             'noselectionstring' => get_string('choose...', 'mod_booking'),
-            'ajax' => 'local_shopping_cart/form_users_selector',
-            'valuehtmlcallback' => function($value) {
+            'ajax' => 'mod_booking/form_teachers_selector',
+            'valuehtmlcallback' => function ($value) {
                 global $OUTPUT;
                 if (empty($value)) {
-                    return null;
+                    return get_string('choose...', 'mod_booking');
                 }
                 $user = singleton_service::get_instance_of_user((int)$value);
                 $details = [
-                    'id' => $user->id,
-                    'email' => $user->email,
-                    'firstname' => $user->firstname,
-                    'lastname' => $user->lastname,
+                    'id' => $user->id ?? 0,
+                    'email' => $user->email ?? '',
+                    'firstname' => $user->firstname ?? '',
+                    'lastname' => $user->lastname ?? '',
                 ];
                 return $OUTPUT->render_from_template(
-                        'mod_booking/form-user-selector-suggestion', $details);
-            }
+                    'mod_booking/form-user-selector-suggestion',
+                    $details
+                );
+            },
         ];
-        $mform->addElement('autocomplete', 'substitutionspoolteachers',
-            get_string('substitutionspool:infotext', 'local_musi', $sport), [], $options);
+        $mform->addElement(
+            'autocomplete',
+            'substitutionspoolteachers',
+            get_string('substitutionspool:infotext', 'local_musi', $sport),
+            [],
+            $options
+        );
     }
 
     /**
@@ -86,6 +102,12 @@ class substitutionspool_form extends \core_form\dynamic_form {
     }
 
 
+    /**
+     * Set data for dynamic submission.
+     *
+     * @return void
+     * @throws dml_exception
+     */
     public function set_data_for_dynamic_submission(): void {
         global $DB;
         $data = new stdClass();
@@ -98,6 +120,13 @@ class substitutionspool_form extends \core_form\dynamic_form {
         $this->set_data($data);
     }
 
+    /**
+     * Process dynamic submission.
+     *
+     * @return mixed
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     public function process_dynamic_submission() {
         global $DB, $USER;
 
@@ -123,7 +152,8 @@ class substitutionspool_form extends \core_form\dynamic_form {
     public static function add_or_update_substitution_for_sport(
         string $sport,
         array $teacheridsarr,
-        bool $overwriteteachers): bool {
+        bool $overwriteteachers
+    ): bool {
         global $DB, $USER;
         $now = time();
 
@@ -137,6 +167,8 @@ class substitutionspool_form extends \core_form\dynamic_form {
                 // Don't overwrite -> merge given records first.
                 $existingteachersarray = explode(',', $existingrecord->teachers);
                 $teacheridsarr = array_merge($existingteachersarray, $teacheridsarr);
+                // After merging, remove duplicates.
+                $teacheridsarr = array_unique($teacheridsarr);
             }
             $teacherids = trim(implode(',', $teacheridsarr), ',');
             $existingrecord->teachers = $teacherids;
@@ -162,12 +194,24 @@ class substitutionspool_form extends \core_form\dynamic_form {
         }
     }
 
+    /**
+     * Validation.
+     *
+     * @param array $data
+     * @param array $files
+     * @return array
+     */
     public function validation($data, $files) {
         $errors = [];
         // Currently not needed.
         return $errors;
     }
 
+    /**
+     * Get page URL for dynamic submission.
+     *
+     * @return moodle_url
+     */
     protected function get_page_url_for_dynamic_submission(): \moodle_url {
         return new \moodle_url('/local/musi/sparten.php');
     }

@@ -25,6 +25,8 @@
  */
 
 use mod_booking\singleton_service;
+use mod_booking\booking;
+use mod_booking\booking_utils;
 
 require_once(__DIR__ . '/../../config.php');
 
@@ -51,6 +53,9 @@ $PAGE->set_title(format_string($title));
 $PAGE->set_pagelayout('base');
 $PAGE->add_body_class('local_musi-meinekurse');
 
+$bu = new booking_utils();
+$subscriptionlink = $bu->booking_generate_calendar_subscription_link($USER);
+
 // Get archive cmids.
 $archivecmids = [];
 $archivecmidsstring = get_config('local_musi', 'shortcodesarchivecmids');
@@ -58,11 +63,24 @@ if (!empty($archivecmidsstring)) {
     $archivecmidsstring = str_replace(';', ',', $archivecmidsstring);
     $archivecmidsstring = str_replace(' ', '', $archivecmidsstring);
     $archivecmids = explode(',', $archivecmidsstring);
+} else {
+    // If shortcodesarchivecmids config field is empty, we show ALL instances.
+    $archivecmids = booking::get_all_cmids();
+    $cmidstoexclude = [];
+    $cmidstoexcludestring = get_config('local_musi', 'shortcodesarchivecmidsexclude');
+    if (!empty($cmidstoexcludestring)) {
+        $cmidstoexcludestring = str_replace(';', ',', $cmidstoexcludestring);
+        $cmidstoexcludestring = str_replace(' ', '', $cmidstoexcludestring);
+        $cmidstoexclude = explode(',', $cmidstoexcludestring);
+    }
+    $archivecmids = array_diff($archivecmids, $cmidstoexclude);
 }
 
 echo $OUTPUT->header();
 
 echo "<div class='text-center h1'>$title</div>";
+echo '<a href="' . $subscriptionlink . '" class="btn btn-primary">' .
+    '<i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;' . get_string('icalexportuserevents', 'local_musi') . '</a>';
 echo "<hr class='w-100 border border-light'/>";
 
 if ($DB->get_records('booking_teachers', ['userid' => $USER->id])) {
@@ -87,7 +105,6 @@ if (!empty($archivecmids)) {
 
         // Add a section for each cmid.
         foreach ($archivecmids as $archivecmid) {
-
             $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($archivecmid);
 
             if (!empty($bookingsettings)) {
@@ -121,7 +138,6 @@ if (!empty($archivecmids)) {
     $archivehtml = '<div class="accordion" id="coursesibookedarchive">';
     // Add a section for each cmid.
     foreach ($archivecmids as $archivecmid) {
-
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($archivecmid);
 
         if (!empty($bookingsettings)) {

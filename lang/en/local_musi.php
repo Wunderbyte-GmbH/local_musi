@@ -25,16 +25,19 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'M:USI Plugin';
-
 $string['dashboard'] = 'Dashboard';
 $string['messageprovider:sendmessages'] = 'Send messages';
 $string['musi:cansendmessages'] = 'Can send messages';
 $string['musi:editavailability'] = 'Can change availability and reservations';
 $string['musi:editsubstitutionspool'] = 'Can edit the substitutions pool of teachers for different sports';
 $string['musi:viewsubstitutionspool'] = 'Can view the substitutions pool of teachers for different sports and send emails to substitution pools';
+$string['pluginname'] = 'M:USI Plugin';
+
 $string['substitutionspoolshowphonenumbers'] = 'Show phone numbers in substitutions pool';
 
+$string['bookable'] = 'Bookable';
+$string['notbookable'] = 'Not bookable';
+$string['freeplaces'] = 'Free places';
 
 // Caches.
 $string['cachedef_cachedpaymenttable'] = 'Cached payment table (transaction list).';
@@ -76,7 +79,10 @@ $string['musishortcodes:showend'] = 'Show "End time of the course"';
 $string['musishortcodes:showbookablefrom'] = 'Show "Bookable from"';
 $string['musishortcodes:showbookableuntil'] = 'Show "Bookable until"';
 $string['musishortcodes:showfiltercoursetime'] = 'Show filter "Course starts at"';
+$string['musishortcodes:showfilterbookable'] = 'Show filter "Bookable"';
 $string['musishortcodes:showfilterbookingtime'] = 'Show filter "Booking time"';
+$string['musishortcodes:showsortingfreeplaces'] = 'Show sorting "Free places"';
+$string['musishortcodes:showoptiondates'] = 'Show dates';
 
 // General strings.
 $string['campaigns'] = 'Campaigns';
@@ -102,6 +108,9 @@ $string['sportsdivision'] = 'Sports division';
 $string['sportsdivisions'] = 'Sports divisions';
 $string['titleprefix'] = 'Course number';
 $string['unknown'] = 'Unknown';
+$string['merchantref'] = 'MerchantRef';
+$string['customorderid'] = 'CustomOrderID';
+$string['icalexportuserevents'] = 'Download an ical file of your upcoming events';
 
 // Errors.
 $string['error:starttime'] = 'Start has to be before end.';
@@ -183,9 +192,10 @@ $string['shortcodessetinstancedesc'] = 'If you use this setting, you can use the
 So no need to specify the ID';
 $string['shortcodesnobookinginstance'] = '<div class="text-danger font-weight-bold">No booking instance created yet!</div>';
 $string['shortcodesnobookinginstancedesc'] = 'You need to create at least one booking instance within a moodle course before you can choose one.';
-$string['shortcodesuserinformation'] = 'Display user information';
-$string['shortcodesarchivecmids'] = 'List of IDs for "My courses"-archive';
-$string['shortcodesarchivecmids_desc'] = 'Enter a comma-separated list of course module ids (cmids) of booking instances you want to show in the "My courses"-archive.';
+$string['shortcodesarchivecmids'] = 'List of IDs for "My courses" archive';
+$string['shortcodesarchivecmids_desc'] = 'Enter a comma-separated list of course module ids (cmids) of booking instances you want to show in the "My courses" archive.
+Leave this empty if you want to show ALL instances.';
+$string['shortcodesarchivecmidsexclude'] = 'List of IDs to exclude in the "My courses" archive';
 
 $string['archive'] = '<i class="fa fa-archive" aria-hidden="true"></i> Archive';
 $string['mycourses'] = 'My courses';
@@ -214,9 +224,6 @@ $string['contractformula'] = 'Contract formula';
 $string['contractformula_desc'] = 'Configure how contracts affect staff invoices and define special cases using a JSON formula.';
 $string['contractformulatest'] = 'Test the contract formula';
 $string['editcontractformula'] = 'Edit contract formula';
-
-// Userinformation.mustache.
-$string['userinformation'] = 'Benutzer-Information';
 
 // My Courses List.
 $string['tocoursecontent'] = 'Course content';

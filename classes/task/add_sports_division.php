@@ -23,9 +23,9 @@ use mod_booking\customfield\booking_handler;
 
 /**
  * Scheduled task creates SAP files in Moodle data directory.
+ * @package local_musi
  */
 class add_sports_division extends scheduled_task {
-
     /**
      * Get name of the task.
      * @return string
@@ -67,21 +67,17 @@ class add_sports_division extends scheduled_task {
 
         // Get List of all booking options which use a particular sport.
         foreach ($data["categories"] as $category) {
-
             foreach ($category["sports"] as $sport) {
                 $boids = sports::return_list_of_boids_with_sport($sport['name']);
 
                 foreach ($boids as $boid) {
-
                     $instance = (object)[
                         'id' => $boid->id,
                         'customfield_sportsdivision' => $category['name'],
                     ];
                     $handler->instance_form_save($instance);
-
                 }
             }
-
         }
         // Important: Purge caches here!
         cache_helper::purge_by_event('setbackoptionstable');

@@ -25,18 +25,23 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'M:USI Plugin';
-
 $string['dashboard'] = 'Dashboard';
 $string['messageprovider:sendmessages'] = 'Verschicke Nachrichten';
 $string['musi:cansendmessages'] = 'Kann Nachrichten schicken.';
 $string['musi:editavailability'] = 'Kann die Verfügbarkeit von Buchungsoptionen ändern und Vorreservierungen anlegen';
 $string['musi:editsubstitutionspool'] = 'Kann den Vertretungspool für einzelne Sportarten bearbeiten';
 $string['musi:viewsubstitutionspool'] = 'Kann den Vertretungspool für einzelne Sportarten sehen und E-Mails an den Vertretungspool senden';
+$string['pluginname'] = 'M:USI Plugin';
+
 $string['substitutionspoolshowphonenumbers'] = 'Telefonnummern der Trainer:innen im Vertretungspool anzeigen';
+
+$string['freeplaces'] = 'Freie Plätze';
 
 // Caches.
 $string['cachedef_cachedpaymenttable'] = 'Zahlungstransaktionen (Cache)';
+
+$string['bookable'] = 'Buchbar';
+$string['notbookable'] = 'Nicht buchbar';
 
 // Settings.
 $string['additionalsettings'] = 'Sonstige Einstellungen';
@@ -75,7 +80,10 @@ $string['musishortcodes:showend'] = 'Kursende anzeigen';
 $string['musishortcodes:showbookablefrom'] = '"Buchbar ab" anzeigen';
 $string['musishortcodes:showbookableuntil'] = '"Buchbar bis" anzeigen';
 $string['musishortcodes:showfiltercoursetime'] = 'Filter "Kurs beginnt um" anzeigen';
+$string['musishortcodes:showfilterbookable'] = 'Filter "Buchbar" anzeigen';
 $string['musishortcodes:showfilterbookingtime'] = 'Filter "Anmeldezeiten" anzeigen';
+$string['musishortcodes:showsortingfreeplaces'] = 'Sortiermöglichkeit "Freie Plätze" anzeigen';
+$string['musishortcodes:showoptiondates'] = 'Termine anzeigen';
 
 // General strings.
 $string['campaigns'] = 'Kampagnen';
@@ -102,6 +110,9 @@ $string['sportsdivision'] = 'Sparte';
 $string['sportsdivisions'] = 'Sparten';
 $string['titleprefix'] = 'Kursnummer';
 $string['unknown'] = 'Unbekannt';
+$string['merchantref'] = 'MerchantRef';
+$string['customorderid'] = 'CustomOrderID';
+$string['icalexportuserevents'] = 'iCal-Datei Ihrer kommenden Veranstaltungen herunterladen';
 
 // Errors.
 $string['error:starttime'] = 'Start muss vor dem Ende sein.';
@@ -183,10 +194,10 @@ $string['shortcodessetinstancedesc'] = 'Wenn Du hier einen Wert setzt, kann der 
 Es ist also nicht mehr nötig, eine ID zu übergeben.';
 $string['shortcodesnobookinginstance'] = '<div class="text-danger font-weight-bold">Noch keine Buchungsinstanz erstellt!</div>';
 $string['shortcodesnobookinginstancedesc'] = 'Sie müssen mindestens eine Buchungsinstanz in einem Moodle-Kurs erstellen, bevor Sie hier eine auswählen können.';
-$string['shortcodesuserinformation'] = 'Zeige Informationen von NutzerInnen';
 $string['shortcodesarchivecmids'] = 'Liste von IDs für das "Meine Kurse"-Archiv';
 $string['shortcodesarchivecmids_desc'] = 'Geben Sie eine Komma-getrennte Liste von Kursmodul-IDs (cmids) der Semester-Instanzen (Buchungsinstanzen) an,
-die im "Meine Kurse"-Archiv aufscheinen sollen.';
+die im "Meine Kurse"-Archiv aufscheinen sollen. Leer lassen, um ALLE Instanzen anzuzeigen, einzelne Instanzen können im nächsten Setting ausgeschlossen werden';
+$string['shortcodesarchivecmidsexclude'] = 'Liste von IDs, die im "Meine Kurse"-Archiv NICHT angezeigt werden sollen';
 
 $string['archive'] = '<i class="fa fa-archive" aria-hidden="true"></i> Archiv';
 $string['mycourses'] = 'Meine Kurse';
@@ -217,9 +228,6 @@ $string['contractformula_desc'] = 'Hier können Sie eine JSON-Formel angeben, di
  auswirken und welche Sonderfälle es gibt.';
 $string['contractformulatest'] = 'Vertragsformel testen';
 $string['editcontractformula'] = 'Vertragsformel bearbeiten';
-
-// Userinformation.mustache.
-$string['userinformation'] = 'Benutzer-Information';
 
 // My Courses List.
 $string['tocoursecontent'] = 'Zu den Kursmaterialien';

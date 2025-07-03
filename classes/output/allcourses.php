@@ -37,7 +37,6 @@ use templatable;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class allcourses implements renderable, templatable {
-
     /** @var stdClass $cards */
     public $cards = [];
 
@@ -59,9 +58,9 @@ class allcourses implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
 
-        $returnarray = array(
-                'cards' => (array)$this->cards
-        );
+        $returnarray = [
+                'cards' => (array)$this->cards,
+        ];
 
         return $returnarray;
     }

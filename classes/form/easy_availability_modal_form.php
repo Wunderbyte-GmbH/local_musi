@@ -33,7 +33,6 @@ use stdClass;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class easy_availability_modal_form extends \core_form\dynamic_form {
-
     /**
      * {@inheritDoc}
      * @see moodleform::definition()

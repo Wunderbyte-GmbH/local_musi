@@ -25,13 +25,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$functions = array(
-        'local_musi_get_all_itemids' => array(
+$functions = [
+        'local_musi_get_all_itemids' => [
                 'classname' => 'local_musi\external\get_all_itemids',
                 'description' => 'Get all item ids',
                 'type' => 'write',
                 'capabilities' => '',
-                'ajax' => 1
-        ),
-);
-
+                'ajax' => 1,
+        ],
+];

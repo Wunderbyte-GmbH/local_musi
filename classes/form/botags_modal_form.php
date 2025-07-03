@@ -22,12 +22,11 @@ use stdClass;
 /**
  * Modal form to create single option dates which are not part of the date series.
  *
- * @package     mod_booking
+ * @package     local_musi
  * @copyright   2022 Wunderbyte GmbH <info@wunderbyte.at>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class botags_modal_form extends \core_form\dynamic_form {
-
     protected function get_context_for_dynamic_submission(): \context {
         return \context_system::instance();
     }
@@ -42,13 +41,18 @@ class botags_modal_form extends \core_form\dynamic_form {
 
         $existingbotagsarray = self::get_existing_botags_array();
 
-        $mform->addElement('autocomplete', 'botags', get_string('editbotags', 'local_musi'),
-            $existingbotagsarray, [
+        $mform->addElement(
+            'autocomplete',
+            'botags',
+            get_string('editbotags', 'local_musi'),
+            $existingbotagsarray,
+            [
                 'tags' => true,
                 'multiple' => true,
                 'placeholder' => get_string('createbotag', 'local_musi'),
-                'showsuggestions' => false
-            ]);
+                'showsuggestions' => false,
+            ]
+        );
 
         $mform->addElement('html', get_string('createbotag:helptext', 'local_musi'));
     }
@@ -86,7 +90,7 @@ class botags_modal_form extends \core_form\dynamic_form {
 
         foreach ($data->botags as $key => $value) {
             if (!$DB->get_record('local_musi_botags', ['botag' => $value])) {
-                $newbotagrecord = new stdClass;
+                $newbotagrecord = new stdClass();
                 $newbotagrecord->botag = $value;
                 $DB->insert_record('local_musi_botags', $newbotagrecord);
             }
@@ -109,7 +113,7 @@ class botags_modal_form extends \core_form\dynamic_form {
      *
      * @return array array of existing botags
      */
-    private static function get_existing_botags_array (): array {
+    private static function get_existing_botags_array(): array {
         global $DB;
         $existingbotagrecords = $DB->get_records('local_musi_botags');
         $existingbotagsarray = [];

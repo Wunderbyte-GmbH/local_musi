@@ -100,10 +100,6 @@
     width: 100%;
 }
 
-.musi-courses-container.wunderbyte_table_filter_on .wunderbyte_table_container {
-    grid-template-columns: auto;
-}
-
 .musi-courses-container .wunderbyteTableFilter .form-group {
     border: none;
     background-color: #fff !important;
@@ -247,4 +243,10 @@ div[id*="substitutionspoolteachers"] .form-autocomplete-suggestions {
     font-size: smaller;
     color: gray;
     text-decoration: none;
+}
+
+.musi-courses-container .booking-showdates-area {
+    margin-top: 5px;
+    margin-left: 15px;
+    margin-bottom: 10px;
 }

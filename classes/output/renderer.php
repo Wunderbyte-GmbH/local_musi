@@ -26,7 +26,6 @@ use plugin_renderer_base;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class renderer extends plugin_renderer_base {
-
     /** Function to render the dashboard
      * @param dashboard $data
      * @return string
@@ -46,18 +45,6 @@ class renderer extends plugin_renderer_base {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('local_musi/dashboard_card_content', $data);
-        return $o;
-    }
-
-    /** Function to render the cards table
-     * @param any $data
-     * @param string $data
-     * @return string
-     */
-    public function render_userinformation($data) {
-        $o = '';
-        $data = $data->export_for_template($this);
-        $o .= $this->render_from_template('local_musi/userinformation', $data);
         return $o;
     }
 
@@ -125,5 +112,4 @@ class renderer extends plugin_renderer_base {
         $o .= $this->render_from_template('local_musi/musi_bookingoption_menu', $data);
         return $o;
     }
-
 }

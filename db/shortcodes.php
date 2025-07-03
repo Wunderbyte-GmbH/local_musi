@@ -62,11 +62,6 @@ $shortcodes = [
         'wraps' => false,
         'description' => 'shortcodeslistofteachersascards',
     ],
-    'userinformation' => [
-        'callback' => 'local_musi\shortcodes::userinformation',
-        'wraps' => false,
-        'description' => 'shortcodesuserinformation',
-    ],
     'showallsports' => [
         'callback' => 'local_musi\shortcodes::showallsports',
         'wraps' => false,

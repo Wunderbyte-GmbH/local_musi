@@ -33,7 +33,6 @@ use mod_booking\singleton_service;
  * Event observer for local_musi.
  */
 class observer {
-
     /**
      * Observer for the payment_added event
      */
@@ -45,6 +44,13 @@ class observer {
      * Observer for the payment_completed event
      */
     public static function payment_completed() {
+        cache_helper::purge_by_event('setbackcachedpaymenttable');
+    }
+
+    /**
+     * Observer for the payment_successful event
+     */
+    public static function payment_successful() {
         cache_helper::purge_by_event('setbackcachedpaymenttable');
     }
 
@@ -65,7 +71,10 @@ class observer {
 
         if (!empty($settings->teachers) && get_config('local_musi', 'autoaddtosubstitutionspool')) {
             $teacherids = array_keys($settings->teachers);
-            if (isset($settings->customfieldsfortemplates['sport']) && isset ($settings->customfieldsfortemplates['sport']['value'])) {
+            if (
+                isset($settings->customfieldsfortemplates['sport'])
+                && isset($settings->customfieldsfortemplates['sport']['value'])
+            ) {
                 $value = $settings->customfieldsfortemplates['sport']['value'];
                 // Depending on the type of customfield handle differently.
                 switch (gettype($value)) {

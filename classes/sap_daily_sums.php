@@ -112,7 +112,7 @@ class sap_daily_sums {
 
         $params = [
             'startofday' => $startofday,
-            'endofday' => $endofday
+            'endofday' => $endofday,
         ];
 
         $content = '';
@@ -120,7 +120,6 @@ class sap_daily_sums {
         $datafordb = [];
         if ($records = $DB->get_records_sql($sql, $params)) {
             foreach ($records as $record) {
-
                 // If the SAP line has errors, we need to add it to a separate file.
                 $linehaserrors = false;
                 $errorinfo = null;
@@ -204,8 +203,14 @@ class sap_daily_sums {
      * @param string $filename the filename (without _errors suffix)
      * @return void
      */
-    private static function add_sap_data_for_manual_rebookings(&$content, &$errorcontent, &$datafordb,
-        int $startofday, int $endofday, string $filename): void {
+    private static function add_sap_data_for_manual_rebookings(
+        &$content,
+        &$errorcontent,
+        &$datafordb,
+        int $startofday,
+        int $endofday,
+        string $filename
+    ): void {
         global $DB;
 
         // 1. Get one record for each manual rebooking.
@@ -231,7 +236,6 @@ class sap_daily_sums {
         }
 
         foreach ($records as $record) {
-
             // If the SAP line has errors, we need to add it to a separate file.
             $linehaserrors = false;
             $errorinfo = null;
@@ -347,15 +351,28 @@ class sap_daily_sums {
      * @return string
      */
     private static function generate_sap_line_for_record(stdClass $record): string {
+        global $DB;
+
         $currentline = '';
+
+        /* Spezialfall für Payone / USI Wien: Bei Payone muss die Payone-spezifische
+        merchantref anstelle des Identifiers angezeigt werden! */
+        // Payone merchantref darf im SAP doch nicht verwendet werden, weil zu lange!
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /*$dbman = $DB->get_manager();
+        if ($dbman->table_exists('paygw_payone_openorders')) {
+            $merchantref = $DB->get_field('paygw_payone_openorders', 'merchantref', ['itemid' => $record->identifier]);
+        }*/
+
         /*
-            * Mandant - 3 Stellen alphanumerisch - immer "101"
-            * Buchungskreis - 4 Stellen alphanumerisch - immer "VIE1"
-            * Währung - 3 Stellen alphanumerisch - immer "EUR"
-            * Belegart - 2 Stellen alphanumerisch - Immer "DR"
-            */
+        * Mandant - 3 Stellen alphanumerisch - immer "101"
+        * Buchungskreis - 4 Stellen alphanumerisch - immer "VIE1"
+        * Währung - 3 Stellen alphanumerisch - immer "EUR"
+        * Belegart - 2 Stellen alphanumerisch - Immer "DR"
+        */
         $currentline .= "101#VIE1#EUR#DR#";
         // Referenzbelegnummer - 16 Stellen alphanumerisch.
+        // Payone merchantref darf im SAP doch nicht verwendet werden, weil zu lange!
         $currentline .= str_pad($record->identifier, 16, " ", STR_PAD_LEFT) . '#';
         // Buchungsdatum - 10 Stellen.
         $currentline .= date('d.m.Y', $record->timemodified) . '#';
@@ -397,6 +414,7 @@ class sap_daily_sums {
         }
         $currentline .= str_pad($buchungstext, 50, " ", STR_PAD_LEFT) . '#';
         // Zuordnung - analog "Referenzbelegnummer" - 18 Stellen alphanumerisch.
+        // Payone merchantref darf im SAP doch nicht verwendet werden, weil zu lange!
         $currentline .= str_pad($record->identifier, 18, " ", STR_PAD_LEFT) . '#';
 
         // Kostenstelle - 10 Stellen - leer.
@@ -443,8 +461,8 @@ class sap_daily_sums {
         // Kostenstelle.
         $sqlkostenstelle = "SELECT s1.kst
         FROM {payments} p
-        JOIN {local_shopping_cart_history} h
-        ON h.identifier = p.itemid
+        JOIN {local_shopping_cart_ledger} l
+        ON l.identifier = p.itemid
         JOIN (
             SELECT d.instanceid AS optionid, d.value AS kst
             FROM {customfield_field} f
@@ -453,7 +471,7 @@ class sap_daily_sums {
             JOIN {customfield_data} d
             ON d.fieldid = f.id
         ) s1
-        ON s1.optionid = h.itemid
+        ON s1.optionid = l.itemid
         WHERE p.itemid = :identifier AND s1.kst <> '' AND s1.kst IS NOT NULL
         LIMIT 1";
         $paramskostenstelle = ['identifier' => $identifier];
@@ -472,7 +490,7 @@ class sap_daily_sums {
 
         // At first replace special chars.
         $umlaute = [
-            "/ß/" ,
+            "/ß/",
             "/ä/", "/à/", "/á/", "/â/", "/æ/", "/ã/", "/å/", "/ā/",
             "/Ä/", "/À/", "/Á/", "/Â/", "/Æ/", "/Ã/", "/Å/", "/Ā/",
             "/é/", "/è/", "/ê/", "/ë/", "/ė/",
@@ -488,7 +506,7 @@ class sap_daily_sums {
         ];
 
         $replace = [
-            "ss" ,
+            "ss",
             "ae", "a", "a", "a", "ae", "a", "a", "a",
             "Ae", "A", "A", "A", "Ae", "A", "A", "A",
             "e", "e", "e", "e", "e",
@@ -549,19 +567,20 @@ class sap_daily_sums {
             $message = $e->getMessage();
             $code = $e->getCode();
             // Get detailed information about $file.
-            $fileinfo = array(
+            $fileinfo = [
                     'filename' => $file->get_filename(),
                     'filepath' => $file->get_filepath(),
                     'filesize' => $file->get_filesize(),
                     'filearea' => $file->get_filearea(),
                     'timecreated' => $file->get_timecreated(),
 
-            );
+            ];
             debugging("Moodle Exception: $message (Code: $code). File Info: " . var_dump($fileinfo, true));
         }
     }
 
     /**
+     * Create SAP files for a specific date.
      * @param string $starttimestamp
      * @return void
      * @throws \file_exception
@@ -596,7 +615,7 @@ class sap_daily_sums {
                         'filename' => $filename,
                 ];
 
-                list($content, $errorcontent, $datafordb) =
+                [$content, $errorcontent, $datafordb] =
                     self::generate_sap_text_file_for_date($starttimestamp);
 
                 foreach ($datafordb as $recordfordb) {
@@ -613,17 +632,16 @@ class sap_daily_sums {
                     $errorfilename = 'SAP_USI_' . date('Ymd', $starttimestamp) . '_errors';
                     $errorfile = $fs->get_file($contextid, $component, $filearea, $itemid, $filepath, $errorfilename);
                     if (!$errorfile) {
-                        $errorfileinfo = array(
+                        $errorfileinfo = [
                                 'contextid' => $contextid,
                                 'component' => $component,
                                 'filearea' => $filearea,
                                 'itemid' => $itemid,
                                 'filepath' => $filepath,
-                                'filename' => $errorfilename
-                        );
+                                'filename' => $errorfilename,
+                        ];
                         $fs->create_file_from_string($errorfileinfo, $errorcontent);
                     }
-
                 }
             }
             $starttimestamp = strtotime('+1 day', $starttimestamp);

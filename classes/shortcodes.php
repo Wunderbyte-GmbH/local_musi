@@ -29,10 +29,11 @@ namespace local_musi;
 use Closure;
 use context_system;
 use html_writer;
+use local_wunderbyte_table\filters\types\callback;
 use local_wunderbyte_table\filters\types\hourlist;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\customfield\booking_handler;
 use mod_booking\output\page_allteachers;
-use local_musi\output\userinformation;
 use local_musi\table\musi_table;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\shopping_cart_credits;
@@ -41,13 +42,11 @@ use local_wunderbyte_table\filters\types\standardfilter;
 use mod_booking\booking;
 use mod_booking\singleton_service;
 use moodle_url;
-use stdClass;
 
 /**
  * Deals with local_shortcodes regarding booking.
  */
 class shortcodes {
-
     /**
      * Prints out list of bookingoptions.
      * Arguments can be 'category' or 'perpage'.
@@ -57,7 +56,7 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return mixed
      */
     public static function showallsports($shortcode, $args, $content, $env, $next) {
 
@@ -77,179 +76,151 @@ class shortcodes {
 
         return $OUTPUT->render_from_template('local_musi/shortcodes_rendersportcategories', $data);
     }
-
     /**
-     * Prints out list of bookingoptions.
-     * Arguments can be 'category' or 'perpage'.
+     * Unifiedview for List and Cards.
      *
-     * @param string $shortcode
-     * @param array $args
-     * @param string|null $content
-     * @param object $env
-     * @param Closure $next
-     * @return void
+     * @param mixed $shortcode
+     * @param mixed $args
+     * @param mixed $content
+     * @param mixed $env
+     * @param mixed $next
+     * @param bool $renderascard
+     * @param string $additionalwhere
+     * @param array $additionalpalarms
+     *
+     * @return array
+     *
      */
-    public static function userinformation($shortcode, $args, $content, $env, $next) {
-
-        global $USER, $PAGE;
+    public static function unifiedview(
+        $shortcode,
+        $args,
+        $content,
+        $env,
+        $next,
+        $renderascard = false,
+        $additionalwhere = '',
+        $additionalparams = []
+    ): array {
+        global $DB;
 
         self::fix_args($args);
-
-        $userid = $args['userid'] ?? 0;
-        // If the id argument was not passed on, we have a fallback in the connfig.
-        $context = context_system::instance();
-        if (empty($userid) && has_capability('local/shopping_cart:cashier', $context)) {
-            $userid = shopping_cart::return_buy_for_userid();
-        } else if (!has_capability('local/shopping_cart:cashier', $context)) {
-            $userid = $USER->id;
-        }
-
-        if (!isset($args['fields'])) {
-
-            $args['fields'] = '';
-        }
-
-        $data = new userinformation($userid, $args['fields']);
-        $output = $PAGE->get_renderer('local_musi');
-        return $output->render_userinformation($data);
-    }
-
-    /**
-     * Prints out list of bookingoptions.
-     * Arguments can be 'category' or 'perpage'.
-     *
-     * @param string $shortcode
-     * @param array $args
-     * @param string|null $content
-     * @param object $env
-     * @param Closure $next
-     * @return void
-     */
-    public static function allcourseslist($shortcode, $args, $content, $env, $next) {
-
-        self::fix_args($args);
-
         $booking = self::get_booking($args);
+        $perpage = \mod_booking\shortcodes::check_perpage($args);
 
-        if (!isset($args['category']) || !$category = ($args['category'])) {
-            $category = '';
-        }
+        $table = self::inittableforcourses();
 
-        if (!isset($args['image']) || !$showimage = ($args['image'])) {
-            $showimage = false;
-        }
-
-        if (empty($args['countlabel'])) {
-            $args['countlabel'] = false;
-        }
-
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ((int)$args['perpage'])
-        ) {
-            $perpage = 100;
-        }
-
-        $table = self::inittableforcourses($booking);
-
-        $table->showcountlabel = $args['countlabel'];
         $wherearray = ['bookingid' => (int)$booking->id];
 
-        self::set_wherearray_from_arguments($args, $wherearray);
+        self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
-        // If we want to find only the teacher relevant options, we chose different sql.
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
-            list($fields, $from, $where, $params, $filter) =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
-        } else {
+        }
+        [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere);
 
-            list($fields, $from, $where, $params, $filter) =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+        if (!empty($additionalparams)) {
+            $params = array_merge($params, $additionalparams);
         }
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
+        $table->use_pages = true;
 
-        $table->use_pages = false;
-
-        if ($showimage !== false) {
+        if (!empty($args['image'])) {
             $table->set_tableclass('cardimageclass', 'pr-0 pl-1');
-
             $table->add_subcolumns('cardimage', ['image']);
         }
 
         self::set_table_options_from_arguments($table, $args);
-        self::generate_table_for_list($table, $args);
 
-        $table->cardsort = true;
-
-        $table->tabletemplate = 'local_musi/table_list';
-        $table->showcountlabel = true;
-
-        // If we find "nolazy='1'", we return the table directly, without lazy loading.
-        if (!empty($args['lazy'])) {
-
-            list($idstring, $encodedtable, $out) = $table->lazyouthtml($perpage, true);
-
-            return $out;
+        if ($renderascard) {
+            self::generate_table_for_cards($table, $args);
+        } else {
+            self::generate_table_for_list($table, $args);
         }
-
-        $out = $table->outhtml($perpage, true);
-
-        return $out;
+        return [$table, $perpage];
     }
 
     /**
-     * Prints out grid of bookingoptions.
+     * Prints out list of all bookingoptions.
      * Arguments can be 'category' or 'perpage'.
-     * Templates table_grid...
-     * Styles Tablegrid
+     *
      * @param string $shortcode
      * @param array $args
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return string
+     */
+    public static function allcourseslist($shortcode, $args, $content, $env, $next) {
+        global $DB;
+        self::fix_args($args);
+        $additionalwhere = '';
+        $additionalparams = [];
+        $booking = self::get_booking($args);
+
+        if (!empty($args['includeoptions'])) {
+            $wherearray = [];
+            [$inorequal, $additionalparams] = $DB->get_in_or_equal(explode(',', $args['includeoptions']), SQL_PARAMS_NAMED);
+            $additionalwhere = " (bookingid = " . (int)$booking->id . " OR id $inorequal )";
+        }
+        [$table, $perpage] = self::unifiedview(
+            $shortcode,
+            $args,
+            $content,
+            $env,
+            $next,
+            false,
+            $additionalwhere,
+            $additionalparams
+        );
+        $table->showcountlabel = empty($args['countlabel']) ? false : $args['countlabel'];
+        return self::generate_output($args, $table, $perpage);
+    }
+
+    /**
+     * Prints out list of cards bookingoptions.
+     * Arguments can be 'category' or 'perpage'.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
+    public static function allcoursescards($shortcode, $args, $content, $env, $next) {
+        self::fix_args($args);
+        [$table, $perpage] = self::unifiedview($shortcode, $args, $content, $env, $next, true);
+        return self::generate_output($args, $table, $perpage);
+    }
+
+    /**
+     * Prints out grid of bookingoptions.
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string $out
      */
     public static function allcoursesgrid($shortcode, $args, $content, $env, $next) {
 
         self::fix_args($args);
-
         $booking = self::get_booking($args);
+        $perpage = \mod_booking\shortcodes::check_perpage($args);
 
-        if (!isset($args['category']) || !$category = ($args['category'])) {
-            $category = '';
-        }
-
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
-
-        $table = self::inittableforcourses($booking);
+        $table = self::inittableforcourses();
 
         $wherearray = ['bookingid' => (int)$booking->id];
 
-        if (!empty($category)) {
-            $wherearray['sport'] = $category;
-        };
+        $additionalwhere = '';
+        self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
-        self::set_wherearray_from_arguments($args, $wherearray);
-
-        // If we want to find only the teacher relevant options, we chose different sql.
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
-            list($fields, $from, $where, $params, $filter) =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
-        } else {
-
-            list($fields, $from, $where, $params, $filter) =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
         }
+
+        [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere);
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
@@ -312,100 +283,11 @@ class shortcodes {
         self::set_table_options_from_arguments($table, $args);
 
         $table->tabletemplate = 'local_musi/table_grid_list';
-
-        // If we find "nolazy='1'", we return the table directly, without lazy loading.
-        if (!empty($args['lazy'])) {
-
-            list($idstring, $encodedtable, $out) = $table->lazyouthtml($perpage, true);
-
-            return $out;
-        }
-
-        $out = $table->outhtml($perpage, true);
-
-        return $out;
+        return self::generate_output($args, $table, $perpage);
     }
 
     /**
-     * Prints out list of bookingoptions.
-     * Arguments can be 'category' or 'perpage'.
-     *
-     * @param string $shortcode
-     * @param array $args
-     * @param string|null $content
-     * @param object $env
-     * @param Closure $next
-     * @return void
-     */
-    public static function allcoursescards($shortcode, $args, $content, $env, $next) {
-
-        // TODO: Define capability.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* if (!has_capability('moodle/site:config', $env->context)) {
-            return '';
-        } */
-        self::fix_args($args);
-        $booking = self::get_booking($args);
-
-        if (!isset($args['category']) || !$category = ($args['category'])) {
-            $category = '';
-        }
-
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
-
-        $table = self::inittableforcourses($booking);
-
-        $wherearray = ['bookingid' => (int)$booking->id];
-
-        self::set_wherearray_from_arguments($args, $wherearray);
-
-        if (!empty($category)) {
-            $wherearray['sport'] = $category;
-        };
-
-        // If we want to find only the teacher relevant options, we chose different sql.
-        if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
-            $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
-            list($fields, $from, $where, $params, $filter) =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
-        } else {
-
-            list($fields, $from, $where, $params, $filter) =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
-        }
-
-        $table->set_filter_sql($fields, $from, $where, $filter, $params);
-
-        $table->use_pages = false;
-
-        self::generate_table_for_cards($table, $args);
-
-        self::set_table_options_from_arguments($table, $args);
-
-        $table->tabletemplate = 'local_musi/table_card';
-
-        // If we find "nolazy='1'", we return the table directly, without lazy loading.
-        if (!empty($args['lazy'])) {
-
-            list($idstring, $encodedtable, $out) = $table->lazyouthtml($perpage, true);
-
-            return $out;
-        }
-
-        $out = $table->outhtml($perpage, true);
-
-        return $out;
-    }
-
-
-    /**
-     * Prints out list of bookingoptions.
+     * Prints out list of cards of bookingoptions.
      * Arguments can be 'id', 'category' or 'perpage'.
      *
      * @param string $shortcode
@@ -413,42 +295,29 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return string
      */
     public static function mycoursescards($shortcode, $args, $content, $env, $next) {
 
         global $USER;
         self::fix_args($args);
         $booking = self::get_booking($args);
+        $userid = $USER->id;
 
-        if (!isset($args['category']) || !$category = ($args['category'])) {
-            $category = '';
-        }
 
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
+        $perpage = \mod_booking\shortcodes::check_perpage($args);
 
-        $table = self::inittableforcourses($booking);
+        $table = self::inittableforcourses();
 
         $wherearray = ['bookingid' => (int)$booking->id];
 
-        self::set_wherearray_from_arguments($args, $wherearray);
+        $additionalwhere = '';
+        self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
-        // If we want to find only the teacher relevant options, we chose different sql.
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
-            list($fields, $from, $where, $params, $filter) =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray, $USER->id);
-        } else {
-
-            list($fields, $from, $where, $params, $filter) =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray, $USER->id);
         }
+        [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere, $userid);
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
@@ -457,27 +326,11 @@ class shortcodes {
         self::generate_table_for_cards($table, $args);
 
         self::set_table_options_from_arguments($table, $args);
-
         $table->cardsort = true;
-
-        // This allows us to use infinite scrolling, No pages will be used.
-        $table->infinitescroll = 30;
-
-        $table->tabletemplate = 'local_musi/table_card';
-
         // We override the cache, because the my cache has to be invalidated with every booking.
         $table->define_cache('mod_booking', 'mybookingoptionstable');
 
-        // If we find "nolazy='1'", we return the table directly, without lazy loading.
-        if (!empty($args['lazy'])) {
-
-            list($idstring, $encodedtable, $out) = $table->lazyouthtml($perpage, true);
-
-            return $out;
-        }
-
-        $out = $table->outhtml($perpage, true);
-        return $out;
+        return self::generate_output($args, $table, $perpage);
     }
 
     /**
@@ -489,7 +342,7 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return string
      */
     public static function mytaughtcoursescards($shortcode, $args, $content, $env, $next) {
 
@@ -497,15 +350,13 @@ class shortcodes {
         self::fix_args($args);
         $booking = self::get_booking($args);
 
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
+        global $USER;
+        self::fix_args($args);
+        $booking = self::get_booking($args);
 
-        $table = self::inittableforcourses($booking);
+        $perpage = \mod_booking\shortcodes::check_perpage($args);
+
+        $table = self::inittableforcourses();
 
         // We want to check for the currently logged in user...
         // ... if (s)he is teaching courses.
@@ -513,7 +364,7 @@ class shortcodes {
 
         // This is the important part: We only filter for booking options where the current user is a teacher!
         // Also we only want to show courses for the currently set booking instance (semester instance).
-        list($fields, $from, $where, $params, $filter) =
+        [$fields, $from, $where, $params, $filter] =
             booking::get_all_options_of_teacher_sql($teacherid, (int)$booking->id);
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
@@ -529,18 +380,7 @@ class shortcodes {
         // This allows us to use infinite scrolling, No pages will be used.
         $table->infinitescroll = 30;
 
-        $table->tabletemplate = 'local_musi/table_card';
-
-        // If we find "nolazy='1'", we return the table directly, without lazy loading.
-        if (!empty($args['lazy'])) {
-
-            list($idstring, $encodedtable, $out) = $table->lazyouthtml($perpage, true);
-
-            return $out;
-        }
-
-        $out = $table->outhtml($perpage, true);
-        return $out;
+        return self::generate_output($args, $table, $perpage);
     }
 
     /**
@@ -552,47 +392,26 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return string
      */
     public static function mycourseslist($shortcode, $args, $content, $env, $next) {
 
         global $USER;
+        $userid = $USER->id;
         self::fix_args($args);
         $booking = self::get_booking($args);
 
-        if (!isset($args['category']) || !$category = ($args['category'])) {
-            $category = '';
-        }
+        $perpage = \mod_booking\shortcodes::check_perpage($args);
 
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
+        $table = self::inittableforcourses();
 
-        if (empty($args['countlabel'])) {
-            $args['countlabel'] = false;
-        }
-
-        $table = self::inittableforcourses($booking);
-
-        $table->showcountlabel = $args['countlabel'];
+        $table->showcountlabel = empty($args['countlabel']) ? false : $args['countlabel'];
         $wherearray = ['bookingid' => (int)$booking->id];
 
-        self::set_wherearray_from_arguments($args, $wherearray);
+        $additionalwhere = '';
+        self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
-        // If we want to find only the teacher relevant options, we chose different sql.
-        if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
-            $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
-            list($fields, $from, $where, $params, $filter) =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray, $USER->id);
-        } else {
-
-            list($fields, $from, $where, $params, $filter) =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray, $USER->id);
-        }
+        [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere, $userid);
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
@@ -604,21 +423,10 @@ class shortcodes {
 
         $table->cardsort = true;
 
-        $table->tabletemplate = 'local_musi/table_list';
-
         // We override the cache, because the my cache has to be invalidated with every booking.
         $table->define_cache('mod_booking', 'mybookingoptionstable');
 
-        // If we find "nolazy='1'", we return the table directly, without lazy loading.
-        if (!empty($args['lazy'])) {
-
-            list($idstring, $encodedtable, $out) = $table->lazyouthtml($perpage, true);
-
-            return $out;
-        }
-
-        $out = $table->outhtml($perpage, true);
-        return $out;
+        return self::generate_output($args, $table, $perpage);
     }
 
     /**
@@ -629,7 +437,7 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return string
      */
     public static function userdashboardcards($shortcode, $args, $content, $env, $next) {
         global $DB, $PAGE, $USER;
@@ -651,8 +459,11 @@ class shortcodes {
         $user = $USER;
 
         $booked = $booking->get_user_booking_count($USER);
-        $asteacher = $DB->get_fieldset_select('booking_teachers', 'optionid',
-            "userid = {$USER->id} AND bookingid = $booking->id ");
+        $asteacher = $DB->get_fieldset_select(
+            'booking_teachers',
+            'optionid',
+            "userid = {$USER->id} AND bookingid = $booking->id "
+        );
         $credits = shopping_cart_credits::get_balance($USER->id);
 
         $data['booked'] = $booked;
@@ -661,7 +472,6 @@ class shortcodes {
 
         $output = $PAGE->get_renderer('local_musi');
         return $output->render_user_dashboard_overview($data);
-
     }
 
     /**
@@ -672,7 +482,7 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return string
      */
     public static function allteacherscards($shortcode, $args, $content, $env, $next) {
         global $DB, $PAGE;
@@ -695,12 +505,19 @@ class shortcodes {
 
         // Now prepare the data for all teachers.
         $data = new page_allteachers($teacherids);
-        $output = $PAGE->get_renderer('local_musi');
-        // And return the rendered page showing all teachers.
+        $output = $PAGE->get_renderer('mod_booking');        // And return the rendered page showing all teachers.
         return $output->render_allteacherspage($data);
     }
 
-    private static function inittableforcourses($booking) {
+    /**
+     * Initiates table of courses.
+     *
+     * @param mixed $booking
+     *
+     * @return musi_table $table
+     *
+     */
+    private static function inittableforcourses() {
 
         global $PAGE, $USER;
 
@@ -725,7 +542,7 @@ class shortcodes {
             $buyforuserid = $USER->id;
         }
 
-        $table = new musi_table($tablename, $booking, $buyforuserid);
+        $table = new musi_table($tablename);
 
         $table->define_baseurl($baseurl->out());
         $table->cardsort = true;
@@ -734,7 +551,27 @@ class shortcodes {
         return $table;
     }
 
-    private static function add_standardfilters(&$table) {
+    /**
+     * Add the musi standard filters to the table.
+     *
+     * @param musi_table $table
+     *
+     * @return void
+     *
+     */
+    public static function add_standardfilters($table) {
+        // Turn on or off.
+        if (get_config('local_musi', 'musishortcodesshowfilterbookable')) {
+            $callbackfilter = new callback('bookable', get_string('bookable', 'local_musi'));
+            $callbackfilter->add_options([
+                0 => get_string('notbookable', 'local_musi'),
+                1 => get_string('bookable', 'local_musi'),
+            ]);
+            // This filter expects a record from booking options table.
+            // We check if it is bookable for the user.
+            $callbackfilter->define_callbackfunction('local_musi\shortcodes::filter_bookable');
+            $table->add_filter($callbackfilter);
+        }
 
         $standardfilter = new standardfilter('sport', get_string('sport', 'local_musi'));
         $table->add_filter($standardfilter);
@@ -770,7 +607,6 @@ class shortcodes {
         }
 
         if (get_config('local_musi', 'musishortcodesshowfilterbookingtime')) {
-
             $datepicker = new datepicker(
                 'bookingopeningtime',
                 get_string('timefilter:bookingtime', 'mod_booking'),
@@ -783,11 +619,18 @@ class shortcodes {
                 'now',
                 'now + 1 year'
             );
-
             $table->add_filter($datepicker);
         }
     }
 
+    /**
+     * Get booking from shortcode arguments.
+     *
+     * @param mixed $args
+     *
+     * @return mixed
+     *
+     */
     private static function get_booking($args) {
         self::fix_args($args);
         // If the id argument was not passed on, we have a fallback in the connfig.
@@ -806,13 +649,34 @@ class shortcodes {
 
         return $booking;
     }
-
+    /**
+     * Set table from shortcodes arguments.
+     *
+     * @param musi_table $table
+     * @param array $args
+     *
+     * @return void
+     *
+     */
     private static function set_table_options_from_arguments(&$table, $args) {
         self::fix_args($args);
 
         /** @var musi_table $table */
         $table->set_display_options($args);
+        \mod_booking\shortcodes::set_common_table_options_from_arguments($table, $args);
+        self::set_common_table_options_from_arguments($table, $args);
+    }
 
+    /**
+     * Setting options from shortcodes arguments common for musi_table.
+     *
+     * @param musi_table $table reference to table
+     * @param array $args
+     *
+     * @return void
+     *
+     */
+    private static function set_common_table_options_from_arguments(&$table, $args) {
         if (!empty($args['filter'])) {
             self::add_standardfilters($table);
         }
@@ -831,6 +695,23 @@ class shortcodes {
                 'sport' => get_string('sport', 'local_musi'),
                 'location' => get_string('location', 'local_musi'),
             ];
+
+            if (get_config('local_musi', 'musishortcodesshowsortingfreeplaces')) {
+                $standardsortable = new \local_wunderbyte_table\local\sortables\types\standardsortable(
+                    'freeplaces',
+                    get_string('freeplaces', 'local_musi')
+                );
+                $select = '(SELECT COALESCE(NULLIF(s1.maxanswers, 0), 999999) - COUNT(ba.id)
+                               FROM {booking_answers} ba
+                               WHERE ba.optionid = s1.id AND ba.waitinglist < 3) AS freeplaces';
+                $from = '';
+                $where = '';
+                $standardsortable->define_sql($select, $from, $where);
+
+                $standardsortable->define_cache('mod_booking', 'bookedusertable');
+                $table->add_sortable($standardsortable);
+            }
+
             if (get_config('local_musi', 'musishortcodesshowstart')) {
                 $sortablecolumns['coursestarttime'] = get_string('coursestarttime', 'mod_booking');
             }
@@ -845,19 +726,6 @@ class shortcodes {
             }
             $table->define_sortablecolumns($sortablecolumns);
         }
-
-        $defaultorder = SORT_ASC; // Default.
-        if (!empty($args['sortorder'])) {
-            if (strtolower($args['sortorder']) === "desc") {
-                $defaultorder = SORT_DESC;
-            }
-        }
-        if (!empty($args['sortby'])) {
-            $table->sortable(true, $args['sortby'], $defaultorder);
-        } else {
-            $table->sortable(true, 'text', $defaultorder);
-        }
-
         if (isset($args['pageable']) && ($args['pageable'] == 1 || $args['pageable'] == true)) {
             $table->pageable(true);
             $table->stickyheader = true;
@@ -868,12 +736,16 @@ class shortcodes {
             // This allows us to use infinite scrolling, No pages will be used.
             $table->infinitescroll = $infinitescrollpage;
         }
-
-        if (isset($args['requirelogin']) && $args['requirelogin'] == "false") {
-            $table->requirelogin = false;
-        }
     }
-
+    /**
+     * Generates Table for cards
+     *
+     * @param musi_table $table
+     * @param mixed $args
+     *
+     * @return void
+     *
+     */
     private static function generate_table_for_cards(&$table, $args) {
         self::fix_args($args);
         $table->define_cache('mod_booking', 'bookingoptionstable');
@@ -895,8 +767,11 @@ class shortcodes {
         );
         $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' =>
             'sportsdivision-badge'], ['sportsdivision']);
-        $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'sport-badge rounded-sm text-gray-800 mt-2'],
-            ['sport']);
+        $table->add_classes_to_subcolumns(
+            'cardbody',
+            ['columnvalueclass' => 'sport-badge rounded-sm text-gray-800 mt-2'],
+            ['sport']
+        );
         $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'm-0 mt-1 mb-1 h5'], ['text']);
 
         // Subcolumns.
@@ -917,7 +792,9 @@ class shortcodes {
         if (!empty($args['showminanswers'])) {
             $subcolumns[] = 'minanswers';
         }
-
+        if (get_config('local_musi', 'musishortcodesshowoptiondates')) {
+            $subcolumns[] = 'showdates';
+        }
         $table->add_subcolumns('cardlist', $subcolumns);
         $table->add_classes_to_subcolumns('cardlist', ['columnkeyclass' => 'd-none']);
         $table->add_classes_to_subcolumns('cardlist', ['columnvalueclass' => 'text-secondary']);
@@ -936,8 +813,11 @@ class shortcodes {
             $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-forward'], ['bookingopeningtime']);
         }
         if (get_config('local_musi', 'musishortcodesshowbookableuntil')) {
-            $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-step-forward'],
-                ['bookingclosingtime']);
+            $table->add_classes_to_subcolumns(
+                'cardlist',
+                ['columniclassbefore' => 'fa fa-fw fa-step-forward'],
+                ['bookingclosingtime']
+            );
         }
 
         $table->add_classes_to_subcolumns('cardlist', ['columniclassbefore' => 'fa fa-fw fa-clock-o'], ['dayofweektime']);
@@ -959,8 +839,18 @@ class shortcodes {
         $table->set_tableclass('cardimageclass', 'w-100');
 
         $table->is_downloading('', 'List of booking options');
+        $table->tabletemplate = 'local_musi/table_card';
     }
 
+    /**
+     * Generates Tables for List.
+     *
+     * @param musi_table $table
+     * @param mixed $args
+     *
+     * @return void
+     *
+     */
     private static function generate_table_for_list(&$table, $args) {
 
         self::fix_args($args);
@@ -984,6 +874,9 @@ class shortcodes {
         // Check if we should add the description.
         if (get_config('local_musi', 'shortcodelists_showdescriptions')) {
             $subcolumnsleftside[] = 'description';
+        }
+        if (get_config('local_musi', 'musishortcodesshowoptiondates')) {
+            $subcolumnsleftside[] = 'showdates';
         }
 
         // We might need a setting here.
@@ -1047,9 +940,11 @@ class shortcodes {
         $table->add_classes_to_subcolumns('info', ['columnalt' => get_string('locationalt', 'local_musi')], ['location']);
         $table->add_classes_to_subcolumns('info', ['columnalt' => get_string('bookingsalt', 'local_musi')], ['bookings']);
 
-        $table->add_classes_to_subcolumns('rightside',
+        $table->add_classes_to_subcolumns(
+            'rightside',
             ['columnvalueclass' => 'text-right mb-auto align-self-end shortcodes_option_info_invisible '],
-            ['invisibleoption']);
+            ['invisibleoption']
+        );
         $table->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right mb-auto align-self-end '], ['botags']);
         $table->add_classes_to_subcolumns('rightside', ['columnclass' =>
             'text-right mt-auto w-100 align-self-end theme-text-color bold '], ['price']);
@@ -1077,6 +972,7 @@ class shortcodes {
         );
 
         $table->is_downloading('', 'List of booking options');
+        $table->tabletemplate = 'local_musi/table_list';
     }
 
     /**
@@ -1088,7 +984,7 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return string
      */
     public static function newslettersubscribe($shortcode, $args, $content, $env, $next) {
 
@@ -1116,7 +1012,7 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return void
+     * @return string
      */
     public static function newsletterunsubscribe($shortcode, $args, $content, $env, $next) {
 
@@ -1148,15 +1044,15 @@ class shortcodes {
     }
 
     /**
-     * Modify there wherearray via arguments.
+     * Modify wherearray and additionalwhere via arguments.
      *
      * @param array $args
+     * @param array $wherearray
+     * @param string $additionalwhere
      *
      * @return void
-     *
      */
-    private static function set_wherearray_from_arguments(array &$args, &$wherearray) {
-
+    private static function set_wherearray_from_arguments(array &$args, array &$wherearray, string &$additionalwhere = '') {
         // This is special treatment of sport.
         if (!empty($args['category'])) {
             $wherearray['sport'] = $args['category'];
@@ -1177,11 +1073,98 @@ class shortcodes {
             }
         }
         if (!empty($fields)) {
-            foreach ($fields as $customfield => $argument) {
-                $argument = strip_tags($argument);
-                $arguemnt = trim($argument);
-                $wherearray[$customfield] = $arguemnt;
+            // This should now support multiple customfields.
+            $additionalwheres = [];
+            foreach ($fields as $customfield => $value) {
+                $value = strip_tags(trim($value));
+                // We have to check for multiple values, separated by comma.
+                $values = explode(',', $value);
+                foreach ($values as $value) {
+                    $additionalwheres[] = "($customfield = '$value'
+                                OR $customfield LIKE '$value,%'
+                                OR $customfield LIKE '%,$value'
+                                OR $customfield LIKE '%,$value,%')";
+                }
+            }
+            if (!empty($additionalwheres)) {
+                if (!empty($additionalwhere)) {
+                    $additionalwhere .= " AND ";
+                }
+                $additionalwhere .= " (" . implode(' OR ', $additionalwheres) . ")";
             }
         }
+    }
+    /**
+     * Static function to be called by the callback filter.
+     *
+     * @param mixed $record
+     *
+     * @return int
+     *
+     */
+    public static function filter_bookable($record) {
+        $userid = shopping_cart::return_buy_for_userid();
+        $settings = singleton_service::get_instance_of_booking_option_settings($record->id);
+            $boinfo = new bo_info($settings);
+            // We only filter on the hard blocking options.
+            [$id] = $boinfo->is_available($settings->id, $userid, true);
+            return in_array(
+                $id,
+                [
+                    MOD_BOOKING_BO_COND_BOOKITBUTTON,
+                    MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                    MOD_BOOKING_BO_COND_PRICEISSET,
+                    MOD_BOOKING_BO_COND_CONFIRMATION,
+                    MOD_BOOKING_BO_COND_BOOKWITHCREDITS,
+                    MOD_BOOKING_BO_COND_CONFIRMBOOKWITHCREDITS,
+                    MOD_BOOKING_BO_COND_CONFIRMBOOKWITHSUBSCRIPTION,
+                ]
+            ) ? 1 : 0;
+    }
+    /**
+     * Helperfunction to get SQL Params.
+     *
+     * @param mixed $args
+     * @param mixed $booking
+     * @param mixed $wherearray
+     * @param mixed $additionalwhere
+     * @param int $userid
+     *
+     * @return array
+     *
+     */
+    private static function get_sql_params($booking, $wherearray, $additionalwhere, $userid = null) {
+
+        return  [$fields, $from, $where, $params, $filter] =
+                    booking::get_options_filter_sql(
+                        0,
+                        0,
+                        '',
+                        null,
+                        $booking->context,
+                        [],
+                        $wherearray,
+                        $userid,
+                        [MOD_BOOKING_STATUSPARAM_BOOKED],
+                        $additionalwhere
+                    );
+    }
+
+    /**
+     * Helperfunction to generate output
+     *
+     * @param mixed $args
+     * @param musi_table $table
+     * @param int $perpage
+     *
+     * @return string
+     *
+     */
+    private static function generate_output($args, $table, $perpage) {
+        if (!empty($args['lazy'])) {
+            [$idstring, $encodedtable, $out] = $table->lazyouthtml($perpage, true);
+            return $out;
+        }
+        return $table->outhtml($perpage, true);
     }
 }

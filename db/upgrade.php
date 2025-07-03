@@ -40,7 +40,6 @@ function xmldb_local_musi_upgrade($oldversion) {
     // Documentation for the XMLDB Editor can be found at {@link https://docs.moodle.org/dev/XMLDB_editor}.
 
     if ($oldversion < 2022040300) {
-
         // Define table local_musi_sports to be created.
         $table = new xmldb_table('local_musi_sports');
 
@@ -85,7 +84,6 @@ function xmldb_local_musi_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080400) {
-
         // Define table local_musi_botags to be created.
         $table = new xmldb_table('local_musi_botags');
 
@@ -106,7 +104,6 @@ function xmldb_local_musi_upgrade($oldversion) {
     }
 
     if ($oldversion < 2023041700) {
-
         // Define table local_musi_globals to be created.
         $table = new xmldb_table('local_musi_globals');
 
@@ -130,11 +127,9 @@ function xmldb_local_musi_upgrade($oldversion) {
     }
 
     if ($oldversion < 2023091401) {
-
         // We need to run a correction on all the booking option.
 
         if (class_exists('local_entities\entitiesrelation_handler')) {
-
             global $DB;
 
             // Get the record with all the entities relations and their parents.
@@ -152,7 +147,6 @@ function xmldb_local_musi_upgrade($oldversion) {
             $records = $DB->get_records_sql($sql);
 
             foreach ($records as $record) {
-
                 $data = (object)[
                     'id' => $record->instanceid,
                     'location' => $record->parentname ?? $record->name,
@@ -160,7 +154,6 @@ function xmldb_local_musi_upgrade($oldversion) {
 
                 $DB->update_record('booking_options', $data, true);
             }
-
         }
 
         // Musi savepoint reached.
@@ -168,7 +161,6 @@ function xmldb_local_musi_upgrade($oldversion) {
     }
 
     if ($oldversion < 2023092900) {
-
         // Define table local_musi_substitutions to be created.
         $table = new xmldb_table('local_musi_substitutions');
 
@@ -194,7 +186,6 @@ function xmldb_local_musi_upgrade($oldversion) {
     }
 
     if ($oldversion < 2023120400) {
-
         // Define table local_musi_sap to be created.
         $table = new xmldb_table('local_musi_sap');
 

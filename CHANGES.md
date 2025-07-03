@@ -1,3 +1,56 @@
+## Version 0.9.20 (2025061100)
+* Accessibility: Remove span from infolist.
+* Bugfix: Only allow to select actually existing and visible instance for shortcodessetinstance setting.
+
+## Version 0.9.19 (2025052000)
+* Bugfix: Fix for increasing gap between filter and content.
+* Improvement: Refactored shortcodes for better code quality.
+
+## Version 0.9.18 (2025032500)
+* Improvement: Added support for multiple custom field values in shortcodes.
+
+## Version 0.9.17 (2025030500)
+* Improvement: Migrate userinformation shortcode to shopping cart.
+
+## Version 0.9.16 (2025022400)
+* Bugfix: Fix sorting, duplicates and several bugs with substitutions pool.
+* Bugfix: Cost center must come from ledger - as installments are not stored in shopping_cart_history.
+
+## Version 0.9.15 (2025012300)
+* Improvement: Add new filter for bookable options and new searchfield for free places.
+* Improvement: Filter and sorting for bookable/free places as settings to be turned on or off.
+
+## Version 0.9.14 (2025012200)
+* Improvement: Add 'includeoptions' argument in shortcode.
+* Bugfix: Display substitution pool teachers not duplicated (Wunderbyte-GmbH/moodle-mod_booking#802).
+* Bugfix: Free places sorting not yet ready - so commented it out.
+* Bugfix: Missing empty check for additional params.
+
+## Version 0.9.13 (2024121800)
+* New feature: Add ical export to meinekurse.php (#16).
+* Improvement: Automatically fill my courses archive and add posibility to exclude instances (#16).
+* Bugfix: Decision from Dec.11th: Do not show merchantref in SAP files (might be too long).
+
+## Version 0.9.12 (2024120500)
+* Improvement: Make sure we apply format_string to keys and values, so we can use mlang filters.
+* Improvement: Show merchantref and customorderid at the right places. (Wunderbyte-GmbH/moodle-paygw_payone#5).
+* Bugfix: Fix events and make them more generic for better maintainability. (Wunderbyte-GmbH/moodle-paygw_payone#6).
+* Bugfix: For payone we show the correct merchantref in SAP files instead of identifier (if it exists) (Wunderbyte-GmbH/moodle-paygw_payone#5).
+
+## Version 0.9.11 (2024112000)
+* Improvement: Update plugin dependencies.
+
+## Version 0.9.10 (2024101700)
+* Improvement: Apply config about display of bo details in new tab
+* Bugfix: Fix Modal
+* Bugfix: see course material link check
+
+## Version 0.9.9 (2024082900)
+* Improvement: count places, not answers
+* Bugfix: Make sure my booking is saved in different cache
+* Bugfix: Support shortcode argument "category" on customfield "sport" again
+* Bugfix: Components container does not block left space anymore
+
 ## Version 0.9.8 (2024080900)
 * Improvment: allow filters for display in userinformation
 * Bugfix: Fix strings after changes in mod_booking
