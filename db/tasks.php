@@ -42,4 +42,13 @@ $tasks = [
             'dayofweek' => '*',
             'month' => '*',
         ],
+        [
+            'classname' => '\local_musi\task\hide_expired_options',
+            'blocking' => 0,
+            'minute' => '0',
+            'hour' => '0',
+            'day' => '*',
+            'dayofweek' => '*',
+            'month' => '*',
+        ],
 ];
