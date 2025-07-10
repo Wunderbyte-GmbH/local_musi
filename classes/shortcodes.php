@@ -59,7 +59,6 @@ class shortcodes {
      * @return mixed
      */
     public static function showallsports($shortcode, $args, $content, $env, $next) {
-
         global $OUTPUT;
 
         self::fix_args($args);
@@ -298,12 +297,11 @@ class shortcodes {
      * @return string
      */
     public static function mycoursescards($shortcode, $args, $content, $env, $next) {
-
         global $USER;
+
         self::fix_args($args);
         $booking = self::get_booking($args);
         $userid = $USER->id;
-
 
         $perpage = \mod_booking\shortcodes::check_perpage($args);
 
@@ -345,12 +343,8 @@ class shortcodes {
      * @return string
      */
     public static function mytaughtcoursescards($shortcode, $args, $content, $env, $next) {
-
         global $USER;
-        self::fix_args($args);
-        $booking = self::get_booking($args);
 
-        global $USER;
         self::fix_args($args);
         $booking = self::get_booking($args);
 
@@ -395,8 +389,8 @@ class shortcodes {
      * @return string
      */
     public static function mycourseslist($shortcode, $args, $content, $env, $next) {
-
         global $USER;
+
         $userid = $USER->id;
         self::fix_args($args);
         $booking = self::get_booking($args);
