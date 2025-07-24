@@ -729,33 +729,61 @@ class musi_table extends wunderbyte_table {
      */
     public function col_responsiblecontact($values) {
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
-        $ret = '';
+
         if (empty($settings->responsiblecontact)) {
-            return $ret;
+            return '';
         }
 
         $contacts = [];
-        foreach ($settings->responsiblecontact as $contactId) {
-            $user = singleton_service::get_instance_of_user((int) $contactId);
-            if (!$user) {
+        foreach ($settings->responsiblecontact as $contactid) {
+            $user = singleton_service::get_instance_of_user((int) $contactid);
+            if (empty($user)) {
                 continue;
             }
+            if (empty($user->firstname)) {
+                debugging(
+                    "musi_table function col_responsiblecontact: firstname is missing for user with id $contactid",
+                    DEBUG_DEVELOPER
+                );
+                $user->firstname = '';
+            }
+            if (empty($user->lastname)) {
+                debugging(
+                    "musi_table function col_responsiblecontact: lastname is missing for user with id $contactid",
+                    DEBUG_DEVELOPER
+                );
+                $user->lastname = '';
+            }
+            if (empty($user->email)) {
+                debugging(
+                    "musi_table function col_responsiblecontact: email is missing for user with id $contactid",
+                    DEBUG_DEVELOPER
+                );
+                $user->email = '';
+            }
+            if (empty($user->firstname) && empty($user->lastname)) {
+                continue;
+            }
+
             $userstring = $user->firstname . ' ' . $user->lastname;
             if ($this->is_downloading()) {
                 $contacts[] = $userstring . " (" . $user->email . ")";
             } else {
                 $url = '';
-                if(in_array($contactId, $settings->teacherids)){
-                    $url= new moodle_url('/mod/booking/teacher.php', ['teacherid' => $contactId]);
+                if (empty($settings->teacherids)) {
+                    $settings->teacherids = [];
+                }
+                if (in_array($contactid, $settings->teacherids)) {
+                    $url = new moodle_url('/mod/booking/teacher.php', ['teacherid' => $contactid]);
                 } else {
-                    $url = new moodle_url('/user/profile.php', ['id' => $contactId]);
+                    $url = new moodle_url('/user/profile.php', ['id' => $contactid]);
                 }
                 $contacts[] = html_writer::link($url, $userstring);
             }
         }
 
         if (empty($contacts)) {
-            return $ret;
+            return '';
         }
 
         return get_string('responsible', 'mod_booking') . ':&nbsp;' . implode(',&nbsp;', $contacts);
