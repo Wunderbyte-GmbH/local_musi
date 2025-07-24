@@ -733,23 +733,32 @@ class musi_table extends wunderbyte_table {
         if (empty($settings->responsiblecontact)) {
             return $ret;
         }
-        if ($user = singleton_service::get_instance_of_user($settings->responsiblecontact)) {
-            $userstring = "$user->firstname $user->lastname";
-            $emailstring = " ($user->email)";
+
+        $contacts = [];
+        foreach ($settings->responsiblecontact as $contactId) {
+            $user = singleton_service::get_instance_of_user((int) $contactId);
+            if (!$user) {
+                continue;
+            }
+            $userstring = $user->firstname . ' ' . $user->lastname;
             if ($this->is_downloading()) {
-                $ret = $userstring . $emailstring;
-            } else if (in_array($settings->responsiblecontact, $settings->teacherids)) {
-                // For teachers, use link to teacher page.
-                $teacherurl = new moodle_url('/mod/booking/teacher.php', ['teacherid' => $settings->responsiblecontact]);
-                $ret = get_string('responsible', 'mod_booking')
-                    . ":&nbsp;" . html_writer::link($teacherurl, $userstring);
+                $contacts[] = $userstring . " (" . $user->email . ")";
             } else {
-                $profileurl = new moodle_url('/user/profile.php', ['id' => $settings->responsiblecontact]);
-                $ret = get_string('responsible', 'mod_booking')
-                    . ":&nbsp;" . html_writer::link($profileurl, $userstring);
+                $url = '';
+                if(in_array($contactId, $settings->teacherids)){
+                    $url= new moodle_url('/mod/booking/teacher.php', ['teacherid' => $contactId]);
+                } else {
+                    $url = new moodle_url('/user/profile.php', ['id' => $contactId]);
+                }
+                $contacts[] = html_writer::link($url, $userstring);
             }
         }
-        return $ret;
+
+        if (empty($contacts)) {
+            return $ret;
+        }
+
+        return get_string('responsible', 'mod_booking') . ':&nbsp;' . implode(',&nbsp;', $contacts);
     }
 
     /**
