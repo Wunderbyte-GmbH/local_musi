@@ -1,3 +1,13 @@
+## Version 0.9.23 (2025072400)
+* Bugfix: Fix display of multiple responsible contacts in MUSI table.
+
+## Version 0.9.22 (2025071600)
+* Bugfix: Renderer changed to mod_booking for the column booking in musi table.
+
+## Version 0.9.21 (2025062400)
+* New feature: Show extra info within dates list.
+* Improvement: Use new teachers selector also in substitutions pool.
+
 ## Version 0.9.20 (2025061100)
 * Accessibility: Remove span from infolist.
 * Bugfix: Only allow to select actually existing and visible instance for shortcodessetinstance setting.
