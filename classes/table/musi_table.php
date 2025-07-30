@@ -509,19 +509,20 @@ class musi_table extends wunderbyte_table {
      */
     public function col_dayofweektime($values) {
 
+        // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
+        if (empty($values->id)) {
+            $debugmessage = "musi_table function col_dayofweektime: ";
+            $debugmessage .= "id (optionid) is missing from values object - values: ";
+            $debugmessage .= json_encode($values);
+            debugging($debugmessage, DEBUG_DEVELOPER);
+            return '';
+        }
+
         $ret = '';
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
 
         if (!empty($settings->dayofweektime)) {
-            $localweekdays = dates_handler::get_localized_weekdays(current_language());
-            $dayinfo = dates_handler::prepare_day_info($settings->dayofweektime);
-            if (isset($dayinfo['day']) && $dayinfo['starttime'] && $dayinfo['endtime']) {
-                $ret = $localweekdays[$dayinfo['day']] . ', ' . $dayinfo['starttime'] . ' - ' . $dayinfo['endtime'];
-            } else if (!empty($settings->dayofweektime)) {
-                $ret = $settings->dayofweektime;
-            } else {
-                $ret = get_string('datenotset', 'mod_booking');
-            }
+            $ret = dates_handler::render_dayofweektime_strings($settings->dayofweektime, ' | ');
         }
 
         return $ret;

@@ -466,6 +466,7 @@ class shortcodes {
         $data['teacher'] = count($asteacher);
         $data['credits'] = $credits[0];
 
+        /** @var \local_musi\output\renderer $output */
         $output = $PAGE->get_renderer('local_musi');
         return $output->render_user_dashboard_overview($data);
     }
@@ -501,6 +502,8 @@ class shortcodes {
 
         // Now prepare the data for all teachers.
         $data = new page_allteachers($teacherids);
+
+        /** @var \mod_booking\output\renderer $output */
         $output = $PAGE->get_renderer('mod_booking');        // And return the rendered page showing all teachers.
         return $output->render_allteacherspage($data);
     }
@@ -581,6 +584,7 @@ class shortcodes {
 
         $standardfilter = new standardfilter('dayofweek', get_string('dayofweek', 'local_musi'));
         $standardfilter->add_options([
+            'explode' => ',',
             'monday' => get_string('monday', 'mod_booking'),
             'tuesday' => get_string('tuesday', 'mod_booking'),
             'wednesday' => get_string('wednesday', 'mod_booking'),
