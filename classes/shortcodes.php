@@ -320,6 +320,7 @@ class shortcodes {
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         $table->use_pages = false;
+        $table->scrolltocontainer = false;
 
         self::generate_table_for_cards($table, $args);
 
@@ -373,6 +374,7 @@ class shortcodes {
 
         // This allows us to use infinite scrolling, No pages will be used.
         $table->infinitescroll = 30;
+        $table->scrolltocontainer = false;
 
         return self::generate_output($args, $table, $perpage);
     }
