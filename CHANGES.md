@@ -1,3 +1,8 @@
+## Version 0.9.24 (2025072400)
+* Improvement: Possiblity to disable scrolling of tables
+* Bugfix: Better display of debug message for col_responsible contact
+* Bugfix: Disable scrolling to tables in meinekurse.php
+
 ## Version 0.9.23 (2025072400)
 * Bugfix: Fix display of multiple responsible contacts in MUSI table.
 
