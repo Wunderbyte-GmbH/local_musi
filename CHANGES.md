@@ -1,3 +1,6 @@
+## Version 0.9.25 (2025080400)
+* New feature: Support multiple dayofweektime strings.
+
 ## Version 0.9.24 (2025072400)
 * Improvement: Possiblity to disable scrolling of tables
 * Bugfix: Better display of debug message for col_responsible contact
