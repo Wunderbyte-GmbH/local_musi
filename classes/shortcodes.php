@@ -838,7 +838,7 @@ class shortcodes {
         $table->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('bookingsalt', 'local_musi')], ['bookings']);
         $table->add_classes_to_subcolumns('cardimage', ['cardimagealt' => get_string('imagealt', 'local_musi')], ['image']);
 
-        $table->add_subcolumns('cardfooter', ['course', 'price']);
+        $table->add_subcolumns('cardfooter', ['receipt', 'course', 'price']);
         $table->add_classes_to_subcolumns('cardfooter', ['columnkeyclass' => 'd-none']);
         $table->add_classes_to_subcolumns('cardfooter', ['columnclass' => 'theme-text-color bold '], ['price']);
         $table->set_tableclass('cardimageclass', 'w-100');
@@ -900,7 +900,7 @@ class shortcodes {
         $table->add_subcolumns('leftside', $subcolumnsleftside);
         $table->add_subcolumns('info', $subcolumnsinfo);
 
-        $table->add_subcolumns('rightside', ['botags', 'invisibleoption', 'course', 'price']);
+        $table->add_subcolumns('rightside', ['botags', 'invisibleoption', 'receipt', 'course', 'price']);
 
         $table->add_classes_to_subcolumns('top', ['columnkeyclass' => 'd-none']);
         $table->add_classes_to_subcolumns('top', ['columnclass' => 'text-left col-md-8'], ['sport', 'sportsdivision']);
