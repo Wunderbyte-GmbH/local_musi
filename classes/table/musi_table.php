@@ -268,6 +268,52 @@ class musi_table extends wunderbyte_table {
 
     /**
      * This function is called for each data row to allow processing of the
+     * receipt value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $string Return name of the booking option.
+     * @throws dml_exception
+     */
+    public function col_receipt($values): string {
+        global $DB;
+        if (!class_exists('local_shopping_cart\shopping_cart')) {
+            return '';
+        }
+        $userid = price::return_user_to_buy_for()->id;
+        $sql = "SELECT *
+                 FROM {local_shopping_cart_ledger} l
+                WHERE itemid=:itemid AND userid=:userid AND area='option'
+             ORDER BY timecreated DESC
+                LIMIT 1";
+        $params = ['itemid' => $values->id, 'userid' => $userid];
+        $record = $DB->get_record_sql($sql, $params);
+        if (empty($record)) {
+            return '';
+        }
+        $url = new moodle_url(
+            '/local/shopping_cart/receipt.php',
+            [
+                'success' => 1,
+                'id' => $record->identifier,
+                'idcol' => 'identifier', // Use the identifier to create the receipt.
+                'userid' => $userid,
+                'paymentstatus' => $record->paymentstatus,
+            ]
+        );
+        $labelstring = $record->paymentstatus == LOCAL_SHOPPING_CART_PAYMENT_CANCELED ?
+            'cancelconfirmation' :
+            'receipt';
+        $icon = '<i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;';
+        $receipt = html_writer::tag('a', $icon . get_string($labelstring, 'local_shopping_cart'), [
+            'href' => $url->out(false),
+            'target' => '_blank',
+            'class' => 'musi-receipt-btn btn btn-secondary p-1 mt-2 mb-2 w-100',
+        ]);
+        return $receipt;
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
      * text value.
      *
      * @param object $values Contains object with all the values of record.
