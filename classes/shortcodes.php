@@ -108,7 +108,13 @@ class shortcodes {
 
         $table = self::inittableforcourses();
 
-        $wherearray = ['bookingid' => (int)$booking->id];
+        if (!empty($args['includeoptions'])) {
+            $wherearray = [];
+            [$inorequal, $additionalparams] = $DB->get_in_or_equal(explode(',', $args['includeoptions']), SQL_PARAMS_NAMED);
+            $additionalwhere = " (bookingid = " . (int)$booking->id . " OR id $inorequal )";
+        } else {
+            $wherearray = ['bookingid' => (int)$booking->id];
+        }
 
         self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
@@ -155,13 +161,7 @@ class shortcodes {
         self::fix_args($args);
         $additionalwhere = '';
         $additionalparams = [];
-        $booking = self::get_booking($args);
 
-        if (!empty($args['includeoptions'])) {
-            $wherearray = [];
-            [$inorequal, $additionalparams] = $DB->get_in_or_equal(explode(',', $args['includeoptions']), SQL_PARAMS_NAMED);
-            $additionalwhere = " (bookingid = " . (int)$booking->id . " OR id $inorequal )";
-        }
         [$table, $perpage] = self::unifiedview(
             $shortcode,
             $args,
