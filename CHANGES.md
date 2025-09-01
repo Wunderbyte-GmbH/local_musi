@@ -1,3 +1,6 @@
+## Version 0.9.26 (2025090100)
+* Bugfix: Correctly apply includeoptions arg in shortcodes.
+
 ## Version 0.9.25 (2025080400)
 * New feature: Support multiple dayofweektime strings.
 

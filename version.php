@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_musi';
-$plugin->release = '0.9.25';
-$plugin->version = 2025080400;
+$plugin->release = '0.9.26';
+$plugin->version = 2025090100;
 $plugin->requires = 2022112800; // Requires this Moodle version. Current: Moodle 4.1.
 $plugin->maturity = MATURITY_STABLE;
 $plugin->dependencies = [
