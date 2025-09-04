@@ -108,7 +108,9 @@ class shortcodes {
 
         $table = self::inittableforcourses();
 
-        if (!empty($args['includeoptions'])) {
+        if (empty($booking->id)) {
+            return ['', ''];
+        } else if (!empty($args['includeoptions'])) {
             $wherearray = [];
             [$inorequal, $additionalparams] = $DB->get_in_or_equal(explode(',', $args['includeoptions']), SQL_PARAMS_NAMED);
             $additionalwhere = " (bookingid = " . (int)$booking->id . " OR id $inorequal )";
@@ -172,6 +174,9 @@ class shortcodes {
             $additionalwhere,
             $additionalparams
         );
+        if (empty($table)) {
+            return 'Couldn\'t find right booking instance ' . $args['id'];;
+        }
         $table->showcountlabel = empty($args['countlabel']) ? false : $args['countlabel'];
         return self::generate_output($args, $table, $perpage);
     }
