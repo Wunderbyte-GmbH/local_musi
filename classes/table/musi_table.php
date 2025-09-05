@@ -259,23 +259,34 @@ class musi_table extends wunderbyte_table {
         $ret = $fulldescription;
 
         if (!empty(get_config('local_musi', 'collapsedescriptionmaxlength'))) {
-            $maxlength = (int)get_config('local_musi', 'collapsedescriptionmaxlength');
+            // Use the renderer to output this column.
+            $lang = current_language();
+            $optionid = $values->id;
 
-            // Show collapsible for long descriptions.
-            $shortdescription = strip_tags($fulldescription, '<br>');
-            if (strlen($shortdescription) > $maxlength) {
-                $shortdescription = substr($shortdescription, 0, $maxlength) . '...';
+            $cachekey = "shortdescription$optionid$lang";
+            $cache = cache::make($this->cachecomponent, $this->rawcachename);
 
-                $ret =
-                    '<div>
-                        <a data-toggle="collapse" href="#collapseDescription' . $values->id . '" role="button"
-                            aria-expanded="false" aria-controls="collapseDescription">
-                            <i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp;' .
-                            get_string('showdescription', 'local_musi') . '...</a>
-                    </div>
-                    <div class="collapse" id="collapseDescription' . $values->id . '">
-                        <div class="card card-body border-1 mt-1 mb-1 mr-3">' . $fulldescription . '</div>
-                    </div>';
+            if (
+                !$ret = $cache->get($cachekey)
+            ) {
+                $maxlength = (int) get_config('local_musi', 'collapsedescriptionmaxlength');
+                $ret = $fulldescription;
+                // Show collapsible for long descriptions.
+                $shortdescription = strip_tags($ret, '<br>');
+                if (strlen($shortdescription) > $maxlength) {
+                    $ret =
+                        '<div>
+                            <a data-toggle="collapse" href="#collapseDescription' . $values->id . '" role="button"
+                                aria-expanded="false" aria-controls="collapseDescription">
+                                <i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp;' .
+                        get_string('showdescription', 'mod_booking') . '...</a>
+                        </div>
+                        <div class="collapse" id="collapseDescription' . $values->id . '">
+                            <div class="card card-body border-1 mt-1 mb-1 mr-3">' . $ret . '</div>
+                        </div>';
+                }
+
+                $cache->set($cachekey, $ret);
             }
         }
 
