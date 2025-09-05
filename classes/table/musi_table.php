@@ -16,7 +16,7 @@
 
 namespace local_musi\table;
 use cache;
-use mod_booking\booking_answers;
+use mod_booking\booking_answers\booking_answers;
 use coding_exception;
 use context_module;
 use dml_exception;
@@ -43,13 +43,22 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Search results for managers are shown in a table (student search results use the template searchresults_student).
+ *
  * @package local_musi
+ * @copyright 2025 Wunderbyte Gmbh <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class musi_table extends wunderbyte_table {
     /** @var array $displayoptions */
     private $displayoptions = [];
 
-    public function set_display_options($displayoptions) {
+    /**
+     * Set display options for the table.
+     *
+     * @param array $displayoptions
+     * @return void
+     */
+    public function set_display_options(array $displayoptions) {
 
         // Units, e.g. "(UE: 1,3)".
         if (isset($displayoptions['showunits'])) { // Do not use empty here!!
@@ -153,6 +162,14 @@ class musi_table extends wunderbyte_table {
         }
     }
 
+    /**
+     * This function is called for each data row to allow processing of the
+     * image value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string the image url as string
+     * @throws dml_exception
+     */
     public function col_image($values) {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
@@ -578,9 +595,9 @@ class musi_table extends wunderbyte_table {
         $link = '';
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid, $values);
-        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings, 0);
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
 
-        if (booking_answers::count_places($bookinganswers->usersonlist) > 0) {
+        if (booking_answers::count_places($bookinganswers->get_usersonlist()) > 0) {
             // Add a link to redirect to the booking option.
             $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', [
                 'id' => $values->cmid,
@@ -827,7 +844,7 @@ class musi_table extends wunderbyte_table {
      */
     public function col_action($values) {
 
-        $booking = singleton_service::get_instance_of_booking_by_bookingid($values->bookingid, $values);
+        $booking = singleton_service::get_instance_of_booking_by_bookingid($values->bookingid);
 
         $data = new stdClass();
 
@@ -966,6 +983,12 @@ class musi_table extends wunderbyte_table {
         echo $output->render_bookingoptions_wbtable($table);
     }
 
+    /**
+     * Add return URL.
+     *
+     * @param string $urlstring
+     * @return string
+     */
     private function add_return_url(string $urlstring): string {
 
         $returnurl = $this->baseurl->out();
