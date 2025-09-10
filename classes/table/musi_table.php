@@ -16,7 +16,7 @@
 
 namespace local_musi\table;
 use cache;
-use mod_booking\booking_answers;
+use mod_booking\booking_answers\booking_answers;
 use coding_exception;
 use context_module;
 use dml_exception;
@@ -43,13 +43,22 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Search results for managers are shown in a table (student search results use the template searchresults_student).
+ *
  * @package local_musi
+ * @copyright 2025 Wunderbyte Gmbh <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class musi_table extends wunderbyte_table {
     /** @var array $displayoptions */
     private $displayoptions = [];
 
-    public function set_display_options($displayoptions) {
+    /**
+     * Set display options for the table.
+     *
+     * @param array $displayoptions
+     * @return void
+     */
+    public function set_display_options(array $displayoptions) {
 
         // Units, e.g. "(UE: 1,3)".
         if (isset($displayoptions['showunits'])) { // Do not use empty here!!
@@ -153,6 +162,14 @@ class musi_table extends wunderbyte_table {
         }
     }
 
+    /**
+     * This function is called for each data row to allow processing of the
+     * image value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string the image url as string
+     * @throws dml_exception
+     */
     public function col_image($values) {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
@@ -259,23 +276,34 @@ class musi_table extends wunderbyte_table {
         $ret = $fulldescription;
 
         if (!empty(get_config('local_musi', 'collapsedescriptionmaxlength'))) {
-            $maxlength = (int)get_config('local_musi', 'collapsedescriptionmaxlength');
+            // Use the renderer to output this column.
+            $lang = current_language();
+            $optionid = $values->id;
 
-            // Show collapsible for long descriptions.
-            $shortdescription = strip_tags($fulldescription, '<br>');
-            if (strlen($shortdescription) > $maxlength) {
-                $shortdescription = substr($shortdescription, 0, $maxlength) . '...';
+            $cachekey = "shortdescription$optionid$lang";
+            $cache = cache::make($this->cachecomponent, $this->rawcachename);
 
-                $ret =
-                    '<div>
-                        <a data-toggle="collapse" href="#collapseDescription' . $values->id . '" role="button"
-                            aria-expanded="false" aria-controls="collapseDescription">
-                            <i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp;' .
-                            get_string('showdescription', 'local_musi') . '...</a>
-                    </div>
-                    <div class="collapse" id="collapseDescription' . $values->id . '">
-                        <div class="card card-body border-1 mt-1 mb-1 mr-3">' . $fulldescription . '</div>
-                    </div>';
+            if (
+                !$ret = $cache->get($cachekey)
+            ) {
+                $maxlength = (int) get_config('local_musi', 'collapsedescriptionmaxlength');
+                $ret = $fulldescription;
+                // Show collapsible for long descriptions.
+                $shortdescription = strip_tags($ret, '<br>');
+                if (strlen($shortdescription) > $maxlength) {
+                    $ret =
+                        '<div>
+                            <a data-toggle="collapse" href="#collapseDescription' . $values->id . '" role="button"
+                                aria-expanded="false" aria-controls="collapseDescription">
+                                <i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp;' .
+                        get_string('showdescription', 'mod_booking') . '...</a>
+                        </div>
+                        <div class="collapse" id="collapseDescription' . $values->id . '">
+                            <div class="card card-body border-1 mt-1 mb-1 mr-3">' . $ret . '</div>
+                        </div>';
+                }
+
+                $cache->set($cachekey, $ret);
             }
         }
 
@@ -303,7 +331,7 @@ class musi_table extends wunderbyte_table {
         if (!empty($this->displayoptions['showmaxanwers'])) {
             $data->showmaxanswers = $this->displayoptions['showmaxanwers'];
         }
-        $output = singleton_service::get_renderer('local_musi');
+        $output = singleton_service::get_renderer('mod_booking');
         return $output->render_col_availableplaces($data);
     }
 
@@ -509,19 +537,20 @@ class musi_table extends wunderbyte_table {
      */
     public function col_dayofweektime($values) {
 
+        // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
+        if (empty($values->id)) {
+            $debugmessage = "musi_table function col_dayofweektime: ";
+            $debugmessage .= "id (optionid) is missing from values object - values: ";
+            $debugmessage .= json_encode($values);
+            debugging($debugmessage, DEBUG_DEVELOPER);
+            return '';
+        }
+
         $ret = '';
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
 
         if (!empty($settings->dayofweektime)) {
-            $localweekdays = dates_handler::get_localized_weekdays(current_language());
-            $dayinfo = dates_handler::prepare_day_info($settings->dayofweektime);
-            if (isset($dayinfo['day']) && $dayinfo['starttime'] && $dayinfo['endtime']) {
-                $ret = $localweekdays[$dayinfo['day']] . ', ' . $dayinfo['starttime'] . ' - ' . $dayinfo['endtime'];
-            } else if (!empty($settings->dayofweektime)) {
-                $ret = $settings->dayofweektime;
-            } else {
-                $ret = get_string('datenotset', 'mod_booking');
-            }
+            $ret = dates_handler::render_dayofweektime_strings($settings->dayofweektime, ' | ');
         }
 
         return $ret;
@@ -566,9 +595,9 @@ class musi_table extends wunderbyte_table {
         $link = '';
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid, $values);
-        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings, 0);
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
 
-        if (booking_answers::count_places($bookinganswers->usersonlist) > 0) {
+        if (booking_answers::count_places($bookinganswers->get_usersonlist()) > 0) {
             // Add a link to redirect to the booking option.
             $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', [
                 'id' => $values->cmid,
@@ -729,27 +758,67 @@ class musi_table extends wunderbyte_table {
      */
     public function col_responsiblecontact($values) {
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
-        $ret = '';
+
         if (empty($settings->responsiblecontact)) {
-            return $ret;
+            return '';
         }
-        if ($user = singleton_service::get_instance_of_user($settings->responsiblecontact)) {
-            $userstring = "$user->firstname $user->lastname";
-            $emailstring = " ($user->email)";
+
+        $contacts = [];
+        foreach ($settings->responsiblecontact as $contactid) {
+            $user = singleton_service::get_instance_of_user((int) $contactid);
+            if (empty($user)) {
+                continue;
+            }
+            if (empty($user->firstname)) {
+                debugging(
+                    " musi_table function col_responsiblecontact:
+                    firstname is missing for user with id $contactid in bookingoption $values->id ",
+                    DEBUG_DEVELOPER
+                );
+                $user->firstname = '';
+            }
+            if (empty($user->lastname)) {
+                debugging(
+                    " musi_table function col_responsiblecontact:
+                    lastname is missing for user with id $contactid in bookingoption $values->id ",
+                    DEBUG_DEVELOPER
+                );
+                $user->lastname = '';
+            }
+            if (empty($user->email)) {
+                debugging(
+                    " musi_table function col_responsiblecontact:
+                    email is missing for user with id $contactid in bookingoption $values->id ",
+                    DEBUG_DEVELOPER
+                );
+                $user->email = '';
+            }
+            if (empty($user->firstname) && empty($user->lastname)) {
+                continue;
+            }
+
+            $userstring = $user->firstname . ' ' . $user->lastname;
             if ($this->is_downloading()) {
-                $ret = $userstring . $emailstring;
-            } else if (in_array($settings->responsiblecontact, $settings->teacherids)) {
-                // For teachers, use link to teacher page.
-                $teacherurl = new moodle_url('/mod/booking/teacher.php', ['teacherid' => $settings->responsiblecontact]);
-                $ret = get_string('responsible', 'mod_booking')
-                    . ":&nbsp;" . html_writer::link($teacherurl, $userstring);
+                $contacts[] = $userstring . " (" . $user->email . ")";
             } else {
-                $profileurl = new moodle_url('/user/profile.php', ['id' => $settings->responsiblecontact]);
-                $ret = get_string('responsible', 'mod_booking')
-                    . ":&nbsp;" . html_writer::link($profileurl, $userstring);
+                $url = '';
+                if (empty($settings->teacherids)) {
+                    $settings->teacherids = [];
+                }
+                if (in_array($contactid, $settings->teacherids)) {
+                    $url = new moodle_url('/mod/booking/teacher.php', ['teacherid' => $contactid]);
+                } else {
+                    $url = new moodle_url('/user/profile.php', ['id' => $contactid]);
+                }
+                $contacts[] = html_writer::link($url, $userstring);
             }
         }
-        return $ret;
+
+        if (empty($contacts)) {
+            return '';
+        }
+
+        return get_string('responsible', 'mod_booking') . ':&nbsp;' . implode(',&nbsp;', $contacts);
     }
 
     /**
@@ -775,7 +844,7 @@ class musi_table extends wunderbyte_table {
      */
     public function col_action($values) {
 
-        $booking = singleton_service::get_instance_of_booking_by_bookingid($values->bookingid, $values);
+        $booking = singleton_service::get_instance_of_booking_by_bookingid($values->bookingid);
 
         $data = new stdClass();
 
@@ -914,6 +983,12 @@ class musi_table extends wunderbyte_table {
         echo $output->render_bookingoptions_wbtable($table);
     }
 
+    /**
+     * Add return URL.
+     *
+     * @param string $urlstring
+     * @return string
+     */
     private function add_return_url(string $urlstring): string {
 
         $returnurl = $this->baseurl->out();
