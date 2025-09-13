@@ -764,15 +764,14 @@ class musi_table extends wunderbyte_table {
         }
 
         $contacts = [];
-        foreach ($settings->responsiblecontact as $contactid) {
-            $user = singleton_service::get_instance_of_user((int) $contactid);
+        foreach ($settings->responsiblecontactuser as $user) {
             if (empty($user)) {
                 continue;
             }
             if (empty($user->firstname)) {
                 debugging(
                     " musi_table function col_responsiblecontact:
-                    firstname is missing for user with id $contactid in bookingoption $values->id ",
+                    firstname is missing for user with id $user->id in bookingoption $values->id ",
                     DEBUG_DEVELOPER
                 );
                 $user->firstname = '';
@@ -780,7 +779,7 @@ class musi_table extends wunderbyte_table {
             if (empty($user->lastname)) {
                 debugging(
                     " musi_table function col_responsiblecontact:
-                    lastname is missing for user with id $contactid in bookingoption $values->id ",
+                    lastname is missing for user with id $user->id in bookingoption $values->id ",
                     DEBUG_DEVELOPER
                 );
                 $user->lastname = '';
@@ -788,7 +787,7 @@ class musi_table extends wunderbyte_table {
             if (empty($user->email)) {
                 debugging(
                     " musi_table function col_responsiblecontact:
-                    email is missing for user with id $contactid in bookingoption $values->id ",
+                    email is missing for user with id $user->id in bookingoption $values->id ",
                     DEBUG_DEVELOPER
                 );
                 $user->email = '';
@@ -805,10 +804,10 @@ class musi_table extends wunderbyte_table {
                 if (empty($settings->teacherids)) {
                     $settings->teacherids = [];
                 }
-                if (in_array($contactid, $settings->teacherids)) {
-                    $url = new moodle_url('/mod/booking/teacher.php', ['teacherid' => $contactid]);
+                if (in_array($user->id, $settings->teacherids)) {
+                    $url = new moodle_url('/mod/booking/teacher.php', ['teacherid' => $user->id]);
                 } else {
-                    $url = new moodle_url('/user/profile.php', ['id' => $contactid]);
+                    $url = new moodle_url('/user/profile.php', ['id' => $user->id]);
                 }
                 $contacts[] = html_writer::link($url, $userstring);
             }
