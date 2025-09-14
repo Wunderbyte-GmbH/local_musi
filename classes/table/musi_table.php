@@ -217,11 +217,38 @@ class musi_table extends wunderbyte_table {
      * @throws dml_exception
      */
     public function col_price($values) {
+
+
+        $cache = cache::make('mod_booking', 'bookingoptionsanswers');
+        $cachekey = $values->id;
+        $bacache = $cache->get($cachekey);
+        $user = price::return_user_to_buy_for();
+
+        // This is our fast way out.
+        // We store a user specific cache in the booking answer.
+        if (
+            !empty($bacache)
+            && isset($bacache->usercache[$user->id])
+        ) {
+            return $bacache->usercache[$user->id];
+        }
+
+        // return 'x';
         // Render col_price using a template.
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
         $buyforuser = price::return_user_to_buy_for();
 
-        return booking_bookit::render_bookit_button($settings, $buyforuser->id);
+        $html = booking_bookit::render_bookit_button($settings, $buyforuser->id);
+
+        if (!empty($bacache)) {
+            $bacache->usercache[$user->id] = $html;
+            $cache->set($cachekey, $bacache);
+        } else {
+            $bacache = (object)['usercache' => [$user->id => $html]];
+            $cache->set($cachekey, $bacache);
+        }
+
+        return $html;
     }
 
     /**
