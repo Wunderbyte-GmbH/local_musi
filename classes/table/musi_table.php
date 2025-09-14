@@ -343,7 +343,19 @@ class musi_table extends wunderbyte_table {
      */
     public function col_bookings($values) {
 
-        global $PAGE;
+        $cache = cache::make('mod_booking', 'bookingoptionsanswers');
+        $cachekey = $values->id;
+        $bacache = $cache->get($cachekey);
+        $user = price::return_user_to_buy_for();
+
+        // This is our fast way out.
+        // We store a user specific cache in the booking answer.
+        if (
+            !empty($bacache)
+            && isset($bacache->cachecolbookings[$user->id])
+        ) {
+            return $bacache->cachecolbookings[$user->id];
+        }
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
         // Render col_bookings using a template.
@@ -355,7 +367,14 @@ class musi_table extends wunderbyte_table {
             $data->showmaxanswers = $this->displayoptions['showmaxanwers'];
         }
         $output = singleton_service::get_renderer('mod_booking');
-        return $output->render_col_availableplaces($data);
+        $html = $output->render_col_availableplaces($data);
+
+        if (!empty($bacache)) {
+            $bacache->cachecolbookings[$user->id] = $html;
+            $cache->set($cachekey, $bacache);
+        }
+
+        return $html;
     }
 
     /**
@@ -560,6 +579,8 @@ class musi_table extends wunderbyte_table {
      */
     public function col_dayofweektime($values) {
 
+        global $USER;
+
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
             $debugmessage = "musi_table function col_dayofweektime: ";
@@ -569,11 +590,29 @@ class musi_table extends wunderbyte_table {
             return '';
         }
 
+        $cache = cache::make('mod_booking', 'bookingoptionsettings');
+        $cachekey = $values->id;
+        $bacache = $cache->get($cachekey);
+
+        // This is our fast way out.
+        // We store a user specific cache in the booking answer.
+        if (
+            !empty($bacache)
+            && isset($bacache->cachecoldayofweektime[$USER->id])
+        ) {
+            return $bacache->cachecoldayofweektime[$USER->id];
+        }
+
         $ret = '';
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
 
         if (!empty($settings->dayofweektime)) {
             $ret = dates_handler::render_dayofweektime_strings($settings->dayofweektime, ' | ');
+        }
+
+        if (!empty($bacache)) {
+            $bacache->cachecoldayofweektime[$USER->id] = $ret;
+            $cache->set($cachekey, $bacache);
         }
 
         return $ret;
@@ -866,18 +905,19 @@ class musi_table extends wunderbyte_table {
      */
     public function col_action($values) {
 
-        $cache = cache::make('mod_booking', 'bookingoptionsanswers');
+        global $USER;
+
+        $cache = cache::make('mod_booking', 'bookingoptionsettings');
         $cachekey = $values->id;
         $bacache = $cache->get($cachekey);
-        $user = price::return_user_to_buy_for();
 
         // This is our fast way out.
         // We store a user specific cache in the booking answer.
         if (
             !empty($bacache)
-            && isset($bacache->cachecolaction[$user->id])
+            && isset($bacache->cachecolaction[$USER->id])
         ) {
-            return $bacache->cachecolaction[$user->id];
+            return $bacache->cachecolaction[$USER->id];
         }
 
         $booking = singleton_service::get_instance_of_booking_by_bookingid($values->bookingid);
@@ -1008,7 +1048,7 @@ class musi_table extends wunderbyte_table {
         $html = $output->render_musi_bookingoption_menu($data);
 
         if (!empty($bacache)) {
-            $bacache->cachecolaction[$user->id] = $html;
+            $bacache->cachecolaction[$USER->id] = $html;
             $cache->set($cachekey, $bacache);
         }
         return $html;
