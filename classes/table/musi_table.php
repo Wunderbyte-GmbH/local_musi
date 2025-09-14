@@ -218,7 +218,6 @@ class musi_table extends wunderbyte_table {
      */
     public function col_price($values) {
 
-
         $cache = cache::make('mod_booking', 'bookingoptionsanswers');
         $cachekey = $values->id;
         $bacache = $cache->get($cachekey);
@@ -228,9 +227,9 @@ class musi_table extends wunderbyte_table {
         // We store a user specific cache in the booking answer.
         if (
             !empty($bacache)
-            && isset($bacache->usercache[$user->id])
+            && isset($bacache->cachecolprice[$user->id])
         ) {
-            return $bacache->usercache[$user->id];
+            return $bacache->cachecolprice[$user->id];
         }
 
         // return 'x';
@@ -241,10 +240,10 @@ class musi_table extends wunderbyte_table {
         $html = booking_bookit::render_bookit_button($settings, $buyforuser->id);
 
         if (!empty($bacache)) {
-            $bacache->usercache[$user->id] = $html;
+            $bacache->cachecolprice[$user->id] = $html;
             $cache->set($cachekey, $bacache);
         } else {
-            $bacache = (object)['usercache' => [$user->id => $html]];
+            $bacache = (object)['cachecolprice' => [$user->id => $html]];
             $cache->set($cachekey, $bacache);
         }
 
@@ -870,6 +869,20 @@ class musi_table extends wunderbyte_table {
      */
     public function col_action($values) {
 
+        $cache = cache::make('mod_booking', 'bookingoptionsanswers');
+        $cachekey = $values->id;
+        $bacache = $cache->get($cachekey);
+        $user = price::return_user_to_buy_for();
+
+        // This is our fast way out.
+        // We store a user specific cache in the booking answer.
+        if (
+            !empty($bacache)
+            && isset($bacache->cachecolaction[$user->id])
+        ) {
+            return $bacache->cachecolaction[$user->id];
+        }
+
         $booking = singleton_service::get_instance_of_booking_by_bookingid($values->bookingid);
 
         $data = new stdClass();
@@ -995,7 +1008,16 @@ class musi_table extends wunderbyte_table {
         }
 
         $output = singleton_service::get_renderer('local_musi');
-        return $output->render_musi_bookingoption_menu($data);
+        $html = $output->render_musi_bookingoption_menu($data);
+
+        if (!empty($bacache)) {
+            $bacache->cachecolaction[$user->id] = $html;
+            $cache->set($cachekey, $bacache);
+        } else {
+            $bacache = (object)['cachecolaction' => [$user->id => $html]];
+            $cache->set($cachekey, $bacache);
+        }
+        return $html;
     }
 
     /**
