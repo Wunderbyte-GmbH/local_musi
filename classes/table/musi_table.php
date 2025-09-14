@@ -242,9 +242,6 @@ class musi_table extends wunderbyte_table {
         if (!empty($bacache)) {
             $bacache->cachecolprice[$user->id] = $html;
             $cache->set($cachekey, $bacache);
-        } else {
-            $bacache = (object)['cachecolprice' => [$user->id => $html]];
-            $cache->set($cachekey, $bacache);
         }
 
         return $html;
@@ -1012,9 +1009,6 @@ class musi_table extends wunderbyte_table {
 
         if (!empty($bacache)) {
             $bacache->cachecolaction[$user->id] = $html;
-            $cache->set($cachekey, $bacache);
-        } else {
-            $bacache = (object)['cachecolaction' => [$user->id => $html]];
             $cache->set($cachekey, $bacache);
         }
         return $html;
