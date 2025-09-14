@@ -124,18 +124,22 @@ class musi_table extends wunderbyte_table {
             // Use the renderer to output this column.
             $lang = current_language();
 
-            $cachekey = "musisessiondates$optionid$lang";
-            $cache = cache::make($this->cachecomponent, $this->rawcachename);
+            $cache = cache::make('mod_booking', 'bookingoptionsanswers');
+            $cachekey = $values->id;
+            $bacache = $cache->get($cachekey);
+            $lang = current_language();
+            $bakey = "cachecolshowdates$lang";
 
             if (
                 !empty($settings->selflearningcourse)
-                || !$ret = $cache->get($cachekey)
+                || !$ret = ($bacache->{$bakey} ?? false)
             ) {
                 $data = new \mod_booking\output\col_coursestarttime($optionid, $booking);
                 $output = singleton_service::get_renderer('mod_booking');
                 $ret = $output->render_col_coursestarttime($data);
                 if (empty($settings->selflearningcourse)) {
-                    $cache->set($cachekey, $ret);
+                    $bacache->{$bakey} = $ret;
+                    $cache->set($cachekey, $bacache);
                 }
             }
         }
@@ -221,15 +225,17 @@ class musi_table extends wunderbyte_table {
         $cache = cache::make('mod_booking', 'bookingoptionsanswers');
         $cachekey = $values->id;
         $bacache = $cache->get($cachekey);
+        $lang = current_language();
+        $bakey = "cachecolprice$lang";
         $user = price::return_user_to_buy_for();
 
         // This is our fast way out.
         // We store a user specific cache in the booking answer.
         if (
             !empty($bacache)
-            && isset($bacache->cachecolprice[$user->id])
+            && isset($bacache->{$bakey}[$user->id])
         ) {
-            return $bacache->cachecolprice[$user->id];
+            return $bacache->{$bakey}[$user->id];
         }
 
         // return 'x';
@@ -240,7 +246,7 @@ class musi_table extends wunderbyte_table {
         $html = booking_bookit::render_bookit_button($settings, $buyforuser->id);
 
         if (!empty($bacache)) {
-            $bacache->cachecolprice[$user->id] = $html;
+            $bacache->{$bakey}[$user->id] = $html;
             $cache->set($cachekey, $bacache);
         }
 
@@ -346,15 +352,17 @@ class musi_table extends wunderbyte_table {
         $cache = cache::make('mod_booking', 'bookingoptionsanswers');
         $cachekey = $values->id;
         $bacache = $cache->get($cachekey);
+        $lang = current_language();
+        $bakey = "cachecolbookings$lang";
         $user = price::return_user_to_buy_for();
 
         // This is our fast way out.
         // We store a user specific cache in the booking answer.
         if (
             !empty($bacache)
-            && isset($bacache->cachecolbookings[$user->id])
+            && isset($bacache->{$bakey}[$user->id])
         ) {
-            return $bacache->cachecolbookings[$user->id];
+            return $bacache->{$bakey}[$user->id];
         }
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
@@ -370,7 +378,7 @@ class musi_table extends wunderbyte_table {
         $html = $output->render_col_availableplaces($data);
 
         if (!empty($bacache)) {
-            $bacache->cachecolbookings[$user->id] = $html;
+            $bacache->{$bakey}[$user->id] = $html;
             $cache->set($cachekey, $bacache);
         }
 
@@ -593,14 +601,16 @@ class musi_table extends wunderbyte_table {
         $cache = cache::make('mod_booking', 'bookingoptionsettings');
         $cachekey = $values->id;
         $bacache = $cache->get($cachekey);
+        $lang = current_language();
+        $bakey = "cachecoldayofweektime$lang";
 
         // This is our fast way out.
         // We store a user specific cache in the booking answer.
         if (
             !empty($bacache)
-            && isset($bacache->cachecoldayofweektime[$USER->id])
+            && isset($bacache->{$bakey}[$USER->id])
         ) {
-            return $bacache->cachecoldayofweektime[$USER->id];
+            return $bacache->{$bakey}[$USER->id];
         }
 
         $ret = '';
@@ -611,7 +621,7 @@ class musi_table extends wunderbyte_table {
         }
 
         if (!empty($bacache)) {
-            $bacache->cachecoldayofweektime[$USER->id] = $ret;
+            $bacache->{$bakey}[$USER->id] = $ret;
             $cache->set($cachekey, $bacache);
         }
 
@@ -910,14 +920,16 @@ class musi_table extends wunderbyte_table {
         $cache = cache::make('mod_booking', 'bookingoptionsettings');
         $cachekey = $values->id;
         $bacache = $cache->get($cachekey);
+        $lang = current_language();
+        $bakey = "cachecolaction$lang";
 
         // This is our fast way out.
         // We store a user specific cache in the booking answer.
         if (
             !empty($bacache)
-            && isset($bacache->cachecolaction[$USER->id])
+            && isset($bacache->{$bakey}[$USER->id])
         ) {
-            return $bacache->cachecolaction[$USER->id];
+            return $bacache->{$bakey}[$USER->id];
         }
 
         $booking = singleton_service::get_instance_of_booking_by_bookingid($values->bookingid);
@@ -1048,7 +1060,7 @@ class musi_table extends wunderbyte_table {
         $html = $output->render_musi_bookingoption_menu($data);
 
         if (!empty($bacache)) {
-            $bacache->cachecolaction[$USER->id] = $html;
+            $bacache->{$bakey}[$USER->id] = $html;
             $cache->set($cachekey, $bacache);
         }
         return $html;
