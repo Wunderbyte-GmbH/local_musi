@@ -137,7 +137,10 @@ class musi_table extends wunderbyte_table {
                 $data = new \mod_booking\output\col_coursestarttime($optionid, $booking);
                 $output = singleton_service::get_renderer('mod_booking');
                 $ret = $output->render_col_coursestarttime($data);
-                if (empty($settings->selflearningcourse)) {
+                if (
+                    empty($settings->selflearningcourse)
+                    && !empty($bacache)
+                ) {
                     $bacache->{$bakey} = $ret;
                     $cache->set($cachekey, $bacache);
                 }
