@@ -241,8 +241,9 @@ class musi_table extends wunderbyte_table {
             if (
                 !empty($bacache)
                 && isset($bacache->{$bakey}[$user->id])
+                && $bacache->{$bakey}[$user->id]['expirationtime'] < time()
             ) {
-                return $bacache->{$bakey}[$user->id];
+                return $bacache->{$bakey}[$user->id]['html'];
             }
         }
 
@@ -252,7 +253,8 @@ class musi_table extends wunderbyte_table {
         $html = booking_bookit::render_bookit_button($settings, $buyforuser->id);
 
         if (get_config('local_musi', 'musicachebookingoptionsanswers') && !empty($bacache)) {
-            $bacache->{$bakey}[$user->id] = $html;
+            $bacache->{$bakey}[$user->id]['html'] = $html;
+            $bacache->{$bakey}[$user->id]['expirationtime'] = time() + get_config('local_musi', 'cacheexpirationtime'); // 1 hour expiration.
             $cache->set($cachekey, $bacache);
         }
 
