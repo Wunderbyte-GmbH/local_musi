@@ -239,7 +239,6 @@ $string['bookingsalt'] = 'Anzahl der freien und maximal verfügbaren Kursplätze
 $string['teacheralt'] = 'Leiter des Kurses';
 $string['imagealt'] = 'Titelbild des Kurses';
 
-
 // Transactions List.
 $string['status'] = 'Status';
 $string['openorder'] = 'Offen';
@@ -282,7 +281,6 @@ $string['scheduler:tasklistdescription'] = 'Tasks welche zu einer bestimmten Zei
                 <code>[{"config": "schedulerenable", "scope" : "local_musi", "time" : "27.02.2024 12:00",
                 "value" : 0, "text" : "Deaktiviere Taskausführung um 12:00 Uhr"}]</code><br><br>Einmal abgearbeitet, wird der Task aus der
                 Taskliste entfernt';
-
 
 // Sports division.
 $string['nosportsdivision'] = 'Keine Sparten auf dieser Website verfügbar';

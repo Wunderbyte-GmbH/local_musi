@@ -66,7 +66,6 @@ class botags_modal_form extends \core_form\dynamic_form {
         require_capability('local/musi:canedit', $this->get_context_for_dynamic_submission());
     }
 
-
     public function set_data_for_dynamic_submission(): void {
         global $DB;
 

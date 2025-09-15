@@ -101,7 +101,6 @@ class substitutionspool_form extends \core_form\dynamic_form {
         }
     }
 
-
     /**
      * Set data for dynamic submission.
      *

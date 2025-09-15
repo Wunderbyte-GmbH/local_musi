@@ -55,7 +55,6 @@ class musi_transactions_table extends wunderbyte_table {
         }
     }
 
-
     /**
      * Manipulates price column and and adds Currency to amount.
      *
