@@ -286,6 +286,24 @@ if ($hassiteconfig) {
         );
 
         $settings->add(
+            new admin_setting_configcheckbox(
+                'local_musi/musicachebookingoptionsettings',
+                get_string('musicachebookingoptionsettings', 'local_musi'),
+                '',
+                1
+            )
+        );
+
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'local_musi/musicachebookingoptionsanswers',
+                get_string('musicachebookingoptionsanswers', 'local_musi'),
+                '',
+                1
+            )
+        );
+
+        $settings->add(
             new admin_setting_configtext(
                 'local_musi/shortcodesarchivecmids',
                 get_string('shortcodesarchivecmids', 'local_musi'),

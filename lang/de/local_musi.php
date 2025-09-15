@@ -61,6 +61,8 @@ $string['newsletterunsubscribed:error'] = 'Bei der Newsletter-Abmeldung ist ein 
 $string['birthdateprofilefield'] = 'Profilfeld für das Geburtsdatum';
 $string['birthdateprofilefielddesc'] = 'Wählen Sie das benutzerdefinierte Nutzerprofilfeld, in dem das Geburtsdatum gespeichert wird.';
 $string['autoaddtosubstitutionspool'] = 'LehrerInnen automatisch in VertreterInnen-Pool ihrer Sportart eintragen?';
+$string['musicachebookingoptionsettings'] = 'Booking-Options-Caching in M:USI-Tabellen für bessere Performance aktivieren';
+$string['musicachebookingoptionsanswers'] = 'Booking-Answers-Caching in M:USI-Tabellen für bessere Performance aktivieren';
 
 // Shortcodes.
 $string['shortcodelists'] = 'Shortcode-Listen';
