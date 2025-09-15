@@ -62,6 +62,7 @@ $string['birthdateprofilefielddesc'] = 'Choose the custom user profile field whi
 $string['autoaddtosubstitutionspool'] = 'Enrol teachers automatically to substitutionpool of their sport';
 $string['musicachebookingoptionsettings'] = 'Activate booking options caching of M:USI tables for better performance';
 $string['musicachebookingoptionsanswers'] = 'Activate booking answers caching of M:USI tables for better performance';
+$string['musicacheexpirationtimeinseconds'] = 'Cache expiration time in seconds (Example: 3600 means that the cache will be newly generated after an hour)';
 
 // Shortcodes.
 $string['shortcodelists'] = 'Shortcode lists';

@@ -63,6 +63,7 @@ $string['birthdateprofilefielddesc'] = 'Wählen Sie das benutzerdefinierte Nutze
 $string['autoaddtosubstitutionspool'] = 'LehrerInnen automatisch in VertreterInnen-Pool ihrer Sportart eintragen?';
 $string['musicachebookingoptionsettings'] = 'Booking-Options-Caching in M:USI-Tabellen für bessere Performance aktivieren';
 $string['musicachebookingoptionsanswers'] = 'Booking-Answers-Caching in M:USI-Tabellen für bessere Performance aktivieren';
+$string['musicacheexpirationtimeinseconds'] = 'Cache-Ablaufzeit in Sekunden (Beispiel: 3600 bedeutet, dass der Cache nach einer Stunde neu generiert wird)';
 
 // Shortcodes.
 $string['shortcodelists'] = 'Shortcode-Listen';
