@@ -290,7 +290,7 @@ if ($hassiteconfig) {
                 'local_musi/musicachebookingoptionsettings',
                 get_string('musicachebookingoptionsettings', 'local_musi'),
                 '',
-                1
+                0
             )
         );
 
@@ -299,7 +299,7 @@ if ($hassiteconfig) {
                 'local_musi/musicachebookingoptionsanswers',
                 get_string('musicachebookingoptionsanswers', 'local_musi'),
                 '',
-                1
+                0
             )
         );
 

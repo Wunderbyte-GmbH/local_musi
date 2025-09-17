@@ -122,18 +122,18 @@ class musi_table extends wunderbyte_table {
             $ret = implode(' | ', $datestrings);
         } else {
             // Only use caching if enabled in settings.
-            if (get_config('local_musi', 'musicachebookingoptionsanswers')) {
+            if (get_config('local_musi', 'musicachebookingoptionsettings')) {
                 $lang = current_language();
-                $cache = cache::make('mod_booking', 'bookingoptionsanswers');
-                $cachekey = $values->id;
-                $bacache = $cache->get($cachekey);
+                $cache = cache::make('mod_booking', 'bookingoptionsettings');
+                $cachekey = $optionid;
+                $bocache = $cache->get($cachekey);
                 $lang = current_language();
-                $bakey = "cachecolshowdates$lang";
+                $bokey = "cachecolshowdates$lang";
             }
             if (
-                !get_config('local_musi', 'musicachebookingoptionsanswers')
+                !get_config('local_musi', 'musicachebookingoptionsettings')
                 || !empty($settings->selflearningcourse)
-                || !$ret = ($bacache->{$bakey} ?? false)
+                || !$ret = ($bocache->{$bokey} ?? false)
             ) {
                 // Use the renderer to output this column.
                 $data = new \mod_booking\output\col_coursestarttime($optionid, $booking);
@@ -142,11 +142,11 @@ class musi_table extends wunderbyte_table {
                 $ret = $output->render_col_coursestarttime($data);
                 if (
                     empty($settings->selflearningcourse)
-                    && get_config('local_musi', 'musicachebookingoptionsanswers')
-                    && !empty($bacache)
+                    && get_config('local_musi', 'musicachebookingoptionsettings')
+                    && !empty($bocache)
                 ) {
-                    $bacache->{$bakey} = $ret;
-                    $cache->set($cachekey, $bacache);
+                    $bocache->{$bokey} = $ret;
+                    $cache->set($cachekey, $bocache);
                 }
             }
         }
