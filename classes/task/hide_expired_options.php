@@ -20,8 +20,12 @@ use cache_helper;
 use core\task\scheduled_task;
 
 /**
- * Scheduled task to hide expired options
- * @package local_musi
+ * Scheduled task to hide expired options.
+ *
+ * @package   local_musi
+ * @copyright 2025
+ * @author    Stephan Lorbek
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class hide_expired_options extends scheduled_task {
     /**
@@ -39,17 +43,19 @@ class hide_expired_options extends scheduled_task {
     public function execute() {
         global $DB;
         $expiredoptions = $DB->get_records_sql(
-                    "SELECT id, text, lastdate, mbo_courseendtime, GREATEST(lastdate, mbo_courseendtime) AS latest_end
+            "SELECT id, text, lastdate, mbo_courseendtime, GREATEST(lastdate, mbo_courseendtime) AS latest_end
                     FROM (
                     SELECT
                         mbo.id,
                         mbo.text,
                         MAX(mbo2.courseendtime) AS lastdate,
                         mbo.courseendtime AS mbo_courseendtime
-                    FROM m_booking_options mbo
-                    LEFT JOIN m_booking_optiondates mbo2 ON (mbo.id = mbo2.bookingid)
+                    FROM {booking_options} mbo
+                    LEFT JOIN {booking_optiondates} mbo2 ON (mbo.id = mbo2.bookingid)
                     GROUP BY mbo.id, mbo.text, mbo.courseendtime) t
-                    WHERE GREATEST(lastdate, mbo_courseendtime) < EXTRACT(EPOCH FROM NOW())", []);
+                    WHERE GREATEST(lastdate, mbo_courseendtime) < EXTRACT(EPOCH FROM NOW())",
+            []
+        );
 
         foreach ($expiredoptions as $option) {
             $DB->set_field('booking_options', 'invisible', 2, ['id' => $option->id]);
