@@ -1,3 +1,20 @@
+## Version 0.9.27 (2025091700)
+* Improvement: Caching of descriptions for better performance.
+* Improvement: Fallback for argument in shortcode.
+* Improvement: Dashboard Block Region.
+* Improvement: Retrieve user information more efficiently.
+* Improvement: Add caching for col_price & col_action.
+* Improvement: Add caching for col_bookings and col_dayofweektime.
+* Improvement: Add caching for col_showdates.
+* Improvement: New settings to turn musi tables caches on/off.
+* Improvement: Add cache expiration time.
+* Improvement: Expiration for col_price.
+* Bugfix: Fix musi_table.
+* Bugfix: Don't set ba cache without proper constructor.
+* Bugfix: Avoid reading on empty.
+* Bugfix: Fix table prefix in task to hide expired options.
+* Bugfix: Disable musi table caches by default and store col_showdates in options cache.
+
 ## Version 0.9.26 (2025090100)
 * Bugfix: Correctly apply includeoptions arg in shortcodes.
 
