@@ -31,6 +31,7 @@ use context_system;
 use html_writer;
 use local_wunderbyte_table\filters\types\callback;
 use local_wunderbyte_table\filters\types\hourlist;
+use local_wunderbyte_table\filters\types\exactcolumn;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\customfield\booking_handler;
 use mod_booking\output\page_allteachers;
@@ -144,6 +145,9 @@ class shortcodes {
         } else {
             self::generate_table_for_list($table, $args);
         }
+
+        $prefixsearch = new exactcolumn('titleprefix', get_string('titleprefix', 'local_musi'));
+        $table->add_filter($prefixsearch);
         return [$table, $perpage];
     }
 
