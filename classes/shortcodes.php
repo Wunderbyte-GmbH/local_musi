@@ -692,7 +692,7 @@ class shortcodes {
 
         if (!empty($args['search'])) {
             $table->define_fulltextsearchcolumns([
-                'titleprefix', 'text', 'sportsdivision', 'sport', 'description', 'location',
+                'titleprefix', 'text', 'sportsdivision', 'sport', 'location',
                 'teacherobjects', 'botags']);
         }
 
