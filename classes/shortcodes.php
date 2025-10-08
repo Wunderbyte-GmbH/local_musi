@@ -104,19 +104,29 @@ class shortcodes {
         global $DB;
 
         self::fix_args($args);
-        $booking = self::get_booking($args);
+        $bookings = self::get_bookings($args);
         $perpage = \mod_booking\shortcodes::check_perpage($args);
 
         $table = self::inittableforcourses();
 
-        if (empty($booking->id)) {
+
+        $bookingids = [];
+        foreach ($bookings as $booking) {
+            if (!empty($booking->id)) {
+                $bookingids[] = (int)$booking->id;
+            }
+        }
+
+        if (empty($bookingids)) {
             return ['', ''];
-        } else if (!empty($args['includeoptions'])) {
+        }
+
+        if (!empty($args['includeoptions'])) {
             $wherearray = [];
             [$inorequal, $additionalparams] = $DB->get_in_or_equal(explode(',', $args['includeoptions']), SQL_PARAMS_NAMED);
             $additionalwhere = " (bookingid = " . (int)$booking->id . " OR id $inorequal )";
         } else {
-            $wherearray = ['bookingid' => (int)$booking->id];
+            $wherearray = ['bookingid' => $bookingids];
         }
 
         self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
@@ -129,7 +139,6 @@ class shortcodes {
         if (!empty($additionalparams)) {
             $params = array_merge($params, $additionalparams);
         }
-
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
         $table->use_pages = true;
 
@@ -149,6 +158,43 @@ class shortcodes {
         $prefixsearch = new exactcolumn('titleprefix', get_string('titleprefix', 'local_musi'));
         $table->add_filter($prefixsearch);
         return [$table, $perpage];
+    }
+
+    /**
+     * Get bookings from shortcode arguments.
+     *
+     * @param mixed $args
+     *
+     * @return mixed
+     *
+     */
+    private static function get_bookings($args) {
+        self::fix_args($args);
+
+        if (!isset($args['id'])) {
+            $args['id'] = get_config('local_musi', 'shortcodessetinstance');
+        }
+
+        $ids = explode(',', $args['id']);
+        $bookings = [];
+
+        foreach ($ids as $id) {
+            $id = trim($id);
+            if (!ctype_digit($id)) {
+                continue;
+            }
+            if (!$booking = singleton_service::get_instance_of_booking_by_cmid((int)$id)) {
+                continue;
+            }
+
+            $bookings[] = $booking;
+        }
+
+        if (empty($bookings)) {
+            return 'Couldn\'t find appropriate booking instances ' . $args['id'];
+        }
+
+        return $bookings;
     }
 
     /**
@@ -179,7 +225,8 @@ class shortcodes {
             $additionalparams
         );
         if (empty($table)) {
-            return 'Couldn\'t find right booking instance ' . $args['id'];;
+            return 'Couldn\'t find right booking instance ' . $args['id'];
+            ;
         }
         $table->showcountlabel = empty($args['countlabel']) ? false : $args['countlabel'];
         return self::generate_output($args, $table, $perpage);
