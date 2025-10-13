@@ -121,12 +121,17 @@ class shortcodes {
             return ['', ''];
         }
 
+        $wherearray = ['bookingid' => $bookingids];
+
         if (!empty($args['includeoptions'])) {
             $wherearray = [];
             [$inorequal, $additionalparams] = $DB->get_in_or_equal(explode(',', $args['includeoptions']), SQL_PARAMS_NAMED);
-            $additionalwhere = " (bookingid = " . (int)$booking->id . " OR id $inorequal )";
-        } else {
-            $wherearray = ['bookingid' => $bookingids];
+            $conditions = [];
+            foreach ($bookingids as $index => $bookingid) {
+                $conditions[] = "(bookingid = $bookingid)";
+            }
+            $additionalwhere = implode(' OR ', $conditions);
+            $additionalwhere .= " OR id $inorequal";
         }
 
         self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
