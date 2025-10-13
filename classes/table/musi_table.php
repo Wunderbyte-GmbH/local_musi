@@ -956,6 +956,7 @@ class musi_table extends wunderbyte_table {
         $data->modaltitle = $values->text;
 
         $buyforuser = price::return_user_to_buy_for();
+        $isteacherofbooking = booking_check_if_teacher($values);
 
         $data->userid = $buyforuser->id;
 
@@ -965,8 +966,8 @@ class musi_table extends wunderbyte_table {
             if (!empty($bosettings)) {
                 $context = context_module::instance($bosettings->cmid);
 
-                // ONLY users with the mod/booking:updatebooking capability can edit options.
-                $allowedit = has_capability('mod/booking:updatebooking', $context);
+                // ONLY users with the mod/booking:updatebooking capability can edit options or designaated teachers.
+                $allowedit = has_capability('mod/booking:updatebooking', $context) || (has_capability('mod/booking:addeditownoption', $context) && booking_check_if_teacher($values)) || (has_capability('mod/booking:limitededitownoption', $context) && booking_check_if_teacher($values));
                 if ($allowedit) {
                     if (isset($bosettings->editoptionurl)) {
                         // Get the URL to edit the option.
@@ -1005,6 +1006,7 @@ class musi_table extends wunderbyte_table {
                     has_capability('mod/booking:viewreports', $context)
                     || (has_capability('mod/booking:limitededitownoption', $context) && booking_check_if_teacher($values))
                     || has_capability('mod/booking:updatebooking', $context)
+                    || (has_capability('mod/booking:addeditownoption', $context) && booking_check_if_teacher($values))
                 );
 
                 // If the user has no capability to editoptions, the URLs will not be added.
