@@ -956,7 +956,6 @@ class musi_table extends wunderbyte_table {
         $data->modaltitle = $values->text;
 
         $buyforuser = price::return_user_to_buy_for();
-        $isteacherofbooking = booking_check_if_teacher($values);
 
         $data->userid = $buyforuser->id;
 
