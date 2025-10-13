@@ -78,7 +78,6 @@ class sports {
         return $courseid;
     }
 
-
     /**
      * Returns the sports divisions
      * @param int $courseid

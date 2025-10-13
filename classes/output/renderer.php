@@ -17,7 +17,6 @@
 namespace local_musi\output;
 use plugin_renderer_base;
 
-
 /**
  * A custom renderer class that extends the plugin_renderer_base and is used by the booking module.
  *

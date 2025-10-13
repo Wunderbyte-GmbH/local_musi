@@ -132,7 +132,6 @@
     width: 1.2857142857em !important;
 }
 
-
 @media screen and (max-width: 768px) {
     .shortcodes_responsive_table {
         border: 0;
@@ -200,7 +199,6 @@
     grid-template-columns: 0fr 2fr;
     gap: 0;
 }
-
 
 .wunderbyte-table-grid .list-group-item + .list-group-item {
     border-top: 1px solid rgba(0, 0, 0, .125);

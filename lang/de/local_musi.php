@@ -61,6 +61,9 @@ $string['newsletterunsubscribed:error'] = 'Bei der Newsletter-Abmeldung ist ein 
 $string['birthdateprofilefield'] = 'Profilfeld für das Geburtsdatum';
 $string['birthdateprofilefielddesc'] = 'Wählen Sie das benutzerdefinierte Nutzerprofilfeld, in dem das Geburtsdatum gespeichert wird.';
 $string['autoaddtosubstitutionspool'] = 'LehrerInnen automatisch in VertreterInnen-Pool ihrer Sportart eintragen?';
+$string['musicachebookingoptionsettings'] = 'Booking-Options-Caching in M:USI-Tabellen für bessere Performance aktivieren';
+$string['musicachebookingoptionsanswers'] = 'Booking-Answers-Caching in M:USI-Tabellen für bessere Performance aktivieren';
+$string['musicacheexpirationtimeinseconds'] = 'Cache-Ablaufzeit in Sekunden (Beispiel: 3600 bedeutet, dass der Cache nach einer Stunde neu generiert wird)';
 
 // Shortcodes.
 $string['shortcodelists'] = 'Shortcode-Listen';
@@ -239,7 +242,6 @@ $string['bookingsalt'] = 'Anzahl der freien und maximal verfügbaren Kursplätze
 $string['teacheralt'] = 'Leiter des Kurses';
 $string['imagealt'] = 'Titelbild des Kurses';
 
-
 // Transactions List.
 $string['status'] = 'Status';
 $string['openorder'] = 'Offen';
@@ -283,6 +285,11 @@ $string['scheduler:tasklistdescription'] = 'Tasks welche zu einer bestimmten Zei
                 "value" : 0, "text" : "Deaktiviere Taskausführung um 12:00 Uhr"}]</code><br><br>Einmal abgearbeitet, wird der Task aus der
                 Taskliste entfernt';
 
-
 // Sports division.
 $string['nosportsdivision'] = 'Keine Sparten auf dieser Website verfügbar';
+
+// User Roles Overview
+$string['roleoverview'] = 'Benutzerrollenübersicht';
+$string['roleaffiliation'] = 'Zugehörigkeit';
+
+$string['hide_expired_options'] = 'Verstecke abgelaufene Optionen';

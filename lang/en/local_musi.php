@@ -60,6 +60,9 @@ $string['newsletterunsubscribed:error'] = 'There was an error with unsubscribing
 $string['birthdateprofilefield'] = 'Birthdate profile field';
 $string['birthdateprofilefielddesc'] = 'Choose the custom user profile field which is used to store the birthdate.';
 $string['autoaddtosubstitutionspool'] = 'Enrol teachers automatically to substitutionpool of their sport';
+$string['musicachebookingoptionsettings'] = 'Activate booking options caching of M:USI tables for better performance';
+$string['musicachebookingoptionsanswers'] = 'Activate booking answers caching of M:USI tables for better performance';
+$string['musicacheexpirationtimeinseconds'] = 'Cache expiration time in seconds (Example: 3600 means that the cache will be newly generated after an hour)';
 
 // Shortcodes.
 $string['shortcodelists'] = 'Shortcode lists';
@@ -280,3 +283,9 @@ $string['scheduler:tasklistdescription'] = 'Tasks to be processed at a certain t
 
 // Sports division.
 $string['nosportsdivision'] = 'No sports divisions set on this site';
+
+// User Roles Overview
+$string['roleoverview'] = 'User Roles Overview';
+$string['roleaffiliation'] = 'Affiliation';
+
+$string['hide_expired_options'] = 'Hide expired options';

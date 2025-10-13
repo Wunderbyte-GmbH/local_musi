@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * Add dates to option.
  *
@@ -53,6 +52,7 @@ $PAGE->set_title(format_string($title));
 $PAGE->set_heading($title);
 
 $PAGE->set_pagelayout('standard');
+$PAGE->blocks->add_region('side-pre');
 $PAGE->add_body_class('local_musi-dashboard');
 
 echo $OUTPUT->header();
@@ -62,7 +62,7 @@ $PAGE->requires->js_call_amd(
     'init',
     [
         '[data-action=openbotagsmodal]',
-        get_string('editbotags', 'local_musi'),
+        get_string('editbotags', 'local_musi')
     ]
 );
 

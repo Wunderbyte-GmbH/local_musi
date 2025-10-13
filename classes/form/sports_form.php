@@ -99,7 +99,6 @@ class sports_form extends dynamic_form {
         return $data;
     }
 
-
     /**
      * Load in existing data as form defaults
      *

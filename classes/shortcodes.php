@@ -108,7 +108,15 @@ class shortcodes {
 
         $table = self::inittableforcourses();
 
-        $wherearray = ['bookingid' => (int)$booking->id];
+        if (empty($booking->id)) {
+            return ['', ''];
+        } else if (!empty($args['includeoptions'])) {
+            $wherearray = [];
+            [$inorequal, $additionalparams] = $DB->get_in_or_equal(explode(',', $args['includeoptions']), SQL_PARAMS_NAMED);
+            $additionalwhere = " (bookingid = " . (int)$booking->id . " OR id $inorequal )";
+        } else {
+            $wherearray = ['bookingid' => (int)$booking->id];
+        }
 
         self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
@@ -155,13 +163,7 @@ class shortcodes {
         self::fix_args($args);
         $additionalwhere = '';
         $additionalparams = [];
-        $booking = self::get_booking($args);
 
-        if (!empty($args['includeoptions'])) {
-            $wherearray = [];
-            [$inorequal, $additionalparams] = $DB->get_in_or_equal(explode(',', $args['includeoptions']), SQL_PARAMS_NAMED);
-            $additionalwhere = " (bookingid = " . (int)$booking->id . " OR id $inorequal )";
-        }
         [$table, $perpage] = self::unifiedview(
             $shortcode,
             $args,
@@ -172,6 +174,9 @@ class shortcodes {
             $additionalwhere,
             $additionalparams
         );
+        if (empty($table)) {
+            return 'Couldn\'t find right booking instance ' . $args['id'];;
+        }
         $table->showcountlabel = empty($args['countlabel']) ? false : $args['countlabel'];
         return self::generate_output($args, $table, $perpage);
     }
@@ -320,6 +325,7 @@ class shortcodes {
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         $table->use_pages = false;
+        $table->scrolltocontainer = false;
 
         self::generate_table_for_cards($table, $args);
 
@@ -373,6 +379,7 @@ class shortcodes {
 
         // This allows us to use infinite scrolling, No pages will be used.
         $table->infinitescroll = 30;
+        $table->scrolltocontainer = false;
 
         return self::generate_output($args, $table, $perpage);
     }
@@ -464,6 +471,7 @@ class shortcodes {
         $data['teacher'] = count($asteacher);
         $data['credits'] = $credits[0];
 
+        /** @var \local_musi\output\renderer $output */
         $output = $PAGE->get_renderer('local_musi');
         return $output->render_user_dashboard_overview($data);
     }
@@ -499,6 +507,8 @@ class shortcodes {
 
         // Now prepare the data for all teachers.
         $data = new page_allteachers($teacherids);
+
+        /** @var \mod_booking\output\renderer $output */
         $output = $PAGE->get_renderer('mod_booking');        // And return the rendered page showing all teachers.
         return $output->render_allteacherspage($data);
     }
@@ -579,6 +589,7 @@ class shortcodes {
 
         $standardfilter = new standardfilter('dayofweek', get_string('dayofweek', 'local_musi'));
         $standardfilter->add_options([
+            'explode' => ',',
             'monday' => get_string('monday', 'mod_booking'),
             'tuesday' => get_string('tuesday', 'mod_booking'),
             'wednesday' => get_string('wednesday', 'mod_booking'),

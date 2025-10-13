@@ -1,3 +1,41 @@
+## Version 0.9.27 (2025091700)
+* Improvement: Caching of descriptions for better performance.
+* Improvement: Fallback for argument in shortcode.
+* Improvement: Dashboard Block Region.
+* Improvement: Retrieve user information more efficiently.
+* Improvement: Add caching for col_price & col_action.
+* Improvement: Add caching for col_bookings and col_dayofweektime.
+* Improvement: Add caching for col_showdates.
+* Improvement: New settings to turn musi tables caches on/off.
+* Improvement: Add cache expiration time.
+* Improvement: Expiration for col_price.
+* Bugfix: Fix musi_table.
+* Bugfix: Don't set ba cache without proper constructor.
+* Bugfix: Avoid reading on empty.
+* Bugfix: Fix table prefix in task to hide expired options.
+* Bugfix: Disable musi table caches by default and store col_showdates in options cache.
+
+## Version 0.9.26 (2025090100)
+* Bugfix: Correctly apply includeoptions arg in shortcodes.
+
+## Version 0.9.25 (2025080400)
+* New feature: Support multiple dayofweektime strings.
+
+## Version 0.9.24 (2025072400)
+* Improvement: Possiblity to disable scrolling of tables
+* Bugfix: Better display of debug message for col_responsible contact
+* Bugfix: Disable scrolling to tables in meinekurse.php
+
+## Version 0.9.23 (2025072400)
+* Bugfix: Fix display of multiple responsible contacts in MUSI table.
+
+## Version 0.9.22 (2025071600)
+* Bugfix: Renderer changed to mod_booking for the column booking in musi table.
+
+## Version 0.9.21 (2025062400)
+* New feature: Show extra info within dates list.
+* Improvement: Use new teachers selector also in substitutions pool.
+
 ## Version 0.9.20 (2025061100)
 * Accessibility: Remove span from infolist.
 * Bugfix: Only allow to select actually existing and visible instance for shortcodessetinstance setting.
