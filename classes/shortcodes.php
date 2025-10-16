@@ -134,6 +134,15 @@ class shortcodes {
             $additionalwhere .= " OR id $inorequal";
         }
 
+        if (
+            (isset($args['noinvisible'])
+            && !empty($args['noinvisible']))
+            || (isset($args['invisible'])
+            && $args['invisible'] == false || $args['invisible'] == 0)
+        ) {
+            $wherearray['invisible'] = 0;
+        }
+
         self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
