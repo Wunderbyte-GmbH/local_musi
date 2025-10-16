@@ -160,7 +160,7 @@ $string['changebookinginstance'] = 'Set default semester instance';
 $string['editbotags'] = 'Edit tags';
 $string['createbotag'] = 'Create new tag...';
 $string['createbotag:helptext'] = '<p>
-<a data-toggle="collapse" href="#collapseTagsHelptext" role="button" aria-expanded="false" aria-controls="collapseTagsHelptext">
+<a data-toggle="collapse" data-bs-toggle="collapse" href="#collapseTagsHelptext" role="button" aria-expanded="false" aria-controls="collapseTagsHelptext">
   <i class="fa fa-question-circle" aria-hidden="true"></i><span>&nbsp;Help: How to configure tags...</span>
 </a>
 </p>

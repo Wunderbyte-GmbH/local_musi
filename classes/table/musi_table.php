@@ -425,7 +425,8 @@ class musi_table extends wunderbyte_table {
                 if (strlen($shortdescription) > $maxlength) {
                     $ret =
                         '<div>
-                            <a data-toggle="collapse" href="#collapseDescription' . $values->id . '" role="button"
+                            <a data-toggle="collapse" data-bs-toggle="collapse"
+                                href="#collapseDescription' . $values->id . '" role="button"
                                 aria-expanded="false" aria-controls="collapseDescription">
                                 <i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp;' .
                         get_string('showdescription', 'mod_booking') . '...</a>

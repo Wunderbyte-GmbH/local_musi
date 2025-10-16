@@ -39,7 +39,7 @@
     <div class="card mb-3 border-1">
       <div class="card-header bg-light border-1 pb-1" id="heading-category-{{categoryid}}"
         data-categoryid="{{categoryid}}">
-        <div class="h4 text-primary" style="cursor: pointer;" data-toggle="collapse" data-target="#accordionsport-{{categoryid}}" aria-expanded="true"
+        <div class="h4 text-primary" style="cursor: pointer;" data-toggle="collapse" data-bs-toggle="collapse" data-target="#accordionsport-{{categoryid}}" data-bs-target="#accordionsport-{{categoryid}}" aria-expanded="true"
           aria-controls="accordionsport-{{categoryid}}">
           {{name}}
         </div>
@@ -53,7 +53,7 @@
                       {{#str}} mailtosubstitutionspool, local_musi {{/str}}&nbsp;
                     </a>
                   {{/mailtolink}}
-                  <button class="btn btn-sm btn-light ml-1" type="button" data-toggle="collapse" data-target="#substitutionteachers-category-{{id}}"
+                  <button class="btn btn-sm btn-light ml-1" type="button" data-toggle="collapse" data-bs-toggle="collapse" data-target="#substitutionteachers-category-{{id}}" data-bs-target="#substitutionteachers-category-{{id}}"
                     aria-expanded="false" aria-controls="substitutionteachers-category-{{id}}">
                     <i class="fa fa-eye" aria-hidden="true"></i>&nbsp;
                     {{#str}} viewsubstitutionspool, local_musi {{/str}}
@@ -92,7 +92,7 @@
                   </div>
                   {{#emailstring}}
                   <div>
-                    <a class="small ml-3 mt-1 mb-3" data-toggle="collapse" href="#substitutionteachersemails" role="button" aria-expanded="false" aria-controls="substitutionteachersemails-category">
+                    <a class="small ml-3 mt-1 mb-3" data-toggle="collapse" data-bs-toggle="collapse" href="#substitutionteachersemails" role="button" aria-expanded="false" aria-controls="substitutionteachersemails-category">
                       <i class="fa fa-question-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{#str}} substitutionspool:mailproblems, local_musi {{/str}}
                     </a>
                     <div class="collapse" id="substitutionteachersemails-category">
@@ -109,7 +109,7 @@
         {{#sports}}
           <div class="card border-0 pt-1">
             <div class="card-header border-0 bg-white text-primary text-left p-1" id="heading-sport-{{id}}"
-              data-toggle="collapse" data-target="#sport-{{id}}" aria-expanded="true" aria-controls="sport-{{id}}">
+              data-toggle="collapse" data-bs-toggle="collapse" data-target="#sport-{{id}}" data-bs-target="#sport-{{id}}" aria-expanded="true" aria-controls="sport-{{id}}">
               <span class="h5 ml-3 mt-1" style="cursor: pointer;">{{name}}</span>
             </div>
             <div id="sport-{{id}}" class="collapse" aria-labelledby="heading-sport-{{id}}" data-parent="#accordionsport-{{categoryid}}">
@@ -136,7 +136,7 @@
                       {{#str}} mailtosubstitutionspool, local_musi {{/str}}&nbsp;
                     </a>
                   {{/mailtolink}}
-                  <button class="btn btn-sm btn-light ml-1" type="button" data-toggle="collapse" data-target="#substitutionteachers-{{id}}"
+                  <button class="btn btn-sm btn-light ml-1" type="button" data-toggle="collapse" data-bs-toggle="collapse" data-target="#substitutionteachers-{{id}}" data-bs-target="#substitutionteachers-{{id}}"
                     aria-expanded="false" aria-controls="substitutionteachers">
                     <i class="fa fa-eye" aria-hidden="true"></i>&nbsp;
                     {{#str}} viewsubstitutionspool, local_musi {{/str}}
@@ -175,7 +175,7 @@
                   </div>
                   {{#emailstring}}
                   <div>
-                    <a class="small ml-3 mt-1 mb-3" data-toggle="collapse" href="#substitutionteachersemails" role="button" aria-expanded="false" aria-controls="substitutionteachersemails">
+                    <a class="small ml-3 mt-1 mb-3" data-toggle="collapse" data-bs-toggle="collapse" href="#substitutionteachersemails" role="button" aria-expanded="false" aria-controls="substitutionteachersemails">
                       <i class="fa fa-question-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{#str}} substitutionspool:mailproblems, local_musi {{/str}}
                     </a>
                     <div class="collapse" id="substitutionteachersemails">

@@ -162,7 +162,7 @@ $string['changebookinginstance'] = 'Standard-Semester-Instanz setzen';
 $string['editbotags'] = 'Tags verwalten';
 $string['createbotag'] = 'Neuen Tag anlegen...';
 $string['createbotag:helptext'] = '<p>
-<a data-toggle="collapse" href="#collapseTagsHelptext" role="button" aria-expanded="false" aria-controls="collapseTagsHelptext">
+<a data-toggle="collapse" data-bs-toggle="collapse" href="#collapseTagsHelptext" role="button" aria-expanded="false" aria-controls="collapseTagsHelptext">
   <i class="fa fa-question-circle" aria-hidden="true"></i><span>&nbsp;Hilfe: So können Sie Tags konfigurieren...</span>
 </a>
 </p>

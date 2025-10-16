@@ -128,8 +128,9 @@ function build_sapfiles_accordion(array $dataforsapfiletemplate): string {
             $html .=
                 '<div class="card-header" id="heading' . $y . '}">
                     <h5 class="mb-0">
-                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapse' . $y . '" aria-expanded="true"
-                            aria-controls="collapse' . $y . '">
+                        <button class="btn btn-link" data-toggle="collapse" data-bs-toggle="collapse"
+                            data-target="#collapse' . $y . '" data-bs-target="#collapse' . $y . '"
+                            aria-expanded="true" aria-controls="collapse' . $y . '">
                             ' . $y . '
                         </button>
                     </h5>
@@ -146,8 +147,9 @@ function build_sapfiles_accordion(array $dataforsapfiletemplate): string {
                 $html .=
                                 '<div class="h5" id="heading' . "$y-$m" . '}">
                                     <h6 class="mb-0">
-                                        <div class="btn btn-link" data-toggle="collapse" data-target="#collapse' . "$y-$m" .
-                                        '" aria-expanded="true" aria-controls="collapse' . "$y-$m" . '">
+                                        <div class="btn btn-link" data-toggle="collapse" data-bs-toggle="collapse"
+                                        data-target="#collapse' . "$y-$m" . '" data-bs-target="#collapse' . "$y-$m" . '"
+                                        aria-expanded="true" aria-controls="collapse' . "$y-$m" . '">
                                             ' . "$y-$m" . '
                                         </div>
                                     </h6>
