@@ -169,8 +169,10 @@ class shortcodes {
             self::generate_table_for_list($table, $args);
         }
 
-        $prefixsearch = new exactcolumn('titleprefix', get_string('titleprefix', 'local_musi'));
-        $table->add_filter($prefixsearch);
+        if (isset($args['prefixfilter']) && !empty($args['prefixfilter'])) {
+            $prefixsearch = new exactcolumn('titleprefix', get_string('titleprefix', 'local_musi'));
+            $table->add_filter($prefixsearch);
+        }
         return [$table, $perpage];
     }
 
