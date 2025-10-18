@@ -26,6 +26,7 @@ Feature: Baisc functionality of local_urise works as expected
       | activity | course | name       | intro               | bookingmanager | eventtype | autoenrol |
       | booking  | C1     | C1Booking1 | Booking description | teacher1       | Webinar   | 1         |
       | booking  | C2     | C2Booking1 | Booking description | teacher2       | Webinar   | 1         |
+    And I set shortcodessetinstance for musi to "C1Booking1"
     And I change viewport size to "1366x10000"
 
   @javascript
