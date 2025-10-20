@@ -28,6 +28,7 @@ namespace local_musi;
 
 use html_writer;
 use local_wunderbyte_table\filters\types\callback;
+use local_wunderbyte_table\filters\types\customfieldfilter;
 use local_wunderbyte_table\filters\types\hourlist;
 use local_wunderbyte_table\filters\types\exactcolumn;
 use mod_booking\bo_availability\bo_info;
@@ -651,11 +652,22 @@ class shortcodes {
             $table->add_filter($callbackfilter);
         }
 
-        $standardfilter = new standardfilter('sport', get_string('sport', 'local_musi'));
-        $table->add_filter($standardfilter);
+        // The custom fields to create a filter on.
+        $customfiledskeys = [
+            'sport' => get_string('sport', 'local_musi'),
+            'sportsdivision' => get_string('sportsdivision', 'local_musi'),
+            'botags' => get_string('tags', 'core'),
+        ];
 
-        $standardfilter = new standardfilter('sportsdivision', get_string('sportsdivision', 'local_musi'));
-        $table->add_filter($standardfilter);
+        // Fetch desired custom fields.
+        $customfields = booking_handler::get_customfields(array_keys($customfiledskeys));
+
+        // Create a filter for desired custom fileds using customfiledfilter.
+        foreach ($customfields as $cfid => $cf) {
+            $localizedstring = $customfiledskeys[$cf->shortname];
+            $customfieldfilter = new customfieldfilter($cf->shortname, $localizedstring);
+            $customfieldfilter->set_sql_for_fieldid($cfid);
+        }
 
         $standardfilter = new standardfilter('teacherobjects', get_string('teachers', 'mod_booking'));
         $standardfilter->add_options(['jsonattribute' => 'name']);
@@ -675,9 +687,6 @@ class shortcodes {
         $table->add_filter($standardfilter);
 
         $standardfilter = new standardfilter('location', get_string('location', 'mod_booking'));
-        $table->add_filter($standardfilter);
-
-        $standardfilter = new standardfilter('botags', get_string('tags', 'core'));
         $table->add_filter($standardfilter);
 
         if (get_config('local_musi', 'musishortcodesshowfiltercoursetime')) {
