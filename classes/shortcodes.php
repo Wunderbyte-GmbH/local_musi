@@ -179,12 +179,11 @@ class shortcodes {
     /**
      * Get bookings from shortcode arguments.
      *
-     * @param mixed $args
+     * @param array $args
      *
-     * @return mixed
-     *
+     * @return array
      */
-    private static function get_bookings($args) {
+    private static function get_bookings($args): array {
         self::fix_args($args);
 
         if (!isset($args['id'])) {
@@ -207,7 +206,8 @@ class shortcodes {
         }
 
         if (empty($bookings)) {
-            return 'Couldn\'t find appropriate booking instances ' . $args['id'];
+            // Couldn't find appropriate booking instances for $args['id'].
+            return [];
         }
 
         return $bookings;
@@ -241,7 +241,8 @@ class shortcodes {
             $additionalparams
         );
         if (empty($table)) {
-            return 'Couldn\'t find right booking instance ' . $args['id'];
+            $cmid = $args['id'] ?? '- no booking cmid given';
+            return 'Couldn\'t find right booking instance ' . $cmid;
             ;
         }
         $table->showcountlabel = empty($args['countlabel']) ? false : $args['countlabel'];
