@@ -305,16 +305,14 @@ class musi_table extends wunderbyte_table {
         }
 
         // Only use caching if enabled in settings.
-        if (get_config('local_musi', 'musicachebookingoptionsettings')) {
-            $lang = current_language();
-            $cache = cache::make('mod_booking', 'bookingoptionsettings');
+        if (get_config('local_musi', 'musicachebookingoptionsanswers')) {
+            $cache = cache::make('mod_booking', 'bookingoptionsanswers');
             $cachekey = $optionid;
             $bocache = $cache->get($cachekey);
-            $lang = current_language();
-            $bokey = "cachecolreceipt$lang";
+            $bokey = "cachecolreceipt";
         }
         if (
-            !get_config('local_musi', 'musicachebookingoptionsettings')
+            !get_config('local_musi', 'musicachebookingoptionsanswers')
             || !empty($settings->selflearningcourse)
             || !$ret = ($bocache->{$bokey} ?? false)
         ) {
@@ -352,7 +350,7 @@ class musi_table extends wunderbyte_table {
 
             if (
                 empty($settings->selflearningcourse)
-                && get_config('local_musi', 'musicachebookingoptionsettings')
+                && get_config('local_musi', 'musicachebookingoptionsanswers')
                 && !empty($bocache)
             ) {
                 $bocache->{$bokey} = $ret;
