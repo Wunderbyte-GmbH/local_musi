@@ -215,6 +215,7 @@ class musi_table extends wunderbyte_table {
                 $value['last'] = false;
             }
         }
+        /** @var \local_musi\output\renderer $output */
         $output = singleton_service::get_renderer('local_musi');
         return $output->render_col_teacher($data);
     }
@@ -279,37 +280,86 @@ class musi_table extends wunderbyte_table {
         if (!class_exists('local_shopping_cart\shopping_cart')) {
             return '';
         }
-        $userid = price::return_user_to_buy_for()->id;
-        $sql = "SELECT *
-                 FROM {local_shopping_cart_ledger} l
-                WHERE itemid=:itemid AND userid=:userid AND area='option'
-             ORDER BY timecreated DESC
-                LIMIT 1";
-        $params = ['itemid' => $values->id, 'userid' => $userid];
-        $record = $DB->get_record_sql($sql, $params);
-        if (empty($record)) {
+
+        // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
+        if (empty($values->id)) {
+            $debugmessage = "musi_table function col_receipt: ";
+            $debugmessage .= "id (optionid) is missing from values object - values: ";
+            $debugmessage .= json_encode($values);
+            debugging($debugmessage, DEBUG_DEVELOPER);
             return '';
         }
-        $url = new moodle_url(
-            '/local/shopping_cart/receipt.php',
-            [
-                'success' => 1,
-                'id' => $record->identifier,
-                'idcol' => 'identifier', // Use the identifier to create the receipt.
-                'userid' => $userid,
-                'paymentstatus' => $record->paymentstatus,
-            ]
-        );
-        $labelstring = $record->paymentstatus == LOCAL_SHOPPING_CART_PAYMENT_CANCELED ?
-            'cancelconfirmation' :
-            'receipt';
-        $icon = '<i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;';
-        $receipt = html_writer::tag('a', $icon . get_string($labelstring, 'local_shopping_cart'), [
-            'href' => $url->out(false),
-            'target' => '_blank',
-            'class' => 'musi-receipt-btn btn btn-secondary p-1 mt-2 mb-2 w-100',
-        ]);
-        return $receipt;
+
+        // NOTE: Do not use $this->cmid and $this->context because it might be that booking options come from different instances!
+        // So we always need to retrieve them via singleton service for the current booking option ($values->id).
+        $optionid = $values->id;
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        // If $settings->cmid is missing, we show the settings object in debug mode, so we can investigate what happens.
+        if (empty($settings->cmid)) {
+            $debugmessage = "musi_table function col_receipt: ";
+            $debugmessage .= "cmid is missing from settings object - settings: ";
+            $debugmessage .= json_encode($settings);
+            debugging($debugmessage, DEBUG_DEVELOPER);
+            return '';
+        }
+
+        // Only use caching if enabled in settings.
+        if (get_config('local_musi', 'musicachebookingoptionsettings')) {
+            $lang = current_language();
+            $cache = cache::make('mod_booking', 'bookingoptionsettings');
+            $cachekey = $optionid;
+            $bocache = $cache->get($cachekey);
+            $lang = current_language();
+            $bokey = "cachecolreceipt$lang";
+        }
+        if (
+            !get_config('local_musi', 'musicachebookingoptionsettings')
+            || !empty($settings->selflearningcourse)
+            || !$ret = ($bocache->{$bokey} ?? false)
+        ) {
+            $ret = '';
+            $userid = price::return_user_to_buy_for()->id;
+            $sql = "SELECT *
+                    FROM {local_shopping_cart_ledger} l
+                    WHERE itemid=:itemid AND userid=:userid AND area='option'
+                ORDER BY timecreated DESC
+                    LIMIT 1";
+            $params = ['itemid' => $values->id, 'userid' => $userid];
+            $record = $DB->get_record_sql($sql, $params);
+
+            if (!empty($record)) {
+                $url = new moodle_url(
+                    '/local/shopping_cart/receipt.php',
+                    [
+                        'success' => 1,
+                        'id' => $record->identifier,
+                        'idcol' => 'identifier', // Use the identifier to create the receipt.
+                        'userid' => $userid,
+                        'paymentstatus' => $record->paymentstatus,
+                    ]
+                );
+                $labelstring = $record->paymentstatus == LOCAL_SHOPPING_CART_PAYMENT_CANCELED ?
+                    'cancelconfirmation' :
+                    'receipt';
+                $icon = '<i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;';
+                $ret = html_writer::tag('a', $icon . get_string($labelstring, 'local_shopping_cart'), [
+                    'href' => $url->out(false),
+                    'target' => '_blank',
+                    'class' => 'musi-receipt-btn btn btn-secondary p-1 mt-2 mb-2 w-100',
+                ]);
+            }
+
+            if (
+                empty($settings->selflearningcourse)
+                && get_config('local_musi', 'musicachebookingoptionsettings')
+                && !empty($bocache)
+            ) {
+                $bocache->{$bokey} = $ret;
+                $cache->set($cachekey, $bocache);
+            }
+        }
+        return $ret;
     }
 
     /**
@@ -432,6 +482,7 @@ class musi_table extends wunderbyte_table {
         if (!empty($this->displayoptions['showmaxanwers'])) {
             $data->showmaxanswers = $this->displayoptions['showmaxanwers'];
         }
+        /** @var \mod_booking\output\renderer $output */
         $output = singleton_service::get_renderer('mod_booking');
         $html = $output->render_col_availableplaces($data);
 
@@ -1012,7 +1063,11 @@ class musi_table extends wunderbyte_table {
                 $context = context_module::instance($bosettings->cmid);
 
                 // ONLY users with the mod/booking:updatebooking capability can edit options or designaated teachers.
-                $allowedit = has_capability('mod/booking:updatebooking', $context) || (has_capability('mod/booking:addeditownoption', $context) && booking_check_if_teacher($values)) || (has_capability('mod/booking:limitededitownoption', $context) && booking_check_if_teacher($values));
+                $allowedit = (
+                    has_capability('mod/booking:updatebooking', $context)
+                    || (has_capability('mod/booking:addeditownoption', $context) && booking_check_if_teacher($values))
+                    || (has_capability('mod/booking:limitededitownoption', $context) && booking_check_if_teacher($values))
+                );
                 if ($allowedit) {
                     if (isset($bosettings->editoptionurl)) {
                         // Get the URL to edit the option.
@@ -1113,6 +1168,7 @@ class musi_table extends wunderbyte_table {
             $data->showundocancel = null;
         }
 
+        /** @var \local_musi\output\renderer $output */
         $output = singleton_service::get_renderer('local_musi');
         $html = $output->render_musi_bookingoption_menu($data);
 
@@ -1130,6 +1186,7 @@ class musi_table extends wunderbyte_table {
      */
     public function finish_html() {
         $table = new \local_wunderbyte_table\output\table($this);
+        /** @var \mod_booking\output\renderer $output */
         $output = singleton_service::get_renderer('mod_booking');
         echo $output->render_bookingoptions_wbtable($table);
     }
