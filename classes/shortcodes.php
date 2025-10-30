@@ -845,7 +845,7 @@ class shortcodes {
         $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'm-0 mt-1 mb-1 h5'], ['text']);
 
         // Subcolumns.
-        $subcolumns = ['attachment', 'teacher', 'dayofweektime', 'location', 'institution', 'responsiblecontact'];
+        $subcolumns = ['attachment', 'responsiblecontact', 'teacher', 'dayofweektime', 'location', 'institution'];
         if (get_config('local_musi', 'musishortcodesshowstart')) {
             $subcolumns[] = 'coursestarttime';
         }
@@ -926,7 +926,7 @@ class shortcodes {
         self::fix_args($args);
 
         $subcolumnsleftside = ['text'];
-        $subcolumnsinfo = ['teacher', 'dayofweektime', 'location', 'institution', 'responsiblecontact'];
+        $subcolumnsinfo = ['responsiblecontact', 'teacher', 'dayofweektime', 'location', 'institution'];
         if (get_config('local_musi', 'musishortcodesshowstart')) {
             $subcolumnsinfo[] = 'coursestarttime';
         }
