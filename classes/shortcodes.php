@@ -395,6 +395,8 @@ class shortcodes {
         $table->use_pages = false;
         $table->scrolltocontainer = false;
 
+        // For "my courses" we show receipts.
+        $args['showreceipts'] = true;
         self::generate_table_for_cards($table, $args);
 
         self::set_table_options_from_arguments($table, $args);
@@ -486,6 +488,8 @@ class shortcodes {
 
         $table->use_pages = false;
 
+        // For "my courses" we show receipts.
+        $args['showreceipts'] = true;
         self::generate_table_for_list($table, $args);
 
         self::set_table_options_from_arguments($table, $args);
@@ -906,7 +910,11 @@ class shortcodes {
         $table->add_classes_to_subcolumns('cardlist', ['columnalt' => get_string('bookingsalt', 'local_musi')], ['bookings']);
         $table->add_classes_to_subcolumns('cardimage', ['cardimagealt' => get_string('imagealt', 'local_musi')], ['image']);
 
-        $table->add_subcolumns('cardfooter', ['receipt', 'course', 'price']);
+        // Show receipts by adding argument 'showreceipts=1' to shortcode.
+        if (!empty($args['showreceipts'])) {
+            $table->add_subcolumns('cardfooter', ['receipt']);
+        }
+        $table->add_subcolumns('cardfooter', ['course', 'price']);
         $table->add_classes_to_subcolumns('cardfooter', ['columnkeyclass' => 'd-none']);
         $table->add_classes_to_subcolumns('cardfooter', ['columnclass' => 'theme-text-color bold '], ['price']);
         $table->set_tableclass('cardimageclass', 'w-100');
@@ -968,7 +976,12 @@ class shortcodes {
         $table->add_subcolumns('leftside', $subcolumnsleftside);
         $table->add_subcolumns('info', $subcolumnsinfo);
 
-        $table->add_subcolumns('rightside', ['botags', 'invisibleoption', 'receipt', 'course', 'price']);
+        $table->add_subcolumns('rightside', ['botags', 'invisibleoption']);
+        // Show receipts by adding argument 'showreceipts=1' to shortcode.
+        if (!empty($args['showreceipts'])) {
+            $table->add_subcolumns('rightside', ['receipt']);
+        }
+        $table->add_subcolumns('rightside', ['course', 'price']);
 
         $table->add_classes_to_subcolumns('top', ['columnkeyclass' => 'd-none']);
         $table->add_classes_to_subcolumns('top', ['columnclass' => 'text-left col-md-8'], ['sport', 'sportsdivision']);
