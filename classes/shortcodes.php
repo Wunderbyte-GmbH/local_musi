@@ -135,10 +135,8 @@ class shortcodes {
         }
 
         if (
-            (isset($args['noinvisible'])
-            && !empty($args['noinvisible']))
-            || (isset($args['invisible'])
-            && $args['invisible'] == false || $args['invisible'] == 0)
+            (!empty($args['noinvisible'] ?? null))
+            || (($args['invisible'] ?? true) === false || ($args['invisible'] ?? 1) === 0)
         ) {
             $wherearray['invisible'] = 0;
         }
