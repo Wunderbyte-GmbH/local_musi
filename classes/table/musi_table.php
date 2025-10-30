@@ -290,34 +290,26 @@ class musi_table extends wunderbyte_table {
             return '';
         }
 
-        // NOTE: Do not use $this->cmid and $this->context because it might be that booking options come from different instances!
-        // So we always need to retrieve them via singleton service for the current booking option ($values->id).
         $optionid = $values->id;
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        // If $settings->cmid is missing, we show the settings object in debug mode, so we can investigate what happens.
-        if (empty($settings->cmid)) {
-            $debugmessage = "musi_table function col_receipt: ";
-            $debugmessage .= "cmid is missing from settings object - settings: ";
-            $debugmessage .= json_encode($settings);
-            debugging($debugmessage, DEBUG_DEVELOPER);
-            return '';
-        }
+        // Use the "buyfor" user. So this works with cashier too.
+        $userid = price::return_user_to_buy_for()->id;
+
 
         // Only use caching if enabled in settings.
         if (get_config('local_musi', 'musicachebookingoptionsanswers')) {
             $cache = cache::make('mod_booking', 'bookingoptionsanswers');
-            $cachekey = $optionid;
-            $bocache = $cache->get($cachekey);
-            $bokey = "cachecolreceipt";
+            $cachekey = $optionid . "_" . $userid;
+            $bacache = $cache->get($cachekey);
+            $bakey = "cachecolreceipt";
         }
         if (
             !get_config('local_musi', 'musicachebookingoptionsanswers')
             || !empty($settings->selflearningcourse)
-            || !$ret = ($bocache->{$bokey} ?? false)
+            || !$ret = ($bacache->{$bakey} ?? false)
         ) {
             $ret = '';
-            $userid = price::return_user_to_buy_for()->id;
             $sql = "SELECT *
                     FROM {local_shopping_cart_ledger} l
                     WHERE itemid=:itemid AND userid=:userid AND area='option'
@@ -351,10 +343,10 @@ class musi_table extends wunderbyte_table {
             if (
                 empty($settings->selflearningcourse)
                 && get_config('local_musi', 'musicachebookingoptionsanswers')
-                && !empty($bocache)
+                && !empty($bacache)
             ) {
-                $bocache->{$bokey} = $ret;
-                $cache->set($cachekey, $bocache);
+                $bacache->{$bakey} = $ret;
+                $cache->set($cachekey, $bacache);
             }
         }
         return $ret;
