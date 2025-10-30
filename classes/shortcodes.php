@@ -128,10 +128,12 @@ class shortcodes {
             [$inorequal, $additionalparams] = $DB->get_in_or_equal(explode(',', $args['includeoptions']), SQL_PARAMS_NAMED);
             $conditions = [];
             foreach ($bookingids as $index => $bookingid) {
-                $conditions[] = "(bookingid = $bookingid)";
+                $conditions[] = "bookingid = $bookingid";
             }
-            $additionalwhere = implode(' OR ', $conditions);
-            $additionalwhere .= " OR id $inorequal";
+            $additionalwhere = " (" . $additionalwhere;
+            $together = implode(' OR ', $conditions);
+            $additionalwhere .= $together;
+            $additionalwhere .= " OR id $inorequal )";
         }
 
         if (
