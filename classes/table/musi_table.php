@@ -272,7 +272,8 @@ class musi_table extends wunderbyte_table {
      * receipt value.
      *
      * @param object $values Contains object with all the values of record.
-     * @return string $string Return name of the booking option.
+     * @return string $string Return a link to the receipt (with icon and button)
+     *                        or nothing if no receipt exists.
      * @throws dml_exception
      */
     public function col_receipt($values): string {
@@ -295,7 +296,6 @@ class musi_table extends wunderbyte_table {
 
         // Use the "buyfor" user. So this works with cashier too.
         $userid = price::return_user_to_buy_for()->id;
-
 
         // Only use caching if enabled in settings.
         if (get_config('local_musi', 'musicachebookingoptionsanswers')) {
