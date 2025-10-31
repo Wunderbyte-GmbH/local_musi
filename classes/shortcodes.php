@@ -913,7 +913,7 @@ class shortcodes {
         $table->add_classes_to_subcolumns('cardimage', ['cardimagealt' => get_string('imagealt', 'local_musi')], ['image']);
 
         // Show receipts by adding argument 'showreceipts=1' to shortcode.
-        if (shortcodes_handler::arg_is_true($args['showreceipts'])) {
+        if (shortcodes_handler::arg_is_true($args['showreceipts'] ?? false)) {
             $table->add_subcolumns('cardfooter', ['receipt']);
         }
         $table->add_subcolumns('cardfooter', ['course', 'price']);
@@ -980,7 +980,7 @@ class shortcodes {
 
         $table->add_subcolumns('rightside', ['botags', 'invisibleoption']);
         // Show receipts by adding argument 'showreceipts=1' to shortcode.
-        if (shortcodes_handler::arg_is_true($args['showreceipts'])) {
+        if (shortcodes_handler::arg_is_true($args['showreceipts'] ?? false)) {
             $table->add_subcolumns('rightside', ['receipt']);
         }
         $table->add_subcolumns('rightside', ['course', 'price']);
