@@ -295,61 +295,65 @@ class musi_table extends wunderbyte_table {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         // Use the "buyfor" user. So this works with cashier too.
-        $userid = price::return_user_to_buy_for()->id;
+        $user = price::return_user_to_buy_for();
+        if (empty($user)) {
+            return '';
+        }
+        $userid = $user->id;
 
         // Only use caching if enabled in settings.
         if (get_config('local_musi', 'musicachebookingoptionsanswers')) {
             $cache = cache::make('mod_booking', 'bookingoptionsanswers');
-            $cachekey = $optionid . "_" . $userid;
+            $cachekey = $optionid;
             $bacache = $cache->get($cachekey);
             $bakey = "cachecolreceipt";
-        }
-        if (
-            !get_config('local_musi', 'musicachebookingoptionsanswers')
-            || !empty($settings->selflearningcourse)
-            || !$ret = ($bacache->{$bakey} ?? false)
-        ) {
-            $ret = '';
-            $sql = "SELECT *
-                    FROM {local_shopping_cart_ledger} l
-                    WHERE itemid=:itemid AND userid=:userid AND area='option'
-                ORDER BY timecreated DESC
-                    LIMIT 1";
-            $params = ['itemid' => $values->id, 'userid' => $userid];
-            $record = $DB->get_record_sql($sql, $params);
-
-            if (!empty($record)) {
-                $url = new moodle_url(
-                    '/local/shopping_cart/receipt.php',
-                    [
-                        'success' => 1,
-                        'id' => $record->identifier,
-                        'idcol' => 'identifier', // Use the identifier to create the receipt.
-                        'userid' => $userid,
-                        'paymentstatus' => $record->paymentstatus,
-                    ]
-                );
-                $labelstring = $record->paymentstatus == LOCAL_SHOPPING_CART_PAYMENT_CANCELED ?
-                    'cancelconfirmation' :
-                    'receipt';
-                $icon = '<i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;';
-                $ret = html_writer::tag('a', $icon . get_string($labelstring, 'local_shopping_cart'), [
-                    'href' => $url->out(false),
-                    'target' => '_blank',
-                    'class' => 'musi-receipt-btn btn btn-secondary p-1 mt-2 mb-2 w-100',
-                ]);
-            }
-
+            // This is our fast way out.
+            // We store a user specific cache in the booking answer.
             if (
-                empty($settings->selflearningcourse)
-                && get_config('local_musi', 'musicachebookingoptionsanswers')
-                && !empty($bacache)
+                !empty($bacache)
+                && isset($bacache->{$bakey}[$userid])
             ) {
-                $bacache->{$bakey} = $ret;
-                $cache->set($cachekey, $bacache);
+                return $bacache->{$bakey}[$userid];
             }
         }
-        return $ret;
+
+        $receipt = '';
+        $sql = "SELECT *
+                FROM {local_shopping_cart_ledger} l
+                WHERE itemid=:itemid AND userid=:userid AND area='option'
+            ORDER BY timecreated DESC
+                LIMIT 1";
+        $params = ['itemid' => $values->id, 'userid' => $userid];
+        $record = $DB->get_record_sql($sql, $params);
+
+        if (!empty($record)) {
+            $url = new moodle_url(
+                '/local/shopping_cart/receipt.php',
+                [
+                    'success' => 1,
+                    'id' => $record->identifier,
+                    'idcol' => 'identifier', // Use the identifier to create the receipt.
+                    'userid' => $userid,
+                    'paymentstatus' => $record->paymentstatus,
+                ]
+            );
+            $labelstring = $record->paymentstatus == LOCAL_SHOPPING_CART_PAYMENT_CANCELED ?
+                'cancelconfirmation' :
+                'receipt';
+            $icon = '<i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;';
+            $receipt = html_writer::tag('a', $icon . get_string($labelstring, 'local_shopping_cart'), [
+                'href' => $url->out(false),
+                'target' => '_blank',
+                'class' => 'musi-receipt-btn btn btn-secondary p-1 mt-2 mb-2 w-100',
+            ]);
+        }
+
+        // After generating the link, we save it in user-specific cache.
+        if (get_config('local_musi', 'musicachebookingoptionsanswers') && !empty($bacache)) {
+            $bacache->{$bakey}[$userid] = $receipt;
+            $cache->set($cachekey, $bacache);
+        }
+        return $receipt;
     }
 
     /**
@@ -702,7 +706,7 @@ class musi_table extends wunderbyte_table {
             $bokey = "cachecoldayofweektime$lang";
 
             // This is our fast way out.
-            // We store a user specific cache in the booking answer.
+            // We store a user specific cache in the booking option.
             if (
                 !empty($bocache)
                 && isset($bocache->{$bokey}[$USER->id])
