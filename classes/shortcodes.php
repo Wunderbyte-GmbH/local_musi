@@ -26,8 +26,6 @@
 
 namespace local_musi;
 
-use Closure;
-use context_system;
 use html_writer;
 use local_wunderbyte_table\filters\types\callback;
 use local_wunderbyte_table\filters\types\hourlist;
@@ -41,6 +39,7 @@ use local_shopping_cart\shopping_cart_credits;
 use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\standardfilter;
 use mod_booking\booking;
+use mod_booking\shortcodes_handler;
 use mod_booking\singleton_service;
 use moodle_url;
 
@@ -225,7 +224,7 @@ class shortcodes {
      * @return string
      */
     public static function allcourseslist($shortcode, $args, $content, $env, $next) {
-        global $DB;
+        global $CFG, $DB;
         self::fix_args($args);
         $additionalwhere = '';
         $additionalparams = [];
@@ -241,9 +240,12 @@ class shortcodes {
             $additionalparams
         );
         if (empty($table)) {
-            $cmid = $args['id'] ?? '- no booking cmid given';
-            return 'Couldn\'t find right booking instance ' . $cmid;
-            ;
+            if (get_config('booking', 'bookingdebugmode') || $CFG->debug == DEBUG_DEVELOPER) {
+                $cmidpart = $args['id'] ? 'for cmid ' . $args['id'] : '- no booking cmid given';
+                return "Couldn't find booking instance " . $cmidpart;
+            } else {
+                return get_string('norecords', 'local_wunderbyte_table');
+            }
         }
         $table->showcountlabel = empty($args['countlabel']) ? false : $args['countlabel'];
         return self::generate_output($args, $table, $perpage);
@@ -395,8 +397,8 @@ class shortcodes {
         $table->use_pages = false;
         $table->scrolltocontainer = false;
 
-        // For "my courses" we show receipts.
-        $args['showreceipts'] = true;
+        // For "my courses" we show receipts by default.
+        $args['showreceipts'] = $args['showreceipts'] ?? true;
         self::generate_table_for_cards($table, $args);
 
         self::set_table_options_from_arguments($table, $args);
@@ -488,8 +490,8 @@ class shortcodes {
 
         $table->use_pages = false;
 
-        // For "my courses" we show receipts.
-        $args['showreceipts'] = true;
+        // For "my courses" we show receipts by default.
+        $args['showreceipts'] = $args['showreceipts'] ?? true;
         self::generate_table_for_list($table, $args);
 
         self::set_table_options_from_arguments($table, $args);
@@ -911,7 +913,7 @@ class shortcodes {
         $table->add_classes_to_subcolumns('cardimage', ['cardimagealt' => get_string('imagealt', 'local_musi')], ['image']);
 
         // Show receipts by adding argument 'showreceipts=1' to shortcode.
-        if (!empty($args['showreceipts'])) {
+        if (shortcodes_handler::arg_is_true($args['showreceipts'])) {
             $table->add_subcolumns('cardfooter', ['receipt']);
         }
         $table->add_subcolumns('cardfooter', ['course', 'price']);
@@ -978,7 +980,7 @@ class shortcodes {
 
         $table->add_subcolumns('rightside', ['botags', 'invisibleoption']);
         // Show receipts by adding argument 'showreceipts=1' to shortcode.
-        if (!empty($args['showreceipts'])) {
+        if (shortcodes_handler::arg_is_true($args['showreceipts'])) {
             $table->add_subcolumns('rightside', ['receipt']);
         }
         $table->add_subcolumns('rightside', ['course', 'price']);
