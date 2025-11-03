@@ -653,20 +653,21 @@ class shortcodes {
         }
 
         // The custom fields to create a filter on.
-        $customfiledskeys = [
+        $customfieldskeys = [
             'sport' => get_string('sport', 'local_musi'),
             'sportsdivision' => get_string('sportsdivision', 'local_musi'),
             'botags' => get_string('tags', 'core'),
         ];
 
         // Fetch desired custom fields.
-        $customfields = booking_handler::get_customfields(array_keys($customfiledskeys));
+        $customfields = booking_handler::get_customfields(array_keys($customfieldskeys));
 
-        // Create a filter for desired custom fileds using customfiledfilter.
+        // Create a filter for desired custom fileds using customfieldfilter.
         foreach ($customfields as $cfid => $cf) {
-            $localizedstring = $customfiledskeys[$cf->shortname];
+            $localizedstring = $customfieldskeys[$cf->shortname];
             $customfieldfilter = new customfieldfilter($cf->shortname, $localizedstring);
             $customfieldfilter->set_sql_for_fieldid($cfid);
+            $table->add_filter($customfieldfilter);
         }
 
         $standardfilter = new standardfilter('teacherobjects', get_string('teachers', 'mod_booking'));
