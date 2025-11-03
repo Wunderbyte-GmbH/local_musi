@@ -1,3 +1,23 @@
+## Version 0.9.30 (2025110300)
+* New feature: Show receipt in MUSI mycourses [meinekurseliste] table and cache them.
+    Receipts can be turned on/off with argument "showreceipts".
+* Improvement: Show responsiblecontact before teachers.
+* Improvement: Changes to make local_musi ready for Moodle 5.
+* Bugfix: Arg for invisible options.
+* Bugfix: Fix SQL to include space and right brackets to work with filters.
+* Bugfix: Several fixes for musi shortcodes.
+
+## Version 0.9.29 (2025103000)
+* Improvement: Enable noinvisible arg for shortcode to display visible options only, regardless of capabilities.
+* v0Improvement: Only display prefixfilter when arg is set.
+
+## Version 0.9.28 (2025101600)
+* New feature: Added filter to search for titleprefix.
+* New feature: Shortcode für multiple CMIDs.
+* Improvement: Remove description from fulltextsearch.
+* Improvement: Added edit button based on capabilities.
+* Bugfix: Includeoptions now works for shortcodes with multiple CMIDs.
+
 ## Version 0.9.27 (2025091700)
 * Improvement: Caching of descriptions for better performance.
 * Improvement: Fallback for argument in shortcode.
