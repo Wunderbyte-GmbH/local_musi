@@ -277,7 +277,7 @@ class musi_table extends wunderbyte_table {
      * @throws dml_exception
      */
     public function col_receipt($values): string {
-        global $DB;
+        global $DB, $OUTPUT;
         if (!class_exists('local_shopping_cart\shopping_cart')) {
             return '';
         }
@@ -292,7 +292,6 @@ class musi_table extends wunderbyte_table {
         }
 
         $optionid = $values->id;
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         // Use the "buyfor" user. So this works with cashier too.
         $user = price::return_user_to_buy_for();
@@ -341,11 +340,53 @@ class musi_table extends wunderbyte_table {
                 'cancelconfirmation' :
                 'receipt';
             $icon = '<i class="fa fa-file-text-o" aria-hidden="true"></i>&nbsp;';
+            $buttonclasses = 'musi-receipt-btn btn btn-secondary p-1 mt-2 mb-2 w-100';
             $receipt = html_writer::tag('a', $icon . get_string($labelstring, 'local_shopping_cart'), [
                 'href' => $url->out(false),
                 'target' => '_blank',
-                'class' => 'musi-receipt-btn btn btn-secondary p-1 mt-2 mb-2 w-100',
+                'class' => $buttonclasses,
             ]);
+
+            // For installments, we need to aggregate all receipts.
+            $schistoryid = $record->schistoryid ?? 0;
+            if (!empty($schistoryid) && $record->paymentstatus == LOCAL_SHOPPING_CART_PAYMENT_SUCCESS) {
+                $additionalidentifiers = $DB->get_fieldset_sql(
+                    "SELECT DISTINCT identifier
+                                FROM {local_shopping_cart_ledger}
+                               WHERE schistoryid = :schistoryid
+                                 AND identifier <> :identifier
+                                 AND identifier IS NOT NULL
+                                 AND paymentstatus = :paymentstatus
+                            ORDER BY identifier DESC",
+                    [
+                        'schistoryid' => $schistoryid,
+                        'identifier' => $record->identifier,
+                        'paymentstatus' => LOCAL_SHOPPING_CART_PAYMENT_SUCCESS,
+                    ]
+                );
+                if (!empty($additionalidentifiers)) {
+                    $data = new stdClass(); // Data object to render installment receipts template.
+                    $data->hasinstallments = true;
+                    $data->installmentreceipturls[] = [
+                        'identifier' => $record->identifier,
+                        'installmentreceipturl' => $url,
+                    ];
+                    foreach ($additionalidentifiers as $additionalidentifier) {
+                        $data->installmentreceipturls[] = [
+                            'identifier' => $additionalidentifier,
+                            'installmentreceipturl' => new moodle_url("/local/shopping_cart/receipt.php", [
+                                'id' => $additionalidentifier,
+                                'userid' => $userid,
+                            ]),
+                        ];
+                    }
+                    $data->buttonclasses = $buttonclasses;
+                    $receipt = $OUTPUT->render_from_template(
+                        'local_shopping_cart/installment_receipts',
+                        $data
+                    );
+                }
+            }
         }
 
         // After generating the link, we save it in user-specific cache.
