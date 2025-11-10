@@ -1,3 +1,6 @@
+## Version 0.9.31 (2025111000)
+* Improvement: Receipt column in MUSI table now also supports dropdown for multiple installments receipts.
+
 ## Version 0.9.30 (2025110300)
 * New feature: Show receipt in MUSI mycourses [meinekurseliste] table and cache them.
     Receipts can be turned on/off with argument "showreceipts".
