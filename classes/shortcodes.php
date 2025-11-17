@@ -31,6 +31,7 @@ use local_wunderbyte_table\filters\types\callback;
 use local_wunderbyte_table\filters\types\customfieldfilter;
 use local_wunderbyte_table\filters\types\hourlist;
 use local_wunderbyte_table\filters\types\exactcolumn;
+use local_wunderbyte_table\local\helper\actforuser;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\customfield\booking_handler;
 use mod_booking\output\page_allteachers;
@@ -107,8 +108,7 @@ class shortcodes {
         $bookings = self::get_bookings($args);
         $perpage = \mod_booking\shortcodes::check_perpage($args);
 
-        $table = self::inittableforcourses();
-
+        $table = self::inittableforcourses($args);
 
         $bookingids = [];
         foreach ($bookings as $booking) {
@@ -284,7 +284,7 @@ class shortcodes {
         $booking = self::get_booking($args);
         $perpage = \mod_booking\shortcodes::check_perpage($args);
 
-        $table = self::inittableforcourses();
+        $table = self::inittableforcourses($args);
 
         $wherearray = ['bookingid' => (int)$booking->id];
 
@@ -381,7 +381,7 @@ class shortcodes {
 
         $perpage = \mod_booking\shortcodes::check_perpage($args);
 
-        $table = self::inittableforcourses();
+        $table = self::inittableforcourses($args);
 
         $wherearray = ['bookingid' => (int)$booking->id];
 
@@ -429,7 +429,7 @@ class shortcodes {
 
         $perpage = \mod_booking\shortcodes::check_perpage($args);
 
-        $table = self::inittableforcourses();
+        $table = self::inittableforcourses($args);
 
         // We want to check for the currently logged in user...
         // ... if (s)he is teaching courses.
@@ -477,7 +477,7 @@ class shortcodes {
 
         $perpage = \mod_booking\shortcodes::check_perpage($args);
 
-        $table = self::inittableforcourses();
+        $table = self::inittableforcourses($args);
 
         $table->showcountlabel = empty($args['countlabel']) ? false : $args['countlabel'];
         $wherearray = ['bookingid' => (int)$booking->id];
@@ -591,12 +591,12 @@ class shortcodes {
     /**
      * Initiates table of courses.
      *
-     * @param mixed $booking
+     * @param array $args
      *
      * @return musi_table $table
      *
      */
-    private static function inittableforcourses() {
+    private static function inittableforcourses($args = []) {
 
         global $PAGE, $USER;
 
@@ -606,6 +606,13 @@ class shortcodes {
         $url = $url->out();
         if (strpos($url, 'cashier.php') === false) {
             shopping_cart::buy_for_user(0);
+        }
+
+        // Check if rendering is for another user id.
+        if ($urlparamforuserid = actforuser::get_urlparamforuserid($args)) {
+            $userid = optional_param($urlparamforuserid, 0, PARAM_INT);
+            $userid = $userid > 0 ? $userid : 0;
+            shopping_cart::buy_for_user($userid);
         }
 
         $tablename = bin2hex(random_bytes(12));
