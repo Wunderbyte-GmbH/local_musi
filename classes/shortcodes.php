@@ -609,9 +609,8 @@ class shortcodes {
         }
 
         // Check if rendering is for another user id.
-        if ($urlparamforuserid = actforuser::get_urlparamforuserid($args)) {
-            $userid = optional_param($urlparamforuserid, 0, PARAM_INT);
-            $userid = $userid > 0 ? $userid : 0;
+        $userid = actforuser::get_foruserid($args);
+        if ($userid > 0) {
             shopping_cart::buy_for_user($userid);
         }
 
