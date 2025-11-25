@@ -248,7 +248,6 @@ class shortcodes {
                 return get_string('norecords', 'local_wunderbyte_table');
             }
         }
-        $table->showcountlabel = empty($args['countlabel']) ? false : $args['countlabel'];
         return self::generate_output($args, $table, $perpage);
     }
 
