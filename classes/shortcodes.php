@@ -32,6 +32,7 @@ use local_wunderbyte_table\filters\types\customfieldfilter;
 use local_wunderbyte_table\filters\types\hourlist;
 use local_wunderbyte_table\filters\types\exactcolumn;
 use local_wunderbyte_table\local\helper\actforuser;
+use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\customfield\booking_handler;
 use mod_booking\output\page_allteachers;
@@ -148,12 +149,7 @@ class shortcodes {
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
         }
-        [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere);
 
-        if (!empty($additionalparams)) {
-            $params = array_merge($params, $additionalparams);
-        }
-        $table->set_filter_sql($fields, $from, $where, $filter, $params);
         $table->use_pages = true;
 
         if (!empty($args['image'])) {
@@ -173,6 +169,14 @@ class shortcodes {
             $prefixsearch = new exactcolumn('titleprefix', get_string('titleprefix', 'local_musi'));
             $table->add_filter($prefixsearch);
         }
+
+        [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere, null, $table);
+
+        if (!empty($additionalparams)) {
+            $params = array_merge($params, $additionalparams);
+        }
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
+
         return [$table, $perpage];
     }
 
@@ -294,10 +298,6 @@ class shortcodes {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
         }
 
-        [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere);
-
-        $table->set_filter_sql($fields, $from, $where, $filter, $params);
-
         $table->use_pages = false;
 
         $table->define_cache('mod_booking', 'bookingoptionstable');
@@ -356,6 +356,10 @@ class shortcodes {
 
         self::set_table_options_from_arguments($table, $args);
 
+        [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere, null, $table);
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
+
         $table->tabletemplate = 'local_musi/table_grid_list';
         return self::generate_output($args, $table, $perpage);
     }
@@ -390,9 +394,6 @@ class shortcodes {
         if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
             $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
         }
-        [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere, $userid);
-
-        $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         $table->use_pages = false;
         $table->scrolltocontainer = false;
@@ -403,6 +404,11 @@ class shortcodes {
 
         self::set_table_options_from_arguments($table, $args);
         $table->cardsort = true;
+
+        [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere, $userid, $table);
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
+
         // We override the cache, because the my cache has to be invalidated with every booking.
         $table->define_cache('mod_booking', 'mybookingoptionstable');
 
@@ -434,13 +440,6 @@ class shortcodes {
         // ... if (s)he is teaching courses.
         $teacherid = $USER->id;
 
-        // This is the important part: We only filter for booking options where the current user is a teacher!
-        // Also we only want to show courses for the currently set booking instance (semester instance).
-        [$fields, $from, $where, $params, $filter] =
-            booking::get_all_options_of_teacher_sql($teacherid, (int)$booking->id);
-
-        $table->set_filter_sql($fields, $from, $where, $filter, $params);
-
         $table->use_pages = false;
 
         self::generate_table_for_cards($table, $args);
@@ -452,6 +451,13 @@ class shortcodes {
         // This allows us to use infinite scrolling, No pages will be used.
         $table->infinitescroll = 30;
         $table->scrolltocontainer = false;
+
+        // This is the important part: We only filter for booking options where the current user is a teacher!
+        // Also we only want to show courses for the currently set booking instance (semester instance).
+        [$fields, $from, $where, $params, $filter] =
+            booking::get_all_options_of_teacher_sql($teacherid, (int)$booking->id);
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         return self::generate_output($args, $table, $perpage);
     }
@@ -484,10 +490,6 @@ class shortcodes {
         $additionalwhere = '';
         self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
 
-        [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere, $userid);
-
-        $table->set_filter_sql($fields, $from, $where, $filter, $params);
-
         $table->use_pages = false;
 
         // For "my courses" we show receipts by default.
@@ -497,6 +499,10 @@ class shortcodes {
         self::set_table_options_from_arguments($table, $args);
 
         $table->cardsort = true;
+
+        [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere, $userid, $table);
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         // We override the cache, because the my cache has to be invalidated with every booking.
         $table->define_cache('mod_booking', 'mybookingoptionstable');
@@ -1236,7 +1242,7 @@ class shortcodes {
      * @return array
      *
      */
-    private static function get_sql_params($booking, $wherearray, $additionalwhere, $userid = null) {
+    private static function get_sql_params($booking, $wherearray, $additionalwhere, $userid = null, ?wunderbyte_table $tableinstance = null) {
 
         return  [$fields, $from, $where, $params, $filter] =
                     booking::get_options_filter_sql(
@@ -1249,7 +1255,9 @@ class shortcodes {
                         $wherearray,
                         $userid,
                         [MOD_BOOKING_STATUSPARAM_BOOKED],
-                        $additionalwhere
+                        $additionalwhere,
+                        '',
+                        $tableinstance
                     );
     }
 
