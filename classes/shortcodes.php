@@ -1238,11 +1238,18 @@ class shortcodes {
      * @param mixed $wherearray
      * @param mixed $additionalwhere
      * @param int $userid
+     * @param ?wunderbyte_table $tableinstance
      *
      * @return array
      *
      */
-    private static function get_sql_params($booking, $wherearray, $additionalwhere, $userid = null, ?wunderbyte_table $tableinstance = null) {
+    private static function get_sql_params(
+        $booking,
+        $wherearray,
+        $additionalwhere,
+        $userid = null,
+        ?wunderbyte_table $tableinstance = null
+    ) {
 
         return  [$fields, $from, $where, $params, $filter] =
                     booking::get_options_filter_sql(
