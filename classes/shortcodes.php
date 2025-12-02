@@ -35,6 +35,7 @@ use local_wunderbyte_table\local\helper\actforuser;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\customfield\booking_handler;
+use mod_booking\filters\available_places;
 use mod_booking\output\page_allteachers;
 use local_musi\table\musi_table;
 use local_shopping_cart\shopping_cart;
@@ -652,15 +653,7 @@ class shortcodes {
     public static function add_standardfilters($table) {
         // Turn on or off.
         if (get_config('local_musi', 'musishortcodesshowfilterbookable')) {
-            $callbackfilter = new callback('bookable', get_string('bookable', 'local_musi'));
-            $callbackfilter->add_options([
-                0 => get_string('notbookable', 'local_musi'),
-                1 => get_string('bookable', 'local_musi'),
-            ]);
-            // This filter expects a record from booking options table.
-            // We check if it is bookable for the user.
-            $callbackfilter->define_callbackfunction('local_musi\shortcodes::filter_bookable');
-            $table->add_filter($callbackfilter);
+            $table->add_filter(available_places::get());
         }
 
         // The custom fields to create a filter on.
