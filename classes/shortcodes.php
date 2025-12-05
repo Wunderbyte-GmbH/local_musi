@@ -253,6 +253,9 @@ class shortcodes {
                 return get_string('norecords', 'local_wunderbyte_table');
             }
         }
+
+        $table->foruserid = actforuser::get_foruserid(['urlparamforuserid' => 'userid']);
+
         return self::generate_output($args, $table, $perpage);
     }
 

@@ -229,13 +229,15 @@ class musi_table extends wunderbyte_table {
      * @throws dml_exception
      */
     public function col_price($values) {
+        global $USER;
         if (get_config('local_musi', 'musicachebookingoptionsanswers')) {
             $cache = cache::make('mod_booking', 'bookingoptionsanswers');
             $cachekey = $values->id;
             $bacache = $cache->get($cachekey);
             $lang = current_language();
             $bakey = "cachecolprice$lang";
-            $user = price::return_user_to_buy_for();
+            $buyforuserid = !empty($this->foruserid) ? $this->foruserid : $USER->id;
+            $user = singleton_service::get_instance_of_user($buyforuserid);
 
             // This is our fast way out.
             // We store a user specific cache in the booking answer.
