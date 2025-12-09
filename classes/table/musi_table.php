@@ -230,7 +230,10 @@ class musi_table extends wunderbyte_table {
      */
     public function col_price($values) {
         global $USER;
-        if (get_config('local_musi', 'musicachebookingoptionsanswers')) {
+        if (
+            isloggedin()
+            && get_config('local_musi', 'musicachebookingoptionsanswers')
+        ) {
             $cache = cache::make('mod_booking', 'bookingoptionsanswers');
             $cachekey = $values->id;
             $bacache = $cache->get($cachekey);
