@@ -7,17 +7,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  moodle500:
+  moodle500to501:
     uses: Wunderbyte-GmbH/catalyst-moodle-workflows/.github/workflows/ci.yml@main
     with:
       # min_php: '7.4'
-      moodle_branches: "MOODLE_500_STABLE"  # Optional: Only test specific Moodle versions
-
+      moodle_branches: "MOODLE_500_STABLE MOODLE_501_STABLE"  # Optional: Only test specific Moodle versions
       # If you need to install additional plugins as dependencies
       extra_plugin_runners: |
-        moodle-plugin-ci add-plugin --branch MOODLE_401_DEV Wunderbyte-GmbH/moodle-mod_booking
-        moodle-plugin-ci add-plugin --branch MOODLE_401_DEV Wunderbyte-GmbH/moodle-local_wunderbyte_table
-        moodle-plugin-ci add-plugin --branch MOODLE_401_DEV Wunderbyte-GmbH/moodle-local_shopping_cart
+        moodle-plugin-ci add-plugin --branch MOODLE_405_DEV Wunderbyte-GmbH/moodle-mod_booking
+        moodle-plugin-ci add-plugin --branch MOODLE_405_DEV Wunderbyte-GmbH/moodle-local_wunderbyte_table
+        moodle-plugin-ci add-plugin --branch MOODLE_405_DEV Wunderbyte-GmbH/moodle-local_shopping_cart
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-local_entities
 
       mustache_ignore_names: ''
@@ -70,17 +69,17 @@ jobs:
       # If you need to enable PHPMD
       enable_phpmd: true
 
-  moodle401to405:
+  moodle405:
     uses: Wunderbyte-GmbH/catalyst-moodle-workflows/.github/workflows/ci.yml@main
     with:
       min_php: '7.4'
-      moodle_branches: "MOODLE_401_STABLE MOODLE_404_STABLE MOODLE_405_STABLE"  # Optional: Only test specific Moodle versions
+      moodle_branches: "MOODLE_405_STABLE"  # Optional: Only test specific Moodle versions
 
       # If you need to install additional plugins as dependencies
       extra_plugin_runners: |
-        moodle-plugin-ci add-plugin --branch MOODLE_401_DEV Wunderbyte-GmbH/moodle-mod_booking
-        moodle-plugin-ci add-plugin --branch MOODLE_401_DEV Wunderbyte-GmbH/moodle-local_shopping_cart
-        moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-local_wunderbyte_table 
+        moodle-plugin-ci add-plugin --branch MOODLE_405_DEV Wunderbyte-GmbH/moodle-mod_booking
+        moodle-plugin-ci add-plugin --branch MOODLE_405_DEV Wunderbyte-GmbH/moodle-local_shopping_cart
+        moodle-plugin-ci add-plugin --branch MOODLE_405_DEV Wunderbyte-GmbH/moodle-local_wunderbyte_table
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-local_entities
 
       mustache_ignore_names: ''

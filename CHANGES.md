@@ -1,3 +1,15 @@
+## Version 1.0.0 (2025121000)
+* Bugfix: Check whether the user is logged in when musicachebookingoptionsanswers is enabled.
+* Bugfix: Fix buyforuser.
+* Improvement: Set data-encodedtable attribute on table rendering.
+* Improvement: Add available places filter from mod_booking to the MUSI shortcodes.
+* Improvement: Make sure get_options_filter_sql is called after setting up sortable columns in MUSI shortcodes.
+* Improvement: Overriding of countlabel not necessary anymore; now turned on by default in Booking.
+* Improvement: Use actforceruser::get_foruserid to get user ID from argument or optional parameter.
+* Improvement: Get paramforuserid as an argument from shortcode to extract user ID from URL.
+* Improvement: Replace standard filter with custom field filter.
+* Tests: Add a new PHPUnit test to check the sorting of shortcodes in infinite scroll.
+
 ## Version 0.9.31 (2025111000)
 * Improvement: Receipt column in MUSI table now also supports dropdown for multiple installments receipts.
 
