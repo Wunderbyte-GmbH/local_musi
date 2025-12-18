@@ -79,6 +79,11 @@ class musi_table extends wunderbyte_table {
                 unset($this->displayoptions['showmaxanwers']);
             }
         }
+
+        // Additional text to be displayed in col price.
+        if (isset($displayoptions['additionalpricetext'])) {
+            $this->displayoptions['additionalpricetext'] = true;
+        }
     }
 
     /**
@@ -268,8 +273,13 @@ class musi_table extends wunderbyte_table {
             $bacache->{$bakey}[$user->id]['expirationtime'] = time() + $expirationseconds;
             $cache->set($cachekey, $bacache);
         }
+        if ($this->displayoptions['additionalpricetext']) {
+            $additionalpricetext = get_string('additionalpricetext', 'local_musi');
+        } else {
+            $additionalpricetext = '';
+        }
 
-        return $html;
+        return $html . $additionalpricetext;
     }
 
     /**

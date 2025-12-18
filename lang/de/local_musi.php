@@ -234,6 +234,7 @@ $string['editcontractformula'] = 'Vertragsformel bearbeiten';
 
 // My Courses List.
 $string['tocoursecontent'] = 'Zu den Kursmaterialien';
+$string['additionalpricetext'] = '<div> Zuzüglich einer Buchungsgebühr von maximal €3,- </div>';
 
 // Shortlist section information.
 $string['dayofweekalt'] = 'Wochentag und Termin, an dem eine Kurseinheit stattfindet';

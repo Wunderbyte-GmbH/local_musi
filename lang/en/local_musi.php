@@ -230,6 +230,7 @@ $string['editcontractformula'] = 'Edit contract formula';
 
 // My Courses List.
 $string['tocoursecontent'] = 'Course content';
+$string['additionalpricetext'] = '<div> Plus a booking fee of max. €3,- </div>';
 
 // Shortlist section information.
 $string['dayofweekalt'] = 'Day of week and the time slot, where a course will take place';
