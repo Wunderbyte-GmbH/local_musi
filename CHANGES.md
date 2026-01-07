@@ -1,3 +1,6 @@
+## Version 1.0.1 (2026010700)
+* Improvement: Add entities cache.
+
 ## Version 1.0.0 (2025121000)
 * Bugfix: Check whether the user is logged in when musicachebookingoptionsanswers is enabled.
 * Bugfix: Fix buyforuser.
