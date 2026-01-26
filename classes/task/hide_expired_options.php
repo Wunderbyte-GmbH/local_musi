@@ -42,6 +42,12 @@ class hide_expired_options extends scheduled_task {
      */
     public function execute() {
         global $DB;
+        if ($DB->get_dbfamily() != 'postgres') {
+            $wherepart = "WHERE GREATEST(lastdate, mbo_courseendtime) < UNIX_TIMESTAMP()";
+        } else {
+            $wherepart = "WHERE GREATEST(lastdate, mbo_courseendtime) < EXTRACT(EPOCH FROM NOW())";
+        }
+
         $expiredoptions = $DB->get_records_sql(
             "SELECT id, text, lastdate, mbo_courseendtime, GREATEST(lastdate, mbo_courseendtime) AS latest_end
                     FROM (
@@ -53,7 +59,7 @@ class hide_expired_options extends scheduled_task {
                     FROM {booking_options} mbo
                     LEFT JOIN {booking_optiondates} mbo2 ON (mbo.id = mbo2.bookingid)
                     GROUP BY mbo.id, mbo.text, mbo.courseendtime) t
-                    WHERE GREATEST(lastdate, mbo_courseendtime) < EXTRACT(EPOCH FROM NOW())",
+                    $wherepart",
             []
         );
 
