@@ -273,7 +273,7 @@ class musi_table extends wunderbyte_table {
             $bacache->{$bakey}[$user->id]['expirationtime'] = time() + $expirationseconds;
             $cache->set($cachekey, $bacache);
         }
-        if ($this->displayoptions['additionalpricetext']) {
+        if (isset($this->displayoptions['additionalpricetext']) && !empty($this->displayoptions['additionalpricetext'])) {
             $additionalpricetext = get_string('additionalpricetext', 'local_musi');
         } else {
             $additionalpricetext = '';
