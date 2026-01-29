@@ -28,6 +28,7 @@ use mod_booking\option\dates_handler;
 use mod_booking\output\col_availableplaces;
 use mod_booking\output\col_teacher;
 use mod_booking\price;
+use mod_booking\shortcodes_handler;
 use mod_booking\singleton_service;
 use moodle_exception;
 use moodle_url;
@@ -273,7 +274,7 @@ class musi_table extends wunderbyte_table {
             $bacache->{$bakey}[$user->id]['expirationtime'] = time() + $expirationseconds;
             $cache->set($cachekey, $bacache);
         }
-        if (isset($this->displayoptions['additionalpricetext']) && !empty($this->displayoptions['additionalpricetext'])) {
+        if (shortcodes_handler::arg_is_true($this->displayoptions['additionalpricetext'] ?? false)) {
             $additionalpricetext = get_string('additionalpricetext', 'local_musi');
         } else {
             $additionalpricetext = '';
