@@ -32,7 +32,7 @@ $plugin->maturity = MATURITY_STABLE;
 $plugin->supported = [405, 501];
 $plugin->dependencies = [
     'mod_booking' => 2026010700,
-    'local_wunderbyte_table' => 2025121700,
+    'local_wunderbyte_table' => 2026020300,
     'local_shopping_cart' => 2026010700,
     'local_entities' => 2026010700,
 ];
