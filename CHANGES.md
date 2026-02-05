@@ -1,3 +1,9 @@
+## Version 1.0.2 (2026020500)
+* Bugfix: Correctly hide expired options.
+* Bugfix: Fallback if additionalpricetext isn't set.
+* Bugfix: Use arg_is_true helper function instead of !empty check.
+* Bugfix: Increase wunderbyte table dependency (for security hotfix).
+
 ## Version 1.0.1 (2026010700)
 * Improvement: Add entities cache.
 
