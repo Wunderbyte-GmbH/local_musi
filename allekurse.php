@@ -35,6 +35,7 @@ if (!$context = context_system::instance()) {
 }
 
 $type = optional_param('type', 'liste', PARAM_TEXT);
+$all = optional_param('all', "0", PARAM_TEXT);
 
 // Check if optionid is valid.
 $PAGE->set_context($context);
@@ -52,14 +53,14 @@ echo $OUTPUT->header();
 
 switch ($type) {
     case 'karten':
-        echo format_text("[allekursekarten filter=1 search=1 sort=1 sortby=text sortorder=asc requirelogin=false]", FORMAT_HTML);
+        echo format_text("[allekursekarten filter=1 search=1 sort=1 sortby=text sortorder=asc requirelogin=false all=$all]", FORMAT_HTML);
         break;
     case 'grid':
-        echo format_text("[allekursegrid filter=1 search=1 sort=1 sortby=text sortorder=asc requirelogin=false]", FORMAT_HTML);
+        echo format_text("[allekursegrid filter=1 search=1 sort=1 sortby=text sortorder=asc requirelogin=false all=$all]", FORMAT_HTML);
         break;
     case 'liste':
     default:
-        echo format_text("[allekurseliste filter=1 search=1 sort=1 sortby=text sortorder=asc requirelogin=false]", FORMAT_HTML);
+        echo format_text("[allekurseliste filter=1 search=1 sort=1 sortby=text sortorder=asc requirelogin=false all=$all]", FORMAT_HTML);
         break;
 }
 

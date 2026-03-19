@@ -176,6 +176,10 @@ class shortcodes {
         if (!empty($additionalparams)) {
             $params = array_merge($params, $additionalparams);
         }
+
+        // Add all=true parameter (also works with all=1).
+        \mod_booking\shortcodes::applyallarg($args, $where);
+
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         return [$table, $perpage];
@@ -361,6 +365,9 @@ class shortcodes {
         self::set_table_options_from_arguments($table, $args);
 
         [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere, null, $table);
+
+        // Add all=true parameter (also works with all=1).
+        \mod_booking\shortcodes::applyallarg($args, $where);
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
