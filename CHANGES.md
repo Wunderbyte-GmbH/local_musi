@@ -1,3 +1,7 @@
+## Version 1.0.3 (2026032600)
+* Improvement: Param all=true für [allekurseliste] shortcode und Hinweis bei leeren Semestern auf meinekurse.php (MUSI-856).
+* Improvement: Get rid of legacy code for moodleversionminfourtwo CSS stylings.
+
 ## Version 1.0.2 (2026020500)
 * Bugfix: Correctly hide expired options.
 * Bugfix: Fallback if additionalpricetext isn't set.
