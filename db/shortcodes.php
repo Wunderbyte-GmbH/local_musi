@@ -42,6 +42,11 @@ $shortcodes = [
         'wraps' => false,
         'description' => 'shortcodeslistofbookingoptionsascards',
     ],
+    'meinefavoriten' => [
+        'callback' => 'local_musi\shortcodes::myfavoritescards',
+        'wraps' => false,
+        'description' => 'shortcodeslistofmyfavoritesascards',
+    ],
     'meinekursekarten' => [
         'callback' => 'local_musi\shortcodes::mycoursescards',
         'wraps' => false,

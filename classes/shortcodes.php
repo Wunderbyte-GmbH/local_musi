@@ -44,6 +44,7 @@ use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\standardfilter;
 use mod_booking\booking;
 use mod_booking\shortcodes_handler;
+use mod_booking\utils\wb_payment;
 use mod_booking\singleton_service;
 use moodle_url;
 
@@ -89,7 +90,7 @@ class shortcodes {
      * @param mixed $next
      * @param bool $renderascard
      * @param string $additionalwhere
-     * @param array $additionalpalarms
+     * @param array $additionalparams
      *
      * @return array
      *
@@ -260,6 +261,10 @@ class shortcodes {
 
         $table->foruserid = actforuser::get_foruserid(['urlparamforuserid' => 'userid']);
 
+        if (wb_payment::pro_version_is_activated() && get_config('booking', 'enablefavoritestoggle')) {
+            $table->showfavoritestoggle = true;
+        }
+
         return self::generate_output($args, $table, $perpage);
     }
 
@@ -422,6 +427,57 @@ class shortcodes {
 
         // We override the cache, because the my cache has to be invalidated with every booking.
         $table->define_cache('mod_booking', 'mybookingoptionstable');
+
+        return self::generate_output($args, $table, $perpage);
+    }
+
+    /**
+     * Prints out list of cards of favorite bookingoptions.
+     * Arguments can be 'id', 'category' or 'perpage'.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
+    public static function myfavoritescards($shortcode, $args, $content, $env, $next) {
+        self::fix_args($args);
+        $booking = self::get_booking($args);
+
+        $perpage = \mod_booking\shortcodes::check_perpage($args);
+
+        $table = self::inittableforcourses($args, 'myfavoritestable');
+
+        $wherearray = ['bookingid' => (int)$booking->id];
+
+        $additionalwhere = '';
+        self::set_wherearray_from_arguments($args, $wherearray, $additionalwhere);
+
+        if (isset($args['teacherid']) && (is_int((int)$args['teacherid']))) {
+            $wherearray['teacherobjects'] = '%"id":' . $args['teacherid'] . ',%';
+        }
+
+        $table->use_pages = false;
+        $table->scrolltocontainer = false;
+
+        // For "my courses" we show receipts by default.
+        $args['showreceipts'] = $args['showreceipts'] ?? true;
+        self::generate_table_for_cards($table, $args);
+
+        if (wb_payment::pro_version_is_activated() && get_config('booking', 'enablefavoritestoggle')) {
+            $table->showfavoritestoggle = true;
+        }
+
+        self::set_table_options_from_arguments($table, $args);
+        $table->cardsort = true;
+
+        // Pass null as userid so get_sql_params does not add a STATUSPARAM_BOOKED filter.
+        // Favorites are stored as a user preference; query_db_cached injects the IN-clause dynamically.
+        [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere, null, $table);
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         return self::generate_output($args, $table, $perpage);
     }
@@ -612,7 +668,7 @@ class shortcodes {
      * @return musi_table $table
      *
      */
-    private static function inittableforcourses($args = []) {
+    private static function inittableforcourses($args = [], string $suffix = '') {
 
         global $PAGE, $USER;
 
@@ -631,6 +687,9 @@ class shortcodes {
         }
 
         $tablename = bin2hex(random_bytes(12));
+        if ($suffix !== '') {
+            $tablename .= ' ' . $suffix;
+        }
 
         // It's important to have the baseurl defined, we use it as a return url at one point.
         $baseurl = $PAGE->url ?? new moodle_url('');
@@ -1235,8 +1294,6 @@ class shortcodes {
     }
     /**
      * Helperfunction to get SQL Params.
-     *
-     * @param mixed $args
      * @param mixed $booking
      * @param mixed $wherearray
      * @param mixed $additionalwhere

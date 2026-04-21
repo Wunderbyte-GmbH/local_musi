@@ -202,6 +202,7 @@ $string['shortcodesarchivecmidsexclude'] = 'List of IDs to exclude in the "My co
 
 $string['archive'] = '<i class="fa fa-archive" aria-hidden="true"></i> Archive';
 $string['mycourses'] = 'My courses';
+$string['myfavorites'] = 'My favorites';
 $string['coursesibooked'] = '<i class="fa fa-ticket" aria-hidden="true"></i> Courses I booked in the current semester:';
 $string['coursesibookedarchive'] = 'Courses I booked in previous semesters:';
 $string['coursesiteach'] = '<i class="fa fa-graduation-cap" aria-hidden="true"></i> Courses I teach in the current semester:';

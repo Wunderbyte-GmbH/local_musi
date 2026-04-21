@@ -23,6 +23,7 @@ use dml_exception;
 use html_writer;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_bookit;
+use mod_booking\table\bookingoptions_wbtable;
 use mod_booking\booking_option;
 use mod_booking\option\dates_handler;
 use mod_booking\output\col_availableplaces;
@@ -48,7 +49,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright 2025 Wunderbyte Gmbh <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class musi_table extends wunderbyte_table {
+class musi_table extends bookingoptions_wbtable {
     /** @var array $displayoptions */
     private $displayoptions = [];
 
@@ -1086,7 +1087,22 @@ class musi_table extends wunderbyte_table {
                 !empty($bocache)
                 && isset($bocache->{$bokey}[$USER->id])
             ) {
-                return $bocache->{$bokey}[$USER->id];
+                // Cache contains only the menu HTML (no star toggle).
+                // Add the star fresh so it always reflects the current state.
+                $cachedhml = $bocache->{$bokey}[$USER->id];
+                if (isloggedin() && !isguestuser() && $this->showfavoritestoggle) {
+                    $isfavorite = booking_option::user_has_favorite($USER->id, $values->id);
+                    $favoritestoggle = $this->render_toggle_favorite_action_button(
+                        $values->id,
+                        $USER->id,
+                        $isfavorite,
+                        'text-primary',
+                    );
+                    $cachedhml = '<div class="d-flex align-items-center justify-content-end">' .
+                        $favoritestoggle . $cachedhml .
+                    '</div>';
+                }
+                return $cachedhml;
             }
         }
 
@@ -1223,10 +1239,25 @@ class musi_table extends wunderbyte_table {
         $output = singleton_service::get_renderer('local_musi');
         $html = $output->render_musi_bookingoption_menu($data);
 
+        // Cache only the menu HTML — never the star toggle (user-specific, must be fresh).
         if (get_config('local_musi', 'musicachebookingoptionsettings') && !empty($bocache)) {
             $bocache->{$bokey}[$USER->id] = $html;
             $cache->set($cachekey, $bocache);
         }
+
+        // Prepend the star toggle after caching so it is never stored in the cache.
+        // Wrap both in a flex container so star and gear appear side by side.
+        if (isloggedin() && !isguestuser() && $this->showfavoritestoggle) {
+            $isfavorite = booking_option::user_has_favorite($USER->id, $values->id);
+            $favoritestoggle = $this->render_toggle_favorite_action_button(
+                $values->id,
+                $USER->id,
+                $isfavorite,
+                'text-primary'
+            );
+            $html = '<div class="d-flex align-items-center justify-content-end">' . $favoritestoggle . $html . '</div>';
+        }
+
         return $html;
     }
 
