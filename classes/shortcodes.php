@@ -920,7 +920,7 @@ class shortcodes {
 
         $table->add_subcolumns('cardbody', ['action', 'invisibleoption', 'sportsdivision', 'sport', 'text', 'botags']);
         $table->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-none']);
-        $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'float-right m-1'], ['action']);
+        $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'float-right m-1 pe-1'], ['action']);
         $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'font-size-sm'], ['botags']);
         $table->add_classes_to_subcolumns(
             'cardbody',
