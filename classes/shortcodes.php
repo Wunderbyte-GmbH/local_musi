@@ -261,10 +261,6 @@ class shortcodes {
 
         $table->foruserid = actforuser::get_foruserid(['urlparamforuserid' => 'userid']);
 
-        if (wb_payment::pro_version_is_activated() && get_config('booking', 'enablefavoritestoggle')) {
-            $table->showfavoritestoggle = true;
-        }
-
         return self::generate_output($args, $table, $perpage);
     }
 
@@ -443,6 +439,20 @@ class shortcodes {
      * @return string
      */
     public static function myfavoritescards($shortcode, $args, $content, $env, $next) {
+
+        if (!wb_payment::pro_version_is_activated()) {
+            return get_string('infotext:prolicensenecessarytextandlink', 'mod_booking');
+        }
+
+        if (!get_config('booking', 'enablefavoritestoggle')) {
+            $settingsurl = new moodle_url(
+                '/admin/settings.php',
+                ['section' => 'modsettingbooking'],
+                'admin-enablefavoritestoggle'
+            );
+            return get_string('infotext:favoritestoggleisdisabled', 'mod_booking', $settingsurl->out(false));
+        }
+
         self::fix_args($args);
         $booking = self::get_booking($args);
 
@@ -466,9 +476,8 @@ class shortcodes {
         $args['showreceipts'] = $args['showreceipts'] ?? true;
         self::generate_table_for_cards($table, $args);
 
-        if (wb_payment::pro_version_is_activated() && get_config('booking', 'enablefavoritestoggle')) {
-            $table->showfavoritestoggle = true;
-        }
+        // Always enable favorites toggle for the [myfavoritescards] shortcode.
+        $args['favorites'] = '1';
 
         self::set_table_options_from_arguments($table, $args);
         $table->cardsort = true;
