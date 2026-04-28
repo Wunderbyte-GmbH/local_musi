@@ -25,23 +25,21 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['bookable'] = 'Buchbar';
 $string['dashboard'] = 'Dashboard';
+$string['freeplaces'] = 'Freie Plätze';
 $string['messageprovider:sendmessages'] = 'Verschicke Nachrichten';
 $string['musi:cansendmessages'] = 'Kann Nachrichten schicken.';
 $string['musi:editavailability'] = 'Kann die Verfügbarkeit von Buchungsoptionen ändern und Vorreservierungen anlegen';
 $string['musi:editsubstitutionspool'] = 'Kann den Vertretungspool für einzelne Sportarten bearbeiten';
 $string['musi:viewsubstitutionspool'] = 'Kann den Vertretungspool für einzelne Sportarten sehen und E-Mails an den Vertretungspool senden';
+$string['musi:wettkampf'] = 'Darf Wettkämpfe erstellen';
+$string['notbookable'] = 'Nicht buchbar';
 $string['pluginname'] = 'M:USI Plugin';
-
 $string['substitutionspoolshowphonenumbers'] = 'Telefonnummern der Trainer:innen im Vertretungspool anzeigen';
-
-$string['freeplaces'] = 'Freie Plätze';
 
 // Caches.
 $string['cachedef_cachedpaymenttable'] = 'Zahlungstransaktionen (Cache)';
-
-$string['bookable'] = 'Buchbar';
-$string['notbookable'] = 'Nicht buchbar';
 
 // Settings.
 $string['additionalsettings'] = 'Sonstige Einstellungen';
