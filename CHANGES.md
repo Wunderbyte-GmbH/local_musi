@@ -1,3 +1,10 @@
+## Version 1.0.4 (2026043000)
+* New feature: My favorites.
+* Improvement: Right padding for action column (for favorites toggle / star icon).
+* Improvement: Neue Capability: local/musi:wettkampf.
+* Improvement: Add bookings tracker to dropdown menu.
+* Improvement: Add "My favorites" to meinekurse.php.
+
 ## Version 1.0.3 (2026032600)
 * Improvement: Param all=true für [allekurseliste] shortcode und Hinweis bei leeren Semestern auf meinekurse.php (MUSI-856).
 * Improvement: Get rid of legacy code for moodleversionminfourtwo CSS stylings.
