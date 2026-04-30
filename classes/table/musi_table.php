@@ -1129,7 +1129,7 @@ class musi_table extends bookingoptions_wbtable {
             if (!empty($bosettings)) {
                 $context = context_module::instance($bosettings->cmid);
 
-                // ONLY users with the mod/booking:updatebooking capability can edit options or designaated teachers.
+                // ONLY users with the mod/booking:updatebooking capability can edit options or designated teachers.
                 $allowedit = (
                     has_capability('mod/booking:updatebooking', $context)
                     || (has_capability('mod/booking:addeditownoption', $context) && booking_check_if_teacher($values))
@@ -1181,6 +1181,10 @@ class musi_table extends bookingoptions_wbtable {
                     if (isset($bosettings->manageresponsesurl)) {
                         // Get the URL to manage responses (answers) for the option.
                         $data->manageresponsesurl = $bosettings->manageresponsesurl;
+                        if (get_config('booking', 'bookingstracker')) {
+                            // Get the URL for the bookingstracker report.
+                            $data->bookingstrackerurl = $bosettings->bookingstrackerurl;
+                        }
                     }
 
                     if (isset($bosettings->optiondatesteachersurl)) {

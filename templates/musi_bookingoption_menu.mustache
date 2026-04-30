@@ -67,6 +67,11 @@
         <i class="fa fa-ticket fa-fw" aria-hidden="true"></i> {{#str}} manageresponses, mod_booking {{/str}}
       </a>
       {{/manageresponsesurl}}
+      {{#bookingstrackerurl}}
+      <a class="dropdown-item bookingstracker" href="{{bookingstrackerurl}}" target="_self">
+        <i class="fa fa-sitemap fa-fw" aria-hidden="true"></i> {{#str}} bookingstracker, mod_booking {{/str}}
+      </a>
+      {{/bookingstrackerurl}}
       {{#showcancel}}{{{cancellink}}}{{/showcancel}}
       {{#showundocancel}}{{{undocancellink}}}{{/showundocancel}}
       {{#optiondatesteachersurl}}
