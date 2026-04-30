@@ -89,8 +89,19 @@ if ($DB->get_records('booking_teachers', ['userid' => $USER->id])) {
     echo format_text("[trainerkursekarten]", FORMAT_HTML);
 }
 
-echo html_writer::div(get_string('coursesibooked', 'local_musi'), 'h2 mt-3 mb-2 text-center');
+// Meine Kurse.
+echo html_writer::div(get_string('coursesibooked', 'local_musi'), 'h2 mt-5 mb-2 text-center');
 echo format_text("[meinekursekarten]", FORMAT_HTML);
+
+// Meine Favoriten.
+if (get_config('booking', 'enablefavoritestoggle')) {
+    echo html_writer::div(
+        '<i class="fa fa-star-o" aria-hidden="true"></i>&nbsp;' .
+        get_string('myfavorites', 'local_musi'),
+        'h2 mt-5 mb-2 text-center'
+    );
+    echo format_text("[meinefavoriten]", FORMAT_HTML);
+}
 
 if (!empty($archivecmids)) {
     echo "<hr class='w-100 border border-light'/>";
@@ -137,7 +148,7 @@ if (!empty($archivecmids)) {
     }
 
     // Archive: Courses I booked.
-    echo html_writer::div(get_string('coursesibookedarchive', 'local_musi'), 'h2 mt-3 mb-2 text-center text-secondary');
+    echo html_writer::div(get_string('coursesibookedarchive', 'local_musi'), 'h2 mt-5 mb-2 text-center text-secondary');
     // Start accordion.
     $archivehtml = '<div class="accordion" id="coursesibookedarchive">';
     // Add a section for each cmid.
