@@ -71,6 +71,7 @@ $string['shortcodeslistofbookingoptions'] = 'Alle Kurse als Liste';
 $string['shortcodeslistofbookingoptionsascards'] = 'Alle Kurse als Karten';
 $string['shortcodeslistofmybookingoptionsascards'] = 'Meine Kurse als Karten';
 $string['shortcodeslistofmybookingoptionsaslist'] = 'Meine Kurse als Liste';
+$string['shortcodeslistofmyfavoritesascards'] = 'Meine Favoriten als Karten';
 $string['shortcodeslistofteachersascards'] = 'Liste aller Trainer als Karten';
 $string['shortcodeslistofmytaughtbookingoptionsascards'] = 'Kurse, die ich unterrichte, als Karten';
 $string['shortcodesshowallsports'] = "Liste aller Sportarten";
