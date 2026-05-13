@@ -207,9 +207,6 @@
     flex-direction: column;
     justify-content: space-between;
 }
-.text-gray {
-    color: #77838f;
-}
 
 .font-size-sm {
     font-size: 0.8rem;
