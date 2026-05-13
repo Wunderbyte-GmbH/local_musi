@@ -42,6 +42,8 @@ class allcourses implements renderable, templatable {
 
     /**
      * Constructor.
+     *
+     * @param card|null $card Initial card.
      */
     public function __construct($card = null) {
 
@@ -53,6 +55,8 @@ class allcourses implements renderable, templatable {
     }
 
     /**
+     * Export all-courses cards for template rendering.
+     *
      * @param renderer_base $output
      * @return array
      */

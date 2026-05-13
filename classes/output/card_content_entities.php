@@ -75,6 +75,8 @@ class card_content_entities implements renderable, templatable {
     }
 
     /**
+     * Export entity card data for template rendering.
+     *
      * @param renderer_base $output
      * @return array
      */

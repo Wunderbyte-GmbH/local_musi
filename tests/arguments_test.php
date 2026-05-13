@@ -75,6 +75,10 @@ final class arguments_test extends advanced_testcase {
      *
      * @throws \coding_exception
      * @throws \dml_exception
+     * @param string $shortcodename Shortcode name.
+     * @param string $shortcode Shortcode callback.
+     * @param array $args Shortcode arguments.
+     * @param array $config Shortcode configuration.
      */
     public function test_infinitescrollpage(
         $shortcodename,

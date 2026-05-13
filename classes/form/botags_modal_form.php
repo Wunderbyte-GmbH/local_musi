@@ -27,6 +27,11 @@ use stdClass;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class botags_modal_form extends \core_form\dynamic_form {
+    /**
+     * Return context used for dynamic submission.
+     *
+     * @return \context
+     */
     protected function get_context_for_dynamic_submission(): \context {
         return \context_system::instance();
     }
@@ -66,6 +71,11 @@ class botags_modal_form extends \core_form\dynamic_form {
         require_capability('local/musi:canedit', $this->get_context_for_dynamic_submission());
     }
 
+    /**
+     * Set initial data for dynamic submission.
+     *
+     * @return void
+     */
     public function set_data_for_dynamic_submission(): void {
         global $DB;
 
@@ -76,6 +86,11 @@ class botags_modal_form extends \core_form\dynamic_form {
         $this->set_data($data);
     }
 
+    /**
+     * Process dynamic submission and persist tag changes.
+     *
+     * @return stdClass|null
+     */
     public function process_dynamic_submission() {
         global $DB;
 
@@ -98,11 +113,23 @@ class botags_modal_form extends \core_form\dynamic_form {
         return $data;
     }
 
+    /**
+     * Validate dynamic form submission.
+     *
+     * @param array $data Submitted form data.
+     * @param array $files Uploaded files.
+     * @return array Validation errors.
+     */
     public function validation($data, $files) {
         $errors = [];
         return $errors;
     }
 
+    /**
+     * Return the page URL for dynamic submission.
+     *
+     * @return \moodle_url
+     */
     protected function get_page_url_for_dynamic_submission(): \moodle_url {
         return new \moodle_url('/local/musi/dashboard.php');
     }

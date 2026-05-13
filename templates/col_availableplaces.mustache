@@ -15,14 +15,31 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_booking/col_availableplaces
+    @template local_musi/col_availableplaces
 
     Classes required for JS:
     * none
 
     Example context (json):
     {
-        "todo" : "todo"
+        "showmanageresponses": true,
+        "manageresponsesurl": "https://moodle.example.com/mod/booking/manageresponses.php?optionid=42",
+
+        "maxanswers": 20,
+        "booked": 14,
+        "fullybooked": false,
+        "showmaxanswers": true,
+        "bookingplacesclass": "text-primary",
+        "showbookingplacesinfotext": false,
+        "bookingplacesinfotext": "14 of 20 places booked",
+
+        "maxoverbooking": 5,
+        "waiting": 2,
+        "waitinglistplacesclass": "text-warning",
+        "showwaitinglistplacesinfotext": false,
+        "waitinglistplacesinfotext": "2 people on waiting list",
+
+        "unlimited": false
     }
 }}
 

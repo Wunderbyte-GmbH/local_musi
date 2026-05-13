@@ -81,7 +81,7 @@ class sports {
     /**
      * Returns the sports divisions
      * @param int $courseid
-     * @param bool $noprint
+     * @param bool $print Whether to include printable content.
      * @return array
      * @throws dml_exception
      * @throws coding_exception

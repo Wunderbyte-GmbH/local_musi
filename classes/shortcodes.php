@@ -155,7 +155,7 @@ class shortcodes {
         $table->use_pages = true;
 
         if (!empty($args['image'])) {
-            $table->set_tableclass('cardimageclass', 'pr-0 pl-1');
+            $table->set_tableclass('cardimageclass', 'pe-0 ps-1');
             $table->add_subcolumns('cardimage', ['image']);
         }
 
@@ -673,6 +673,7 @@ class shortcodes {
      * Initiates table of courses.
      *
      * @param array $args
+     * @param string $suffix Optional table-name suffix.
      *
      * @return musi_table $table
      *
@@ -929,7 +930,7 @@ class shortcodes {
 
         $table->add_subcolumns('cardbody', ['action', 'invisibleoption', 'sportsdivision', 'sport', 'text', 'botags']);
         $table->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-none']);
-        $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'float-right m-1 pe-1'], ['action']);
+        $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'float-end m-1 pe-1'], ['action']);
         $table->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'font-size-sm'], ['botags']);
         $table->add_classes_to_subcolumns(
             'cardbody',
@@ -1078,20 +1079,20 @@ class shortcodes {
         $table->add_subcolumns('rightside', ['course', 'price']);
 
         $table->add_classes_to_subcolumns('top', ['columnkeyclass' => 'd-none']);
-        $table->add_classes_to_subcolumns('top', ['columnclass' => 'text-left col-md-8'], ['sport', 'sportsdivision']);
+        $table->add_classes_to_subcolumns('top', ['columnclass' => 'text-start col-md-8'], ['sport', 'sportsdivision']);
         $table->add_classes_to_subcolumns('top', ['columnvalueclass' =>
             'sport-badge rounded-sm text-gray-800 mt-2'], ['sport']);
         $table->add_classes_to_subcolumns('top', ['columnvalueclass' =>
             'sportsdivision-badge'], ['sportsdivision']);
-        $table->add_classes_to_subcolumns('top', ['columnclass' => 'text-right col-md-2 position-relative pr-0'], ['action']);
+        $table->add_classes_to_subcolumns('top', ['columnclass' => 'text-end col-md-2 position-relative pe-0'], ['action']);
 
         $table->add_classes_to_subcolumns('leftside', ['columnkeyclass' => 'd-none']);
-        $table->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left mt-1 mb-1 h3 col-md-auto'], ['text']);
+        $table->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-start mt-1 mb-1 h3 col-md-auto'], ['text']);
         if (get_config('local_musi', 'shortcodelists_showdescriptions')) {
-            $table->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left mt-1 mb-3 col-md-auto'], ['description']);
+            $table->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-start mt-1 mb-3 col-md-auto'], ['description']);
         }
         $table->add_classes_to_subcolumns('info', ['columnkeyclass' => 'd-none']);
-        $table->add_classes_to_subcolumns('info', ['columnclass' => 'text-left text-secondary font-size-sm pr-2']);
+        $table->add_classes_to_subcolumns('info', ['columnclass' => 'text-start text-secondary font-size-sm pe-2']);
         $table->add_classes_to_subcolumns('info', ['columnvalueclass' => 'd-flex'], ['teacher']);
         $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-clock-o'], ['dayofweektime']);
         $table->add_classes_to_subcolumns('info', ['columniclassbefore' => 'fa fa-map-marker'], ['location']);
@@ -1122,12 +1123,12 @@ class shortcodes {
 
         $table->add_classes_to_subcolumns(
             'rightside',
-            ['columnvalueclass' => 'text-right mb-auto align-self-end shortcodes_option_info_invisible '],
+            ['columnvalueclass' => 'text-end mb-auto align-self-end shortcodes_option_info_invisible '],
             ['invisibleoption']
         );
-        $table->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right mb-auto align-self-end '], ['botags']);
+        $table->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-end mb-auto align-self-end '], ['botags']);
         $table->add_classes_to_subcolumns('rightside', ['columnclass' =>
-            'text-right mt-auto w-100 align-self-end theme-text-color bold '], ['price']);
+            'text-end mt-auto w-100 align-self-end theme-text-color bold '], ['price']);
 
         // Override naming for columns. one could use getstring for localisation here.
         $table->add_classes_to_subcolumns(
@@ -1213,7 +1214,7 @@ class shortcodes {
 
     /**
      * Helper function to remove quotation marks from args.
-     * @param array &$args reference to arguments array
+     * @param array $args reference to arguments array
      */
     private static function fix_args(array &$args) {
         foreach ($args as $key => &$value) {

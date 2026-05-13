@@ -41,7 +41,6 @@ class behat_local_musi extends behat_base {
     /**
      * Create booking option in booking instance
      * @Given /^I set shortcodessetinstance for musi to "(?P<instancename_string>(?:[^"]|\\")*)"$/
-     * @param string $optionname
      * @param string $instancename
      * @return void
      */

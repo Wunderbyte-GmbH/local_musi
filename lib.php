@@ -33,7 +33,7 @@ define('LOCAL_MUSI_STATUSPARAM_DELETED', 5);
 /**
  * Adds module specific settings to the settings block
  *
- * @param navigation_node $modnode The node to add module settings to
+ * @param navigation_node $navigation The navigation node to extend.
  * @return void
  */
 function local_musi_extend_navigation(navigation_node $navigation) {
@@ -103,12 +103,12 @@ function local_musi_render_navbar_output(\renderer_base $renderer) {
 /**
  *  Callback checking permissions and preparing the file for serving plugin files, see File API.
  *
- * @param $course
- * @param $cm
- * @param $context
- * @param $filearea
- * @param $args
- * @param $forcedownload
+ * @param stdClass $course The course object.
+ * @param stdClass $cm The course module object.
+ * @param context $context The context.
+ * @param string $filearea The file area.
+ * @param array $args Remaining file path arguments.
+ * @param bool $forcedownload Whether to force download.
  * @param array $options
  * @return bool
  * @throws coding_exception

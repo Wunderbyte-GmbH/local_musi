@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Event fired when a scheduled task is executed.
+ *
+ * @package    local_musi
+ * @copyright 2026 Stephan Lorbek
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace local_musi\event;
 
 use coding_exception;
@@ -21,6 +29,9 @@ use core\event\base;
 use moodle_url;
 use function get_string;
 
+/**
+ * Event class for executed MUSI tasks.
+ */
 class task_executed extends base {
     /**
      * init function

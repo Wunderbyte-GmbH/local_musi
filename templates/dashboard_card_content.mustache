@@ -15,13 +15,38 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template local_musi/card_content
+    @template local_musi/dashboard_card_content
 
     Classes required for JS:
     * none
 
     Data attributes required for JS:
     * data-region
+
+    Example context (json):
+    {
+        "item": [
+            {
+            "key": "participants",
+            "value": "42",
+            "link": "https://moodle.example.com/course/participants.php?id=15"
+            },
+            {
+            "key": "grades",
+            "value": "87%",
+            "data-action": "show-grades"
+            },
+            {
+            "key": "status",
+            "html": "<span class=\"badge badge-success\">Completed</span>"
+            },
+            {
+            "key": "notifications",
+            "value": "",
+            "data-action": "open-notifications"
+            }
+        ]
+    }
 }}
 
 {{#item}}

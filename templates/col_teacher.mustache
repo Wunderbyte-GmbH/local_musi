@@ -15,13 +15,31 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_booking/col_teachers
+    @template local_musi/col_teachers
 
     Classes required for JS:
     * none
 
     Data attributes required for JS:
     * data-region
+
+    Example context (json):
+    {
+        "teachers": [
+            {
+            "teacherurl": "https://moodle.example.com/user/profile.php?id=101",
+            "firstname": "John",
+            "lastname": "Doe",
+            "last": false
+            },
+            {
+            "teacherurl": "https://moodle.example.com/user/profile.php?id=102",
+            "firstname": "Anna",
+            "lastname": "Smith",
+            "last": true
+            }
+        ]
+    }
 }}
 <i class="fa fa-graduation-cap fa-fw" aria-hidden="true"></i>
 <span>

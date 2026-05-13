@@ -21,37 +21,45 @@
 
     Example context (json):
     {
-       "listheaderclass" : "listheaderclass",
-       "cardheaderclass" : "cardheaderclass",
-       "cardfooterclass" : "cardfooterclass",
-       "cardimageclass" : "cardimageclass",
-       "cardheader": [
-            "columnclass" : "columnclass",
-            "columnkeyclass" : "columnkeyclass",
-            "key" : "columnname",
-            "keystring" : "localized column name",
-            "columnvalueclass" : "columnvalueclass"
-            "value" : "value"
-       ],
-       "cardbody": [
-            "columnclass" : "columnclass",
-            "columnkeyclass" : "columnkeyclass",
-            "key" : "columnname",
-            "keystring" : "localized column name",
-            "columnvalueclass" : "columnvalueclass"
-            "value" : "value"
-       ],
-       "cardfooter": [
-            "columnclass" : "columnclass",
-            "columnkeyclass" : "columnkeyclass",
-            "key" : "columnname",
-            "keystring" : "localized column name",
-            "columnvalueclass" : "columnvalueclass"
-            "value" : "value"
-       ],
-       "cardimage": [
-            "value" : "value"
-       ]
+      "listheaderclass": "listheaderclass",
+      "cardheaderclass": "cardheaderclass",
+      "cardfooterclass": "cardfooterclass",
+      "cardimageclass": "cardimageclass",
+      "cardheader": [
+        {
+          "columnclass": "columnclass",
+          "columnkeyclass": "columnkeyclass",
+          "key": "columnname",
+          "keystring": "localized column name",
+          "columnvalueclass": "columnvalueclass",
+          "value": "value"
+        }
+      ],
+      "cardbody": [
+        {
+          "columnclass": "columnclass",
+          "columnkeyclass": "columnkeyclass",
+          "key": "columnname",
+          "keystring": "localized column name",
+          "columnvalueclass": "columnvalueclass",
+          "value": "value"
+        }
+      ],
+      "cardfooter": [
+        {
+          "columnclass": "columnclass",
+          "columnkeyclass": "columnkeyclass",
+          "key": "columnname",
+          "keystring": "localized column name",
+          "columnvalueclass": "columnvalueclass",
+          "value": "value"
+        }
+      ],
+      "cardimage": [
+        {
+          "value": "value"
+        }
+      ]
     }
 }}
 {{#norecords}}
@@ -73,7 +81,7 @@
           <br>
           <div>
                {{> local_wunderbyte_table/component_pagination }}
-               <div class="float-right">{{> local_wunderbyte_table/component_selectrows }}</div>
+               <div class="float-end">{{> local_wunderbyte_table/component_selectrows }}</div>
           </div>
      {{/displayelementsontop}}
      <div class="wunderbyte-table-table wunderbyte-table-list">
@@ -117,7 +125,7 @@
 
 {{^infinitescroll}}
 {{^displayelementsontop}}
-<div class="float-right">{{> local_wunderbyte_table/component_selectrows }}</div>
+<div class="float-end">{{> local_wunderbyte_table/component_selectrows }}</div>
           {{> local_wunderbyte_table/component_pagination }}
           {{> local_wunderbyte_table/component_actionbutton }}
 {{/displayelementsontop}}

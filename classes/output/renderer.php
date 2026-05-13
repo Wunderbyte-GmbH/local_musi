@@ -25,7 +25,9 @@ use plugin_renderer_base;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class renderer extends plugin_renderer_base {
-    /** Function to render the dashboard
+    /**
+     * Render the local_musi dashboard.
+     *
      * @param dashboard $data
      * @return string
      */
@@ -36,7 +38,9 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
-    /** Function to render the card_content_stats1
+    /**
+     * Render card content.
+     *
      * @param mixed $data
      * @return string
      */
@@ -47,9 +51,11 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
-    /** Function to render the cards table
+    /**
+     * Render table content with a configurable template.
+     *
      * @param any $data
-     * @param string $data
+     * @param string $templatename
      * @return string
      */
     public function render_table($data, string $templatename) {
@@ -59,6 +65,12 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /**
+     * Render the available places column.
+     *
+     * @param mixed $data
+     * @return string
+     */
     public function render_col_availableplaces($data) {
         $o = '';
         $templatedata = $data->export_for_template($this);
@@ -67,7 +79,9 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
-    /** Function to render the teacher column.
+    /**
+     * Render the teacher column.
+     *
      * @param any $data
      * @return string
      */
@@ -78,9 +92,10 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
-    /** Function to render the overview cards in user dashboard
+    /**
+     * Render overview cards in the user dashboard.
+     *
      * @param any $data
-     * @param string $data
      * @return string
      */
     public function render_user_dashboard_overview($data) {
@@ -89,8 +104,10 @@ class renderer extends plugin_renderer_base {
         return $o;
     }
 
-    /** Function to render the transactions list.
-     * @param any $data
+    /**
+     * Render the transactions list.
+     *
+     * @param transactionslist $page
      * @return string
      */
     public function render_transactions_list($page): string {

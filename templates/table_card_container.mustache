@@ -12,7 +12,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template local_wunderbyte_table/table
+    @template local_wunderbyte_table/table_card_container
     Template which defines a mooduell view page.
     Classes required for JS:
     * none
@@ -26,37 +26,45 @@
 
     Example context (json):
     {
-       "listheaderclass" : "listheaderclass",
-       "cardheaderclass" : "cardheaderclass",
-       "cardfooterclass" : "cardfooterclass",
-       "cardimageclass" : "cardimageclass",
-       "cardheader": [
-            "columnclass" : "columnclass",
-            "columnkeyclass" : "columnkeyclass",
-            "key" : "columnname",
-            "keystring" : "localized column name",
-            "columnvalueclass" : "columnvalueclass"
-            "value" : "value"
-       ],
-       "cardbody": [
-            "columnclass" : "columnclass",
-            "columnkeyclass" : "columnkeyclass",
-            "key" : "columnname",
-            "keystring" : "localized column name",
-            "columnvalueclass" : "columnvalueclass"
-            "value" : "value"
-       ],
-       "cardfooter": [
-            "columnclass" : "columnclass",
-            "columnkeyclass" : "columnkeyclass",
-            "key" : "columnname",
-            "keystring" : "localized column name",
-            "columnvalueclass" : "columnvalueclass"
-            "value" : "value"
-       ],
-       "cardimage": [
-            "value" : "value"
-       ]
+      "listheaderclass": "listheaderclass",
+      "cardheaderclass": "cardheaderclass",
+      "cardfooterclass": "cardfooterclass",
+      "cardimageclass": "cardimageclass",
+      "cardheader": [
+        {
+          "columnclass": "columnclass",
+          "columnkeyclass": "columnkeyclass",
+          "key": "columnname",
+          "keystring": "localized column name",
+          "columnvalueclass": "columnvalueclass",
+          "value": "value"
+        }
+      ],
+      "cardbody": [
+        {
+          "columnclass": "columnclass",
+          "columnkeyclass": "columnkeyclass",
+          "key": "columnname",
+          "keystring": "localized column name",
+          "columnvalueclass": "columnvalueclass",
+          "value": "value"
+        }
+      ],
+      "cardfooter": [
+        {
+          "columnclass": "columnclass",
+          "columnkeyclass": "columnkeyclass",
+          "key": "columnname",
+          "keystring": "localized column name",
+          "columnvalueclass": "columnvalueclass",
+          "value": "value"
+        }
+      ],
+      "cardimage": [
+        {
+          "value": "value"
+        }
+      ]
     }
 }}
 {{#norecords}}
@@ -66,7 +74,7 @@
 {{/norecords}}
 {{^norecords}}
 <div class="wunderbyte_table_container_{{idstring}} {{#scrolltocontainer}} wunderbyte_table_scroll_on {{/scrolltocontainer}} {{#showcomponentstoggle}}wunderbyte_table_filter_on{{/showcomponentstoggle}} mt-2 px-2 musi-courses-container">
-     <div class="container-fluid ml-0">
+     <div class="container-fluid ms-0">
           <div class="row mb-2">
                <div class="">
                     <div>
@@ -76,7 +84,7 @@
                          {{> local_wunderbyte_table/component_print }}
                     </div>
                </div>
-               <div class="ml-auto">
+               <div class="ms-auto">
                     {{> local_wunderbyte_table/component_sort }}
                     {{> local_wunderbyte_table/component_search }}
                </div>

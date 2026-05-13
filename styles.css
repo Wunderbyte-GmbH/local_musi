@@ -102,16 +102,20 @@
 
 .musi-courses-container .wunderbyteTableFilter .form-group {
     border: none;
+    /* stylelint-disable-next-line declaration-no-important */
     background-color: #fff !important;
     padding: 0;
+    /* stylelint-disable-next-line declaration-no-important */
     margin: 0 !important;
 }
 
 .musi-courses-container .wunderbyteTableFilter .collapse.show {
+    /* stylelint-disable-next-line declaration-no-important */
     margin-top: 0 !important;
 }
 
 .musi-courses-container .wunderbyteTableFilter ul.wunderbyterFilterList {
+    /* stylelint-disable-next-line declaration-no-important */
     padding-top: 0 !important;
 }
 
@@ -129,6 +133,7 @@
 }
 
 .fa-fw {
+    /* stylelint-disable-next-line declaration-no-important */
     width: 1.2857142857em !important;
 }
 
@@ -206,9 +211,6 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-}
-.text-gray {
-    color: #77838f;
 }
 
 .font-size-sm {

@@ -249,7 +249,7 @@
 * New feature: Filters for booking time and course time.
 * Improvement: Add new requirelogin argument to shortcodes.
 * Improvement: Add requirelogin=false to shortcodes.
-* Improvement: Make sure wbtable container is aligned left by adding left margin of 0 (ml-0).
+* Improvement: Make sure wbtable container is aligned left by adding left margin of 0 (ms-0).
 * Bugfix: Remove table prefix and use curly brackets.
 * Bugfix: All plugin constants must start with uppercase frankenstyle prefix.
 * Bugfix: Add missing "action_" to update_status function (because of new wbtable security feature).

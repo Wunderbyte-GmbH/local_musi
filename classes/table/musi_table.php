@@ -489,7 +489,7 @@ class musi_table extends bookingoptions_wbtable {
                         get_string('showdescription', 'mod_booking') . '...</a>
                         </div>
                         <div class="collapse" id="collapseDescription' . $values->id . '">
-                            <div class="card card-body border-1 mt-1 mb-1 mr-3">' . $ret . '</div>
+                            <div class="card card-body border-1 mt-1 mb-1 me-3">' . $ret . '</div>
                         </div>';
                 }
 
@@ -668,7 +668,7 @@ class musi_table extends bookingoptions_wbtable {
                 foreach ($botagsarray as $botag) {
                     if (!empty($botag)) {
                         $botagsstring .=
-                            "<span class='musi-table-botag rounded-sm bg-info text-light pl-1 pr-1 pb-0 pt-0 mr-1'>
+                            "<span class='musi-table-botag rounded-sm bg-info text-light ps-1 pe-1 pb-0 pt-0 me-1'>
                             $botag
                             </span>";
                     } else {

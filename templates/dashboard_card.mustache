@@ -15,13 +15,21 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template local_musi/card
+    @template local_musi/dashboard_card
 
     Classes required for JS:
     * none
 
     Data attributes required for JS:
     * data-region
+
+    Example context (json):
+    {
+        "headerbgcolor": "bg-warning",
+        "title": "Course Notification",
+        "content": "<p>Your assignment submission has been successfully received and is awaiting grading.</p>",
+        "footer": "Submitted on: 31 May 2025, 14:35"
+    }
 }}
 
 <div class="card {{{headerbgcolor}}} text-dark">

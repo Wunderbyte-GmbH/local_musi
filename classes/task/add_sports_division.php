@@ -23,7 +23,10 @@ use mod_booking\customfield\booking_handler;
 
 /**
  * Scheduled task creates SAP files in Moodle data directory.
- * @package local_musi
+ *
+ * @package   local_musi
+ * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class add_sports_division extends scheduled_task {
     /**

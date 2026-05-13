@@ -32,7 +32,10 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Definitions for transactionstable iteration of wb_table
+ *
  * @package local_musi
+ * @copyright 2026 Stephan Lorbek
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class musi_transactions_table extends wunderbyte_table {
     /**
@@ -162,8 +165,8 @@ class musi_transactions_table extends wunderbyte_table {
     /**
      * Tries to verify a transaction and delivers order if successful
      *
-     * @param integer $id
-     * @param string $data
+     * @param int $id Transaction id.
+     * @param string $data JSON-encoded transaction payload.
      * @return array
      */
     public function action_update_status(int $id, string $data): array {

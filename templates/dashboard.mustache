@@ -22,10 +22,28 @@
 
     Data attributes required for JS:
     * data-region
+
+    Example context (json):
+    {
+        "cards": [
+            {
+            "headerbgcolor": "bg-warning",
+            "title": "Course Notification",
+            "content": "<p>Your assignment submission has been successfully received and is awaiting grading.</p>",
+            "footer": "Submitted on: 31 May 2025, 14:35"
+            },
+            {
+            "headerbgcolor": "bg-success",
+            "title": "Enrollment Confirmed",
+            "content": "<p>You have been successfully enrolled in the course <strong>Advanced Moodle Development</strong>.</p>",
+            "footer": "Enrollment date: 01 June 2025, 09:00"
+            }
+        ]
+    }
 }}
 
 <div class="card-group">
     {{#cards}}
         {{> local_musi/dashboard_card }}
     {{/cards}}
-<div>
+</div>

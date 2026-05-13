@@ -42,8 +42,6 @@ class dashboard implements renderable, templatable {
 
     /**
      * Constructor
-     *
-     * @param card|null $card
      */
     public function __construct() {
 
@@ -154,7 +152,7 @@ class dashboard implements renderable, templatable {
      * @param card|null $card
      * @return void
      */
-    public function add_card(card $card = null) {
+    public function add_card(?card $card = null) {
         if ($card) {
             $this->cards[] = $card;
         } else {
@@ -163,6 +161,8 @@ class dashboard implements renderable, templatable {
     }
 
     /**
+     * Export dashboard cards for template rendering.
+     *
      * @param renderer_base $output
      * @return array
      */
