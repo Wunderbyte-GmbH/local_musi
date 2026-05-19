@@ -249,7 +249,7 @@ class sap_daily_sums {
             if (is_number($annotationarr[0])) {
                 $record->identifier = (int) $annotationarr[0];
             }
-            $allowedpaymentbrands = ['VC', 'MC', 'EP', 'DC', 'AX'];
+            $allowedpaymentbrands = ['VC', 'MC', 'EP', 'DC', 'AX', 'AP', 'GP'];
             if (in_array(end($annotationarr), $allowedpaymentbrands)) {
                 $record->paymentbrand = end($annotationarr);
             } else {
