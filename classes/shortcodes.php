@@ -58,6 +58,7 @@ class shortcodes {
      *
      * @param string $shortcode
      * @param array $args
+     * @param string $suffix Optional table-name suffix.
      * @param string|null $content
      * @param object $env
      * @param Closure $next
