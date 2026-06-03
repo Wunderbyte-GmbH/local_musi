@@ -1,3 +1,8 @@
+## Version 1.0.5 (2026060300)
+* Improvement: Add Support for Apple Pay (AP) and Google Pay (GP).
+* Improvement: Lots of fixes for better accessibility.
+* Bugfix: Add missing definition string for Shortcode meinefavoriten (shortcodeslistofmyfavoritesascards).
+
 ## Version 1.0.4 (2026043000)
 * New feature: My favorites.
 * Improvement: Right padding for action column (for favorites toggle / star icon).
