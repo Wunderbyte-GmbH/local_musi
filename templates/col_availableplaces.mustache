@@ -54,7 +54,7 @@
                 <span class="text-danger font-weight-bold">{{booked}}</span>
             {{/fullybooked}}
             {{^fullybooked}}
-                <span class="text-success font-weight-bold">{{booked}}</span>
+                <span class="text-darkgreen font-weight-bold">{{booked}}</span>
             {{/fullybooked}}
         {{#showmaxanswers}}
             / {{maxanswers}}
@@ -67,9 +67,9 @@
 {{/maxanswers}}
 {{^maxanswers}}
     {{#unlimited}}
-        <span class="text-success font-weight-bold">Unlimitiert</span>
+        <span class="text-darkgreen font-weight-bold">Unlimitiert</span>
     {{/unlimited}}
-    <span class="text-success font-weight-bold">{{booked}}</span>
+    <span class="text-darkgreen font-weight-bold">{{booked}}</span>
     / {{#str}} unlimitedplaces, mod_booking {{/str}}
 {{/maxanswers}}
 
