@@ -261,6 +261,11 @@ class sap_daily_sums {
             // Nachname.
             $record->lastname = $DB->get_field('user', 'lastname', ['id' => $record->userid]);
 
+            // Falls keine Kostenstelle im Ledger steht, über die optionid (itemid) ermitteln.
+            if (empty($record->costcenter) && !empty($record->itemid)) {
+                $record->costcenter = self::get_costcenter_by_optionid((int) $record->itemid);
+            }
+
             // Wenn die Kostenstelle fehlt, wird die Zeile zum Error-File hinzugefügt.
             if (empty($record->costcenter)) {
                 $linehaserrors = true;
@@ -458,6 +463,13 @@ class sap_daily_sums {
      */
     private static function get_costcenter_by_identifier(int $identifier): string {
         global $DB;
+
+        // Shortname des Kostenstellen-Customfields aus den mod_booking-Einstellungen holen.
+        $costcentershortname = get_config('booking', 'cfcostcenter');
+        if (empty($costcentershortname) || $costcentershortname == "-1") {
+            return ''; // Kein Kostenstellen-Feld definiert.
+        }
+
         // Kostenstelle.
         $sqlkostenstelle = "SELECT s1.kst
         FROM {payments} p
@@ -467,16 +479,54 @@ class sap_daily_sums {
             SELECT d.instanceid AS optionid, d.value AS kst
             FROM {customfield_field} f
             JOIN {customfield_category} c
-            ON c.id = f.categoryid AND c.component = 'mod_booking' AND f.shortname = 'kst'
+            ON c.id = f.categoryid AND c.component = 'mod_booking' AND f.shortname = :costcentershortname
             JOIN {customfield_data} d
             ON d.fieldid = f.id
         ) s1
         ON s1.optionid = l.itemid
         WHERE p.itemid = :identifier AND s1.kst <> '' AND s1.kst IS NOT NULL
         LIMIT 1";
-        $paramskostenstelle = ['identifier' => $identifier];
+        $paramskostenstelle = [
+            'identifier' => $identifier,
+            'costcentershortname' => $costcentershortname,
+        ];
         $kostenstelle = $DB->get_field_sql($sqlkostenstelle, $paramskostenstelle);
         return $kostenstelle;
+    }
+
+    /**
+     * Helper function to get cost center directly via the booking option id (itemid).
+     *
+     * In contrast to get_costcenter_by_identifier() this does not rely on a {payments}
+     * entry, which manual rebookings often do not have.
+     *
+     * @param int $optionid the mod_booking option id (ledger.itemid)
+     * @return string
+     */
+    private static function get_costcenter_by_optionid(int $optionid): string {
+        global $DB;
+
+        // Shortname des Kostenstellen-Customfields aus den mod_booking-Einstellungen holen.
+        $costcentershortname = get_config('booking', 'cfcostcenter');
+        if (empty($costcentershortname) || $costcentershortname == "-1") {
+            return ''; // Kein Kostenstellen-Feld definiert.
+        }
+
+        // Kostenstelle direkt über die optionid (Customfield-Instanz) ermitteln.
+        $sqlkostenstelle = "SELECT d.value AS kst
+        FROM {customfield_field} f
+        JOIN {customfield_category} c
+        ON c.id = f.categoryid AND c.component = 'mod_booking' AND f.shortname = :costcentershortname
+        JOIN {customfield_data} d
+        ON d.fieldid = f.id
+        WHERE d.instanceid = :optionid AND d.value <> '' AND d.value IS NOT NULL
+        LIMIT 1";
+        $paramskostenstelle = [
+            'optionid' => $optionid,
+            'costcentershortname' => $costcentershortname,
+        ];
+        $kostenstelle = $DB->get_field_sql($sqlkostenstelle, $paramskostenstelle);
+        return $kostenstelle === false ? '' : $kostenstelle;
     }
 
     /**

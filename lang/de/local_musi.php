@@ -42,6 +42,7 @@ $string['bookingsalt'] = 'Anzahl der freien und maximal verfügbaren Kursplätze
 $string['cachedef_cachedpaymenttable'] = 'Zahlungstransaktionen (Cache)';
 $string['campaigns'] = 'Kampagnen';
 $string['cashier'] = 'Kassa';
+$string['cfcostcenternotset'] = 'Achtung: Das benutzerdefinierte Buchungsoptionsfeld für die Kostenstelle ist nicht konfiguriert. Für die SAP-Dateien können keine Kostenstellen ermittelt werden. Bitte legen Sie es in den <a href="{$a}">Buchungseinstellungen</a> fest.';
 $string['changebookinginstance'] = 'Standard-Semester-Instanz setzen';
 $string['checkstatus'] = 'Überprüfe Status';
 $string['collapsedescriptionmaxlength'] = 'Beschreibungen einklappen (Zeichenanzahl)';

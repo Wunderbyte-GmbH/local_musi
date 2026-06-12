@@ -42,6 +42,7 @@ $string['bookingsalt'] = 'Available course slots and maximum capacity';
 $string['cachedef_cachedpaymenttable'] = 'Cached payment table (transaction list).';
 $string['campaigns'] = 'Campaigns';
 $string['cashier'] = 'Cashiers desk';
+$string['cfcostcenternotset'] = 'Warning: The custom booking option field for the cost center is not configured. Cost centers cannot be determined for the SAP files. Please set it in the <a href="{$a}">booking settings</a>.';
 $string['changebookinginstance'] = 'Set default semester instance';
 $string['checkstatus'] = 'Check status';
 $string['collapsedescriptionmaxlength'] = 'Collapse descriptions (max. length)';

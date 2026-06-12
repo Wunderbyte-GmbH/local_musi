@@ -58,6 +58,14 @@ $PAGE->set_pagelayout('standard');
 
 echo $OUTPUT->header();
 
+// Warn admins if the cost center custom field is not configured.
+$costcentershortname = get_config('booking', 'cfcostcenter');
+if (empty($costcentershortname) || $costcentershortname == "-1") {
+    $settingsurl = new moodle_url('/admin/search.php', ['query' => 'cfcostcenter']);
+    $warningmessage = get_string('cfcostcenternotset', 'local_musi', $settingsurl->out());
+    echo $OUTPUT->notification($warningmessage, \core\output\notification::NOTIFY_ERROR);
+}
+
 $now = time(); // Current timestamp.
 $dateoneyearago = strtotime('-365 days', $now);
 
