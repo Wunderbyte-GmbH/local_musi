@@ -53,6 +53,12 @@ class musi_table extends bookingoptions_wbtable {
     /** @var array $displayoptions */
     private $displayoptions = [];
 
+    /** @var array<int, array<int, \stdClass>> Page-scoped ledger records keyed [userid][optionid]. */
+    private $receiptledgercache = [];
+
+    /** @var array<int, string[]>|null Page-scoped installment identifiers keyed by schistoryid. */
+    private $installmentidentifiercache = null;
+
     /**
      * Set display options for the table.
      *
@@ -306,7 +312,7 @@ class musi_table extends bookingoptions_wbtable {
      * @throws dml_exception
      */
     public function col_receipt($values): string {
-        global $DB, $OUTPUT;
+        global $OUTPUT;
         if (!class_exists('local_shopping_cart\shopping_cart')) {
             return '';
         }
@@ -346,13 +352,9 @@ class musi_table extends bookingoptions_wbtable {
         }
 
         $receipt = '';
-        $sql = "SELECT *
-                FROM {local_shopping_cart_ledger} l
-                WHERE itemid=:itemid AND userid=:userid AND area='option'
-            ORDER BY timecreated DESC
-                LIMIT 1";
-        $params = ['itemid' => $values->id, 'userid' => $userid];
-        $record = $DB->get_record_sql($sql, $params);
+        // Batch-loaded once for every option on the current page instead of one
+        // query per rendered row (avoids an N+1 in receipt-bearing tables).
+        $record = $this->get_latest_receipt_ledger((int) $optionid, (int) $userid);
 
         if (!empty($record)) {
             $url = new moodle_url(
@@ -379,19 +381,10 @@ class musi_table extends bookingoptions_wbtable {
             // For installments, we need to aggregate all receipts.
             $schistoryid = $record->schistoryid ?? 0;
             if (!empty($schistoryid) && $record->paymentstatus == LOCAL_SHOPPING_CART_PAYMENT_SUCCESS) {
-                $additionalidentifiers = $DB->get_fieldset_sql(
-                    "SELECT DISTINCT identifier
-                                FROM {local_shopping_cart_ledger}
-                               WHERE schistoryid = :schistoryid
-                                 AND identifier <> :identifier
-                                 AND identifier IS NOT NULL
-                                 AND paymentstatus = :paymentstatus
-                            ORDER BY identifier DESC",
-                    [
-                        'schistoryid' => $schistoryid,
-                        'identifier' => $record->identifier,
-                        'paymentstatus' => LOCAL_SHOPPING_CART_PAYMENT_SUCCESS,
-                    ]
+                // Batch-loaded once per page (keyed by schistoryid) instead of one query per row.
+                $additionalidentifiers = $this->get_installment_identifiers(
+                    (int) $schistoryid,
+                    (string) $record->identifier
                 );
                 if (!empty($additionalidentifiers)) {
                     $data = new stdClass(); // Data object to render installment receipts template.
@@ -424,6 +417,112 @@ class musi_table extends bookingoptions_wbtable {
             $cache->set($cachekey, $bacache);
         }
         return $receipt;
+    }
+
+    /**
+     * Return the latest 'option' ledger record for a booking option and user.
+     *
+     * The records for every option currently on the page are fetched in a single
+     * query the first time this is called for a given user and then served from
+     * memory, so a receipt column costs one DB read per page instead of one per row.
+     *
+     * @param int $optionid booking option id (ledger itemid)
+     * @param int $userid
+     * @return \stdClass|null latest ledger row, or null if the user has none for this option
+     */
+    private function get_latest_receipt_ledger(int $optionid, int $userid): ?\stdClass {
+        global $DB;
+
+        if (!isset($this->receiptledgercache[$userid])) {
+            // Option ids visible on the current page, plus the requested one as a fallback
+            // (e.g. when the column is rendered outside the normal paged build).
+            $optionids = [$optionid => $optionid];
+            foreach (($this->rawdata ?? []) as $row) {
+                if (!empty($row->id)) {
+                    $optionids[(int) $row->id] = (int) $row->id;
+                }
+            }
+
+            [$insql, $inparams] = $DB->get_in_or_equal($optionids, SQL_PARAMS_NAMED);
+            $sql = "SELECT id, itemid, identifier, paymentstatus, schistoryid, timecreated
+                      FROM {local_shopping_cart_ledger}
+                     WHERE userid = :userid AND area = 'option' AND itemid $insql
+                  ORDER BY timecreated DESC";
+            $rows = $DB->get_records_sql($sql, ['userid' => $userid] + $inparams);
+
+            $latest = [];
+            foreach ($rows as $row) {
+                // Ordered by timecreated DESC, so the first row seen per itemid is the latest.
+                if (!isset($latest[(int) $row->itemid])) {
+                    $latest[(int) $row->itemid] = $row;
+                }
+            }
+            $this->receiptledgercache[$userid] = $latest;
+        }
+
+        return $this->receiptledgercache[$userid][$optionid] ?? null;
+    }
+
+    /**
+     * Return the other successful-payment identifiers belonging to the same purchase
+     * history (schistoryid) as a row's receipt, excluding the row's own identifier.
+     *
+     * Like the receipt lookup, this is batch-loaded once for every schistoryid present
+     * on the current page (taken from the already-batched ledger records) and then
+     * served from memory, so installment rows cost one DB read per page, not per row.
+     *
+     * @param int $schistoryid purchase history id of the row's receipt
+     * @param string $ownidentifier the row's own identifier (excluded from the result)
+     * @return string[] additional identifiers, newest first, deduplicated
+     */
+    private function get_installment_identifiers(int $schistoryid, string $ownidentifier): array {
+        global $DB;
+
+        if ($this->installmentidentifiercache === null) {
+            // Collect the SUCCESS schistoryids present in the page's batched ledger records.
+            $schistoryids = [];
+            foreach ($this->receiptledgercache as $byoption) {
+                foreach ($byoption as $rec) {
+                    if (
+                        !empty($rec->schistoryid)
+                        && $rec->paymentstatus == LOCAL_SHOPPING_CART_PAYMENT_SUCCESS
+                    ) {
+                        $schistoryids[(int) $rec->schistoryid] = (int) $rec->schistoryid;
+                    }
+                }
+            }
+
+            $map = [];
+            if (!empty($schistoryids)) {
+                [$insql, $inparams] = $DB->get_in_or_equal($schistoryids, SQL_PARAMS_NAMED);
+                $sql = "SELECT id, schistoryid, identifier
+                          FROM {local_shopping_cart_ledger}
+                         WHERE schistoryid $insql
+                           AND identifier IS NOT NULL
+                           AND paymentstatus = :paymentstatus
+                      ORDER BY identifier DESC";
+                $rows = $DB->get_records_sql(
+                    $sql,
+                    ['paymentstatus' => LOCAL_SHOPPING_CART_PAYMENT_SUCCESS] + $inparams
+                );
+                foreach ($rows as $row) {
+                    $sid = (int) $row->schistoryid;
+                    // Ordered by identifier DESC; keep first occurrence per value to dedupe (DISTINCT).
+                    if (!isset($map[$sid]) || !in_array($row->identifier, $map[$sid], true)) {
+                        $map[$sid][] = $row->identifier;
+                    }
+                }
+            }
+            $this->installmentidentifiercache = $map;
+        }
+
+        $identifiers = $this->installmentidentifiercache[$schistoryid] ?? [];
+
+        // Exclude the row's own identifier (the caller adds it as a separate entry).
+        return array_values(array_filter(
+            $identifiers,
+            static fn($identifier): bool => (string) $identifier !== $ownidentifier
+        ));
     }
 
     /**
