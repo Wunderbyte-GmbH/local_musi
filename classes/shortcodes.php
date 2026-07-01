@@ -770,8 +770,10 @@ class shortcodes {
         ]);
         $table->add_filter($standardfilter);
 
-        $standardfilter = new standardfilter('location', get_string('location', 'mod_booking'));
-        $table->add_filter($standardfilter);
+        // Multilevel entity tree filter when opted in; otherwise the unchanged text location filter (BC-2/BC-3).
+        $table->add_filter(
+            \mod_booking\local\entities_tree_provider::get_location_filter(get_string('location', 'mod_booking'))
+        );
 
         if (get_config('local_musi', 'musishortcodesshowfiltercoursetime')) {
             $hourlist = new hourlist('coursestarttime', get_string('timeofdaycoursestart', 'local_musi'));
