@@ -576,13 +576,9 @@ class musi_table extends bookingoptions_wbtable {
 
         if (isset($settings->entity) && (count($settings->entity) > 0)) {
             $url = new moodle_url('/local/entities/view.php', ['id' => $settings->entity['id']]);
-            // Full name of the entity (NOT the shortname).
-
-            if (!empty($settings->entity['parentname'])) {
-                $nametobeshown = $settings->entity['parentname'] . " (" . $settings->entity['name'] . ")";
-            } else {
-                $nametobeshown = $settings->entity['name'];
-            }
+            // Full name of the entity (NOT the shortname). Reuses the shared mod_booking renderer so the
+            // output is byte-identical to before for 1–2 levels and a breadcrumb only for 3+ (BC-6).
+            $nametobeshown = \mod_booking\local\entities_tree_provider::render_location_name($settings->entity);
 
             return html_writer::tag('a', $nametobeshown, ['href' => $url->out(false)]);
         }
