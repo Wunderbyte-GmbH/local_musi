@@ -68,36 +68,39 @@
     </div>
 {{/norecords}}
 {{^norecords}}
-     {{#table}}
-     {{#infinitescroll}}
-          <div>
-          {{> local_wunderbyte_table/component_actionbutton }}
-          </div>
-     {{/infinitescroll}}
-     {{#displayelementsontop}}
-          <div>
-          {{> local_wunderbyte_table/component_actionbutton }}
-          </div>
-          <br>
-          <div>
-               {{> local_wunderbyte_table/component_pagination }}
-               <div class="float-end">{{> local_wunderbyte_table/component_selectrows }}</div>
-          </div>
-     {{/displayelementsontop}}
-     <div class="wunderbyte-table-table wunderbyte-table-list">
-          {{> local_wunderbyte_table/component_countlabel }}
-          <div {{#stickyheader}} class="scroll-y" {{/stickyheader}} {{#tableheight}}
-          style="height: {{tableheight}};" {{/tableheight}}>
-               <div>
-                    <div class="rows-container">
-                         {{#rows}}
-                                {{> local_musi/table_list_row }}
-                         {{/rows}}
-                    </div>
-               </div>
-          </div>
-     </div>
-     {{/table}}
+    {{#table}}
+        {{#infinitescroll}}
+            <div>
+            {{> local_wunderbyte_table/component_actionbutton }}
+            </div>
+        {{/infinitescroll}}
+        {{#displayelementsontop}}
+            <div>
+            {{> local_wunderbyte_table/component_actionbutton }}
+            </div>
+            <br>
+            <div>
+                {{> local_wunderbyte_table/component_pagination }}
+                <div class="float-end">{{> local_wunderbyte_table/component_selectrows }}</div>
+            </div>
+        {{/displayelementsontop}}
+        <div class="wunderbyte-table-table wunderbyte-table-list">
+            {{> local_wunderbyte_table/component_countlabel }}
+            <div {{#stickyheader}} class="scroll-y" {{/stickyheader}} {{#tableheight}}
+            style="height: {{tableheight}};" {{/tableheight}}>
+                <div>
+                        <div class="rows-container">
+                            {{#rows}}
+                                    {{> local_musi/table_list_row }}
+                            {{/rows}}
+                        </div>
+                </div>
+            </div>
+        </div>
+    {{/table}}
+    {{^table}}
+        {{> local_wunderbyte_table/component_countlabel }}
+    {{/table}}
 {{#js}}
     require(['local_wunderbyte_table/init'], function(init) {
         init.init('{{idstring}}', '{{encodedtable}}');
