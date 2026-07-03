@@ -1,3 +1,10 @@
+## Version 1.0.6 (2026070300)
+* Improvement: Better color contrasts.
+* Improvement: Accessibility - Add aria-label for gear.
+* Bugfix: Fix incomplete PHPDoc parameters.
+* Bugfix: Kostenstelle auch bei manuellen Nachbuchungen verfügbar machen und nicht customfield nicht mehr hardcoden.
+* Bugfix: Show countlabel of tables also when filters find no records.
+
 ## Version 1.0.5 (2026060300)
 * Improvement: Add Support for Apple Pay (AP) and Google Pay (GP).
 * Improvement: Lots of fixes for better accessibility.
