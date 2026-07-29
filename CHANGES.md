@@ -1,3 +1,4 @@
+* Improvement: Accessibility (WCAG) for the [sparten] shortcode: the sports category and sport accordion toggles are now real headings with keyboard-operable buttons (instead of clickable divs), aria-expanded reflects the actual initial state, the substitution pool collapses got unique IDs (the category-level "mail problems" link toggled the wrong element before), substitution teacher tables got proper column headers for screen readers and decorative icons are hidden from assistive technology.
 * Bugfix: The card shortcode ([allekursekarten]) now reports the cards view to mod_booking, so that the site setting "Turn off modals" (booking | turnoffmodals) keeps using modals there - it is only supported by the list shortcodes like [allekurseliste].
 
 ## Version 1.0.6 (2026070300)
