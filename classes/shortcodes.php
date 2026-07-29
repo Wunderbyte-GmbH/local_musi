@@ -1018,6 +1018,11 @@ class shortcodes {
 
         $table->is_downloading('', 'List of booking options');
         $table->tabletemplate = 'local_musi/table_card';
+        // Cards do not support inline pre booking pages (booking | turnoffmodals) yet.
+        // The value is hardcoded on purpose: MOD_BOOKING_VIEW_PARAM_CARDS lives in mod/booking/lib.php,
+        // which is not guaranteed to be loaded here - it only happens to be pulled in transitively by
+        // one of the mod_booking classes used above.
+        $table->viewparam = 1; // 1 = MOD_BOOKING_VIEW_PARAM_CARDS.
     }
 
     /**

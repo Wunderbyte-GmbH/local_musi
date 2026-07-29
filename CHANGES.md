@@ -1,3 +1,5 @@
+* Bugfix: The card shortcode ([allekursekarten]) now reports the cards view to mod_booking, so that the site setting "Turn off modals" (booking | turnoffmodals) keeps using modals there - it is only supported by the list shortcodes like [allekurseliste].
+
 ## Version 1.0.6 (2026070300)
 * Improvement: Better color contrasts.
 * Improvement: Accessibility - Add aria-label for gear.
