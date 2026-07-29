@@ -244,7 +244,11 @@ class musi_table extends bookingoptions_wbtable {
             $cachekey = $values->id;
             $bacache = $cache->get($cachekey);
             $lang = current_language();
-            $bakey = "cachecolprice$lang";
+            // The rendered view has to be part of the key: the very same booking option produces a
+            // different button per view (a modal opener in the cards view, an inline collapse in the
+            // list views - see booking | turnoffmodals). Without it, [allekurseliste] and
+            // [allekursekarten] would share one cache entry and whichever page is opened first wins.
+            $bakey = "cachecolprice{$lang}_v" . $this->return_current_viewparam();
             $buyforuserid = !empty($this->foruserid) ? $this->foruserid : $USER->id;
             $user = singleton_service::get_instance_of_user($buyforuserid);
 
@@ -262,7 +266,16 @@ class musi_table extends bookingoptions_wbtable {
         // Render col_price using a template.
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
         $buyforuserid = !empty($this->foruserid) ? $this->foruserid : $USER->id;
-        $html = booking_bookit::render_bookit_button($settings, $buyforuserid);
+        // Pass on the inline start page and the view which is actually rendered, exactly like the
+        // parent does. Without the viewparam, mod_booking has to fall back to the view configured in
+        // the booking instance, so the pre booking pages of a list shortcode ([allekurseliste]) of a
+        // cards instance would wrongly open in a modal instead of inline (booking | turnoffmodals).
+        $html = booking_bookit::render_bookit_button(
+            $settings,
+            $buyforuserid,
+            $this->inlinestartpage,
+            $this->return_current_viewparam()
+        );
 
         if (get_config('local_musi', 'musicachebookingoptionsanswers') && !empty($bacache)) {
             $expirationseconds = get_config('local_musi', 'musicacheexpirationtimeinseconds');

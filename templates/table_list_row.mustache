@@ -71,7 +71,12 @@
 <div class="card border py-1 px-3 sk-fade ms-0 me-0 mb-2 flex-md-row align-items-center row gx-0 shadow-sm" {{#datafields}} data-{{key}}="{{value}}" {{/datafields}}>
   <div class="content w-100">
 
-    <div class="row foroptionid-{{#optionid}}{{#value}}{{.}}{{/value}}{{/optionid}}" {{#cardimage}}style="margin-right: -55px;"{{/cardimage}}>
+    {{!
+        mod-booking-row: mod_booking appends the inline pre booking pages (site setting
+        booking | turnoffmodals) to this element, so that they show up inside the option row
+        instead of opening a modal. Without the class the pages would never be loaded.
+    }}
+    <div class="row mod-booking-row foroptionid-{{#optionid}}{{#value}}{{.}}{{/value}}{{/optionid}}" {{#cardimage}}style="margin-right: -55px;"{{/cardimage}}>
     {{#cardimage}}
         <div class="{{cardimageclass}} col-md-2">
             {{#cardimage}}

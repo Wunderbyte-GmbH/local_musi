@@ -373,6 +373,9 @@ class shortcodes {
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         $table->tabletemplate = 'local_musi/table_grid_list';
+        // A grid entry is as narrow as a card and cannot host the inline pre booking pages
+        // (booking | turnoffmodals) either, so it keeps using modals. See generate_table_for_cards().
+        $table->viewparam = 1; // 1 = MOD_BOOKING_VIEW_PARAM_CARDS.
         return self::generate_output($args, $table, $perpage);
     }
 
@@ -1161,6 +1164,12 @@ class shortcodes {
 
         $table->is_downloading('', 'List of booking options');
         $table->tabletemplate = 'local_musi/table_list';
+        // A list shortcode shows the inline pre booking pages (booking | turnoffmodals) even when the
+        // booking instance itself is configured to use the cards view - what counts is the rendered view.
+        // The value is hardcoded on purpose: MOD_BOOKING_VIEW_PARAM_LIST lives in mod/booking/lib.php,
+        // which is not guaranteed to be loaded here - it only happens to be pulled in transitively by
+        // one of the mod_booking classes used above.
+        $table->viewparam = 0; // 0 = MOD_BOOKING_VIEW_PARAM_LIST.
     }
 
     /**
