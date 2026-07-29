@@ -239,6 +239,19 @@ div[id*="substitutionspoolteachers"] .form-autocomplete-suggestions {
     display: block;
 }
 
+/* [sparten] shortcode: headings are divs (no h1-h6 tags), so the collapse toggle
+   inside them has to inherit the heading size instead of the .btn defaults. */
+.allsports .sportsdivision-heading .sportsdivision-toggle {
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    letter-spacing: inherit;
+    white-space: normal;
+    vertical-align: baseline;
+    border: 0;
+}
+
 .sportsdivision-badge a {
     font-size: smaller;
 }

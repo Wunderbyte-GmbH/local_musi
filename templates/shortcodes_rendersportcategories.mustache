@@ -126,13 +126,13 @@
     <div class="card mb-3 border-1">
       <div class="card-header bg-light border-1 pb-1" id="heading-category-{{categoryid}}"
         data-categoryid="{{categoryid}}">
-        <h4 class="mb-0">
-          <button type="button" class="btn btn-link h4 mb-0 p-0 w-100 text-primary text-decoration-none text-start"
+        <div class="h4 sportsdivision-heading" role="heading" aria-level="4">
+          <button type="button" class="btn btn-link sportsdivision-toggle p-0 w-100 text-primary text-decoration-none text-start"
             data-toggle="collapse" data-bs-toggle="collapse" data-target="#accordionsport-{{categoryid}}" data-bs-target="#accordionsport-{{categoryid}}"
             aria-expanded="false" aria-controls="accordionsport-{{categoryid}}">
             {{name}}
           </button>
-        </h4>
+        </div>
       </div>
       <div id="accordionsport-{{categoryid}}" class="collapse mb-3 pt-1 pb-1 border-0" aria-labelledby="heading-category-{{categoryid}}">
         {{#categorydata}}
@@ -150,12 +150,12 @@
                   </button>
                   <div class="collapse" id="substitutionteachers-category-{{id}}">
                     <div class="card card-body mb-3">
-                      <h5 class="mb-2">
+                      <div class="h5 mb-2" role="heading" aria-level="5">
                         <i class="fa fa-user" aria-hidden="true"></i>&nbsp;
                         <i class="fa fa-exchange" aria-hidden="true"></i>&nbsp;
                         <i class="fa fa-users" aria-hidden="true"></i>&nbsp;
                         {{#str}} substitutionspool, local_musi, {{name}} {{/str}}
-                      </h5>
+                      </div>
                       <table class="border-0" style="width: fit-content;">
                         <thead>
                           <tr>
@@ -206,13 +206,13 @@
         {{#sports}}
           <div class="card border-0 pt-1">
             <div class="card-header border-0 bg-white text-start p-1" id="heading-sport-{{id}}">
-              <h5 class="ms-3 mt-1 mb-0">
-                <button type="button" class="btn btn-link h5 mb-0 p-0 w-100 text-primary text-decoration-none text-start"
+              <div class="h5 sportsdivision-heading ms-3 mt-1 mb-0" role="heading" aria-level="5">
+                <button type="button" class="btn btn-link sportsdivision-toggle p-0 w-100 text-primary text-decoration-none text-start"
                   data-toggle="collapse" data-bs-toggle="collapse" data-target="#sport-{{id}}" data-bs-target="#sport-{{id}}"
                   aria-expanded="false" aria-controls="sport-{{id}}">
                   {{name}}
                 </button>
-              </h5>
+              </div>
             </div>
             <div id="sport-{{id}}" class="collapse" aria-labelledby="heading-sport-{{id}}" data-parent="#accordionsport-{{categoryid}}" data-bs-parent="#accordionsport-{{categoryid}}">
               <div class="card-body p-2 mb-3 border-0">
@@ -245,12 +245,12 @@
                   </button>
                   <div class="collapse" id="substitutionteachers-{{id}}">
                     <div class="card card-body mb-3">
-                      <h5 class="mb-2">
+                      <div class="h5 mb-2" role="heading" aria-level="5">
                         <i class="fa fa-user" aria-hidden="true"></i>&nbsp;
                         <i class="fa fa-exchange" aria-hidden="true"></i>&nbsp;
                         <i class="fa fa-users" aria-hidden="true"></i>&nbsp;
                         {{#str}} substitutionspool, local_musi, {{name}} {{/str}}
-                      </h5>
+                      </div>
                       <table class="border-0" style="width: fit-content;">
                         <thead>
                           <tr>
