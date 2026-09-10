@@ -542,6 +542,66 @@ class shortcodes {
     }
 
     /**
+     * Prints out list of bookingoptions where the current user is a responsible contact.
+     * Arguments can be 'id', 'category' or 'perpage'.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
+    public static function myresponsiblecontactcoursescards($shortcode, $args, $content, $env, $next) {
+        global $USER;
+
+        self::fix_args($args);
+        $booking = self::get_booking($args);
+
+        $perpage = \mod_booking\shortcodes::check_perpage($args);
+
+        $table = self::inittableforcourses($args);
+
+        $table->use_pages = false;
+
+        self::generate_table_for_cards($table, $args);
+
+        self::set_table_options_from_arguments($table, $args);
+
+        $table->cardsort = true;
+
+        // This allows us to use infinite scrolling, No pages will be used.
+        $table->infinitescroll = 30;
+        $table->scrolltocontainer = false;
+
+        // This is the important part: We only filter for booking options...
+        // ... where the current user is entered as responsible contact.
+        // The responsiblecontact column holds a comma separated list of user ids,
+        // so we have to wrap it in commas to avoid matching e.g. 15 when looking for 5.
+        $wherearray = ['bookingid' => (int)$booking->id];
+        $additionalwhere = "CONCAT(',', responsiblecontact, ',') LIKE '%," . (int)$USER->id . ",%'";
+
+        [$fields, $from, $where, $params, $filter] = booking::get_options_filter_sql(
+            0,
+            0,
+            '',
+            null,
+            $booking->context,
+            [],
+            $wherearray,
+            null,
+            [MOD_BOOKING_STATUSPARAM_BOOKED],
+            $additionalwhere,
+            '',
+            $table
+        );
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        return self::generate_output($args, $table, $perpage);
+    }
+
+    /**
      * Prints out list of my booked bookingoptions.
      * Arguments can be 'category' or 'perpage'.
      *

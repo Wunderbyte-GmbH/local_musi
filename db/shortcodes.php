@@ -57,6 +57,11 @@ $shortcodes = [
         'wraps' => false,
         'description' => 'shortcodeslistofmytaughtbookingoptionsascards',
     ],
+    'kontaktpersonkursekarten' => [
+        'callback' => 'local_musi\shortcodes::myresponsiblecontactcoursescards',
+        'wraps' => false,
+        'description' => 'shortcodeslistofmyresponsiblecontactbookingoptionsascards',
+    ],
     'meinekurseliste' => [
         'callback' => 'local_musi\shortcodes::mycourseslist',
         'wraps' => false,
