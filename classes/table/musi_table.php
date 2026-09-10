@@ -50,8 +50,7 @@ defined('MOODLE_INTERNAL') || die();
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class musi_table extends bookingoptions_wbtable {
-    /** @var array $displayoptions */
-    private $displayoptions = [];
+    // The property $displayoptions is inherited from bookingoptions_wbtable.
 
     /**
      * Set display options for the table.
@@ -79,6 +78,13 @@ class musi_table extends bookingoptions_wbtable {
             if (!$this->displayoptions['showmaxanwers']) {
                 unset($this->displayoptions['showmaxanwers']);
             }
+        }
+
+        // Number of places on the notification list, e.g. "(Benach. 4)".
+        // If the argument is not set at all, the global setting of mod_booking decides.
+        $shownotificationlist = col_availableplaces::normalize_bool_option($displayoptions['shownotificationlist'] ?? null);
+        if (isset($shownotificationlist)) {
+            $this->displayoptions['shownotificationlist'] = $shownotificationlist;
         }
 
         // Additional text to be displayed in col price.
@@ -527,7 +533,12 @@ class musi_table extends bookingoptions_wbtable {
             $cachekey = $values->id;
             $bacache = $cache->get($cachekey);
             $lang = current_language();
-            $bakey = "cachecolbookings$lang";
+            // The rendered html depends on the display options of the shortcode,
+            // so two shortcodes with different options must not share the same cache entry.
+            $nlkey = isset($this->displayoptions['shownotificationlist'])
+                ? (int) $this->displayoptions['shownotificationlist']
+                : 'default';
+            $bakey = "cachecolbookings{$lang}_nl{$nlkey}";
             $user = price::return_user_to_buy_for();
 
             // This is our fast way out.
@@ -544,9 +555,7 @@ class musi_table extends bookingoptions_wbtable {
         $buyforuser = price::return_user_to_buy_for();
 
         $data = new col_availableplaces($values, $settings, $buyforuser);
-        if (!empty($this->displayoptions['showmaxanwers'])) {
-            $data->showmaxanswers = $this->displayoptions['showmaxanwers'];
-        }
+        $data->apply_display_options($this->displayoptions);
         /** @var \mod_booking\output\renderer $output */
         $output = singleton_service::get_renderer('mod_booking');
         $html = $output->render_col_availableplaces($data);
