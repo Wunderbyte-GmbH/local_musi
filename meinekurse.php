@@ -40,6 +40,7 @@ if (!$context = context_system::instance()) {
 }
 
 $isteacher = false;
+$isresponsiblecontact = false;
 
 // Check if optionid is valid.
 $PAGE->set_context($context);
@@ -87,6 +88,18 @@ if ($DB->get_records('booking_teachers', ['userid' => $USER->id])) {
     $isteacher = true;
     echo html_writer::div(get_string('coursesiteach', 'local_musi'), 'h2 mt-2 mb-2 text-center');
     echo format_text("[trainerkursekarten]", FORMAT_HTML);
+}
+
+// Meine Kurse als Kontaktperson.
+// The responsiblecontact column holds a comma separated list of user ids,
+// so we wrap it in commas to avoid matching e.g. 15 when looking for 5.
+$responsiblecontactlike = $DB->sql_like($DB->sql_concat("','", "responsiblecontact", "','"), ':responsiblecontact');
+$responsiblecontactsql = "SELECT 1 FROM {booking_options} WHERE $responsiblecontactlike";
+$responsiblecontactparams = ['responsiblecontact' => '%,' . $USER->id . ',%'];
+if ($DB->record_exists_sql($responsiblecontactsql, $responsiblecontactparams)) {
+    $isresponsiblecontact = true;
+    echo html_writer::div(get_string('coursesiamresponsiblefor', 'local_musi'), 'h2 mt-5 mb-2 text-center');
+    echo format_text("[kontaktpersonkursekarten]", FORMAT_HTML);
 }
 
 // Meine Kurse.
@@ -138,6 +151,51 @@ if (!empty($archivecmids)) {
                             aria-labelledby='coursesiteacharchive-cmid-$archivecmid' data-parent='#coursesiteacharchive'>
                             <div class='card-body'>" .
                                 format_text("[trainerkursekarten id=$archivecmid lazy=1]", FORMAT_HTML)
+                            . "</div>
+                        </div>
+                    </div>";
+            }
+        }
+        $archivehtml .= '</div>';
+        echo $archivehtml;
+    }
+
+    // Archive: Courses I was responsible contact for.
+    if ($isresponsiblecontact) {
+        echo html_writer::div(
+            get_string('coursesiamresponsibleforarchive', 'local_musi'),
+            'h2 mt-5 mb-2 text-center text-secondary'
+        );
+
+        // Start accordion.
+        $archivehtml = '<div class="accordion" id="coursesiamresponsibleforarchive">';
+
+        // Add a section for each cmid.
+        foreach ($archivecmids as $archivecmid) {
+            if (!booking::is_valid_booking_cmid($archivecmid)) {
+                continue;
+            }
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($archivecmid);
+
+            if (!empty($bookingsettings)) {
+                $archivehtml .=
+                    "<div class='card'>
+                        <div class='card-header' id='coursesiamresponsibleforarchive-cmid-$archivecmid'>
+                            <h2 class='mb-0'>
+                                <button class='btn btn-link btn-block text-start' type='button'
+                                data-toggle='collapse' data-bs-toggle='collapse'
+                                data-target='#collapse-responsible-cmid-$archivecmid'
+                                data-bs-target='#collapse-responsible-cmid-$archivecmid'
+                                aria-expanded='true' aria-controls='collapse-responsible-cmid-$archivecmid'>
+                                    $bookingsettings->name
+                                </button>
+                            </h2>
+                        </div>
+                        <div id='collapse-responsible-cmid-$archivecmid' class='collapse'
+                            aria-labelledby='coursesiamresponsibleforarchive-cmid-$archivecmid'
+                            data-parent='#coursesiamresponsibleforarchive'>
+                            <div class='card-body'>" .
+                                format_text("[kontaktpersonkursekarten id=$archivecmid lazy=1]", FORMAT_HTML)
                             . "</div>
                         </div>
                     </div>";
