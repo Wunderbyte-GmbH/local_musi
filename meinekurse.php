@@ -94,10 +94,9 @@ if ($DB->get_records('booking_teachers', ['userid' => $USER->id])) {
 // The responsiblecontact column holds a comma separated list of user ids,
 // so we wrap it in commas to avoid matching e.g. 15 when looking for 5.
 $responsiblecontactlike = $DB->sql_like($DB->sql_concat("','", "responsiblecontact", "','"), ':responsiblecontact');
-if ($DB->record_exists_sql(
-    "SELECT 1 FROM {booking_options} WHERE $responsiblecontactlike",
-    ['responsiblecontact' => '%,' . $USER->id . ',%']
-)) {
+$responsiblecontactsql = "SELECT 1 FROM {booking_options} WHERE $responsiblecontactlike";
+$responsiblecontactparams = ['responsiblecontact' => '%,' . $USER->id . ',%'];
+if ($DB->record_exists_sql($responsiblecontactsql, $responsiblecontactparams)) {
     $isresponsiblecontact = true;
     echo html_writer::div(get_string('coursesiamresponsiblefor', 'local_musi'), 'h2 mt-5 mb-2 text-center');
     echo format_text("[kontaktpersonkursekarten]", FORMAT_HTML);
