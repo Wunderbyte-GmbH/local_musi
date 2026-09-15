@@ -161,6 +161,28 @@ class musi_table extends bookingoptions_wbtable {
 
     /**
      * This function is called for each data row to allow processing of the
+     * bookedslots value: the slots the current user has booked for a slot booking option.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string the booked slots of the current user, empty for all other option types
+     */
+    public function col_bookedslots($values) {
+        if (empty($values->id)) {
+            return '';
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
+        if ((int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) !== MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
+            return '';
+        }
+
+        // The slot branch of bookingoptions_wbtable::col_showdates renders the booked slots of the current user.
+        // The output is user specific, so it must not be stored in the option settings cache like col_showdates does.
+        return parent::col_showdates($values);
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
      * invisible value. It's called 'invisibleoption' so it does not interfere with
      * the bootstrap class 'invisible'.
      *
