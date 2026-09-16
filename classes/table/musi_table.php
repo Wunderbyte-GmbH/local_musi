@@ -1150,7 +1150,7 @@ class musi_table extends bookingoptions_wbtable {
                 // ONLY users with the mod/booking:updatebooking capability can edit options or designated teachers.
                 $allowedit = (
                     has_capability('mod/booking:updatebooking', $context)
-                    || (has_capability('mod/booking:addeditownoption', $context) && booking_check_if_teacher($values))
+                    || (has_capability('mod/booking:editownoption', $context) && booking_check_if_teacher($values))
                     || (has_capability('mod/booking:limitededitownoption', $context) && booking_check_if_teacher($values))
                 );
                 if ($allowedit) {
@@ -1164,7 +1164,7 @@ class musi_table extends bookingoptions_wbtable {
                 $allowsendmailtoallbookedusers = (
                     get_config('booking', 'teachersallowmailtobookedusers') && (
                         has_capability('mod/booking:updatebooking', $context) ||
-                        (has_capability('mod/booking:addeditownoption', $context) && booking_check_if_teacher($values)) ||
+                        (has_capability('mod/booking:sendmailownoption', $context) && booking_check_if_teacher($values)) ||
                         (has_capability('mod/booking:limitededitownoption', $context) && booking_check_if_teacher($values))
                     )
                 );
@@ -1180,7 +1180,7 @@ class musi_table extends bookingoptions_wbtable {
                 $alloweditavailability = (
                     has_capability('local/musi:editavailability', $context) &&
                     (has_capability('mod/booking:updatebooking', $context) ||
-                    (has_capability('mod/booking:addeditownoption', $context) && booking_check_if_teacher($values)) ||
+                    (has_capability('mod/booking:editownoption', $context) && booking_check_if_teacher($values)) ||
                     (has_capability('mod/booking:limitededitownoption', $context) && booking_check_if_teacher($values)))
                 );
                 if ($alloweditavailability) {
@@ -1191,7 +1191,7 @@ class musi_table extends bookingoptions_wbtable {
                     has_capability('mod/booking:viewreports', $context)
                     || (has_capability('mod/booking:limitededitownoption', $context) && booking_check_if_teacher($values))
                     || has_capability('mod/booking:updatebooking', $context)
-                    || (has_capability('mod/booking:addeditownoption', $context) && booking_check_if_teacher($values))
+                    || (has_capability('mod/booking:managebookingsownoption', $context) && booking_check_if_teacher($values))
                 );
 
                 // If the user has no capability to editoptions, the URLs will not be added.

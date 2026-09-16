@@ -164,7 +164,7 @@ class easy_availability_modal_form extends \core_form\dynamic_form {
             has_capability('local/musi:editavailability', $context) &&
             (has_capability('mod/booking:updatebooking', $context) ||
             (has_capability('mod/booking:limitededitownoption', $context) && booking_check_if_teacher($optionid)) ||
-            (has_capability('mod/booking:addeditownoption', $context) && booking_check_if_teacher($optionid)))
+            (has_capability('mod/booking:editownoption', $context) && booking_check_if_teacher($optionid)))
         );
         if (!$alloweditavailability) {
             throw new moodle_exception('norighttoaccess', 'local_musi');
