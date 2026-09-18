@@ -1032,6 +1032,8 @@ class shortcodes {
         if (get_config('local_musi', 'musishortcodesshowoptiondates')) {
             $subcolumns[] = 'showdates';
         }
+        // Booked slots of the current user. Always added, the column is empty for non-slot options and hidden then.
+        $subcolumns[] = 'bookedslots';
         $table->add_subcolumns('cardlist', $subcolumns);
         $table->add_classes_to_subcolumns('cardlist', ['columnkeyclass' => 'd-none']);
         $table->add_classes_to_subcolumns('cardlist', ['columnvalueclass' => 'text-secondary']);
@@ -1124,6 +1126,8 @@ class shortcodes {
         if (get_config('local_musi', 'musishortcodesshowoptiondates')) {
             $subcolumnsleftside[] = 'showdates';
         }
+        // Booked slots of the current user. Always added, the column is empty for non-slot options and hidden then.
+        $subcolumnsleftside[] = 'bookedslots';
 
         // We might need a setting here.
         $subcolumnsleftside[] = 'attachment';
