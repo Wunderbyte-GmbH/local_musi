@@ -233,6 +233,21 @@ class musi_table extends bookingoptions_wbtable {
     }
 
     /**
+     * Returns the index of a user specific entry in the cache of a booking option.
+     *
+     * The rendered html does not only depend on the user we buy for, but also on the user who looks at it:
+     * A cashier or a teacher buying for a student gets links and numbers the student must never see.
+     * So both users are part of the index. Without buying for someone else, both are the same user.
+     *
+     * @param int $buyforuserid
+     * @return string
+     */
+    private static function get_user_cache_index(int $buyforuserid): string {
+        global $USER;
+        return (int) $USER->id . '_' . $buyforuserid;
+    }
+
+    /**
      * This function is called for each data row to allow processing of the
      * price value.
      *
@@ -257,15 +272,16 @@ class musi_table extends bookingoptions_wbtable {
             $bakey = "cachecolprice{$lang}_v" . $this->return_current_viewparam();
             $buyforuserid = !empty($this->foruserid) ? $this->foruserid : $USER->id;
             $user = singleton_service::get_instance_of_user($buyforuserid);
+            $cacheindex = self::get_user_cache_index((int) $user->id);
 
             // This is our fast way out.
             // We store a user specific cache in the booking answer.
             if (
                 !empty($bacache)
-                && isset($bacache->{$bakey}[$user->id]['html'])
-                && $bacache->{$bakey}[$user->id]['expirationtime'] > time()
+                && isset($bacache->{$bakey}[$cacheindex]['html'])
+                && $bacache->{$bakey}[$cacheindex]['expirationtime'] > time()
             ) {
-                return $bacache->{$bakey}[$user->id]['html'];
+                return $bacache->{$bakey}[$cacheindex]['html'];
             }
         }
 
@@ -289,8 +305,8 @@ class musi_table extends bookingoptions_wbtable {
                 // We use a default setting of one hour.
                 $expirationseconds = 3600;
             }
-            $bacache->{$bakey}[$user->id]['html'] = $html;
-            $bacache->{$bakey}[$user->id]['expirationtime'] = time() + $expirationseconds;
+            $bacache->{$bakey}[$cacheindex]['html'] = $html;
+            $bacache->{$bakey}[$cacheindex]['expirationtime'] = time() + $expirationseconds;
             $cache->set($cachekey, $bacache);
         }
         if (isset($this->displayoptions['additionalpricetext']) && !empty($this->displayoptions['additionalpricetext'])) {
@@ -540,14 +556,15 @@ class musi_table extends bookingoptions_wbtable {
                 : 'default';
             $bakey = "cachecolbookings{$lang}_nl{$nlkey}";
             $user = price::return_user_to_buy_for();
+            $cacheindex = self::get_user_cache_index((int) $user->id);
 
             // This is our fast way out.
             // We store a user specific cache in the booking answer.
             if (
                 !empty($bacache)
-                && isset($bacache->{$bakey}[$user->id])
+                && isset($bacache->{$bakey}[$cacheindex])
             ) {
-                return $bacache->{$bakey}[$user->id];
+                return $bacache->{$bakey}[$cacheindex];
             }
         }
 
@@ -561,7 +578,7 @@ class musi_table extends bookingoptions_wbtable {
         $html = $output->render_col_availableplaces($data);
 
         if (get_config('local_musi', 'musicachebookingoptionsanswers') && !empty($bacache)) {
-            $bacache->{$bakey}[$user->id] = $html;
+            $bacache->{$bakey}[$cacheindex] = $html;
             $cache->set($cachekey, $bacache);
         }
 
