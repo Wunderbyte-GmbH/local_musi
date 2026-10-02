@@ -41,9 +41,9 @@ final class musi_column_no_per_row_db_test extends advanced_testcase {
      * @return array<string, array{0:string}>
      */
     public static function table_class_provider(): array {
-        global $CFG;
+        // Relative to this test, so the test checks exactly the code it ships with (also in a git worktree).
         return [
-            'musi_table' => [$CFG->dirroot . '/local/musi/classes/table/musi_table.php'],
+            'musi_table' => [dirname(__DIR__) . '/classes/table/musi_table.php'],
         ];
     }
 

@@ -148,11 +148,16 @@ final class musi_shortcode_tabpage_perf_test extends advanced_testcase {
      * Measure the DB reads a single shortcode render costs once everything is warm.
      *
      * @param array $args
+     * @param bool $coldrows purge the cached rows of the table before measuring, so a render which
+     *                       runs the row query inline really has to run it (all other caches stay warm)
      * @return int read delta of a second, fully-warm render
      */
-    private function warm_read_cost(array $args): int {
+    private function warm_read_cost(array $args, bool $coldrows = false): int {
         global $DB;
         $this->render_allekurseliste($args);
+        if ($coldrows) {
+            \cache::make('mod_booking', 'bookingoptionstable')->purge();
+        }
         $before = $DB->perf_get_reads();
         $this->render_allekurseliste($args);
         return $DB->perf_get_reads() - $before;
@@ -266,12 +271,14 @@ final class musi_shortcode_tabpage_perf_test extends advanced_testcase {
 
         [$cmid] = $this->seed_instance(30);
 
+        // The rows of the table are cached as well. Without purging them, an inline render served from that
+        // cache costs no reads at all and the comparison says nothing about the row query lazy defers.
         $lazy = $this->warm_read_cost([
             'id' => $cmid, 'lazy' => 1, 'filter' => 1, 'search' => 1, 'sort' => 1, 'kst' => self::KST_VALUE,
-        ]);
+        ], true);
         $inline = $this->warm_read_cost([
             'id' => $cmid, 'filter' => 1, 'search' => 1, 'sort' => 1, 'kst' => self::KST_VALUE,
-        ]);
+        ], true);
 
         $this->assertGreaterThan(
             $lazy,

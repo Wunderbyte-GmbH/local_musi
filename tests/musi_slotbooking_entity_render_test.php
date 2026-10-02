@@ -103,6 +103,8 @@ final class musi_slotbooking_entity_render_test extends advanced_testcase {
             if ($slot) {
                 // Make it a slot-booking option; defaults cover every other column.
                 $DB->insert_record('booking_slot_config', (object) ['optionid' => $option->id]);
+                // The settings cache keeps the slot config, also when there was none. Purge it for this option.
+                \mod_booking\booking_option::purge_cache_for_option((int) $option->id);
             }
         }
 
