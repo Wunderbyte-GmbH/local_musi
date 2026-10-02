@@ -576,10 +576,8 @@ class shortcodes {
 
         // This is the important part: We only filter for booking options...
         // ... where the current user is entered as responsible contact.
-        // The responsiblecontact column holds a comma separated list of user ids,
-        // so we have to wrap it in commas to avoid matching e.g. 15 when looking for 5.
         $wherearray = ['bookingid' => (int)$booking->id];
-        $additionalwhere = "CONCAT(',', responsiblecontact, ',') LIKE '%," . (int)$USER->id . ",%'";
+        $additionalwhere = self::responsiblecontact_where((int)$USER->id);
 
         [$fields, $from, $where, $params, $filter] = booking::get_options_filter_sql(
             0,
@@ -599,6 +597,81 @@ class shortcodes {
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         return self::generate_output($args, $table, $perpage);
+    }
+
+    /**
+     * Returns the where condition for booking options where a user is responsible contact.
+     *
+     * The responsiblecontact column holds a comma separated list of user ids,
+     * so we have to wrap it in commas to avoid matching e.g. 15 when looking for 5.
+     *
+     * @param int $userid
+     * @return string
+     */
+    private static function responsiblecontact_where(int $userid): string {
+        return "CONCAT(',', responsiblecontact, ',') LIKE '%," . $userid . ",%'";
+    }
+
+    /**
+     * Checks if a user teaches at least one booking option of the given booking instance.
+     *
+     * This answers exactly the question the [trainerkursekarten] shortcode answers.
+     * Use it to make sure a heading is never printed above an empty list.
+     *
+     * @param int $userid
+     * @param array $args shortcode arguments, 'id' falls back to the configured instance
+     * @return bool
+     */
+    public static function has_taught_options(int $userid, array $args = []): bool {
+        global $DB;
+
+        $booking = self::get_booking($args);
+        if (!is_object($booking)) {
+            // Get_booking returns an error string if no valid instance is configured.
+            return false;
+        }
+
+        [$fields, $from, $where, $params, $filter] =
+            booking::get_all_options_of_teacher_sql($userid, (int)$booking->id);
+
+        return $DB->record_exists_sql("SELECT 'x' FROM $from WHERE $where", $params);
+    }
+
+    /**
+     * Checks if a user is responsible contact of at least one option of the given booking instance.
+     *
+     * This answers exactly the question the [kontaktpersonkursekarten] shortcode answers.
+     * Use it to make sure a heading is never printed above an empty list.
+     *
+     * @param int $userid
+     * @param array $args shortcode arguments, 'id' falls back to the configured instance
+     * @return bool
+     */
+    public static function has_responsiblecontact_options(int $userid, array $args = []): bool {
+        global $DB;
+
+        $booking = self::get_booking($args);
+        if (!is_object($booking)) {
+            // Get_booking returns an error string if no valid instance is configured.
+            return false;
+        }
+
+        $wherearray = ['bookingid' => (int)$booking->id];
+
+        [$fields, $from, $where, $params, $filter] = booking::get_options_filter_sql(
+            0,
+            0,
+            '',
+            null,
+            $booking->context,
+            [],
+            $wherearray,
+            null,
+            [MOD_BOOKING_STATUSPARAM_BOOKED],
+            self::responsiblecontact_where($userid)
+        );
+
+        return $DB->record_exists_sql("SELECT 'x' FROM $from WHERE $where", $params);
     }
 
     /**
