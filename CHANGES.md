@@ -1,3 +1,12 @@
+## Version 1.0.8 (2026100200)
+* New Feature: Moodle 5.2 support.
+* New Feature: meinekurse.php lists the courses of the user as responsible contact (new shortcode [kontaktpersonkursekarten]). (Wunderbyte-GmbH/Wunderbyte-GmbH#2290)
+* Improvement: The number of places on the notification list can be shown in the column of available places (shortcode argument shownotificationlist). (Wunderbyte-GmbH/Wunderbyte-GmbH#2288)
+* Improvement: Follows the split of mod/booking:addeditownoption into smaller capabilities. (Wunderbyte-GmbH/Wunderbyte-GmbH#2292)
+* Improvement: Performance - the receipt column loads the ledger entries of all rows at once instead of one query per row.
+* Bugfix: The sections "courses I teach" and "courses I am responsible contact for" on meinekurse.php are only shown when the user has booking options in the current booking instance; the archive still lists all booking instances. (Wunderbyte-GmbH/Wunderbyte-GmbH#2290)
+* Bugfix: The cached html of the columns of available places and of the price is kept per viewer, so a student no longer gets the html a cashier rendered while buying for them. (Wunderbyte-GmbH/Wunderbyte-GmbH#2288)
+
 ## Version 1.0.7 (2026073000)
 * New Feature: Treefilter for entities.
 * Improvement: Accessibility (WCAG) for the [sparten] shortcode: the sports category and sport accordion toggles are now keyboard-operable buttons inside ARIA headings (divs with role="heading" and aria-level, so no h1-h6 tags are used and the heading sizes stay exactly as before), aria-expanded reflects the actual initial state, the substitution pool collapses got unique IDs (the category-level "mail problems" link toggled the wrong element before), substitution teacher tables got proper column headers for screen readers and decorative icons are hidden from assistive technology.
