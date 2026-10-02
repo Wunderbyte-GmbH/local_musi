@@ -35,7 +35,6 @@ use advanced_testcase;
  * @coversNothing
  */
 final class musi_column_no_per_row_db_test extends advanced_testcase {
-
     /**
      * Files whose col_ and other_cols methods must stay query-free.
      *
@@ -59,6 +58,8 @@ final class musi_column_no_per_row_db_test extends advanced_testcase {
     private const ALLOWLIST = [];
 
     /**
+     * The column formatters of the table class must not read from the database per row.
+     *
      * @dataProvider table_class_provider
      * @param string $file
      */
@@ -73,9 +74,11 @@ final class musi_column_no_per_row_db_test extends advanced_testcase {
             if (isset(self::ALLOWLIST[$method])) {
                 continue;
             }
-            // $DB->get_record / get_records / get_field / get_fieldset / get_recordset /
+            // Calls like $DB->get_record / get_records / get_field / get_fieldset / get_recordset /
             // record_exists / count_records / execute, with or without the _sql suffix.
-            if (preg_match('/\$DB\s*->\s*(get_record|get_records|get_field|get_fieldset|get_recordset|record_exists|count_records|execute)/', $body)) {
+            $dbreadpattern = '/\$DB\s*->\s*'
+                . '(get_record|get_records|get_field|get_fieldset|get_recordset|record_exists|count_records|execute)/';
+            if (preg_match($dbreadpattern, $body)) {
                 $offenders[] = $method;
             }
         }

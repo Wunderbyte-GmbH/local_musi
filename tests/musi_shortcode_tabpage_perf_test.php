@@ -51,7 +51,6 @@ use stdClass;
  * @covers \local_musi\shortcodes::allcourseslist
  */
 final class musi_shortcode_tabpage_perf_test extends advanced_testcase {
-
     /** @var string cost-centre value tagged onto seeded options. */
     private const KST_VALUE = 'ET592004';
 
@@ -183,7 +182,7 @@ final class musi_shortcode_tabpage_perf_test extends advanced_testcase {
             'requirelogin' => 'false',
         ];
 
-        // includeoptions: a handful of real option ids from the same instance,
+        // The includeoptions argument: a handful of real option ids from the same instance,
         // mirroring the production "home" tab's explicit id list.
         $small = $this->warm_read_cost(
             ['id' => $smallcmid, 'includeoptions' => implode(',', array_slice($smallids, 0, 5))] + $baseargs

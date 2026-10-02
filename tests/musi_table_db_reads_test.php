@@ -42,7 +42,6 @@ use moodle_url;
  * @covers \local_musi\table\musi_table::get_latest_receipt_ledger
  */
 final class musi_table_db_reads_test extends advanced_testcase {
-
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();

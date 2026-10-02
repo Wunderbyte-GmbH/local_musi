@@ -48,7 +48,6 @@ use stdClass;
  * @covers \local_musi\table\musi_table::col_location
  */
 final class musi_slotbooking_entity_render_test extends advanced_testcase {
-
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
