@@ -24,6 +24,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_musi\local\mycourses;
 use mod_booking\singleton_service;
 use mod_booking\booking;
 use mod_booking\booking_utils;
@@ -38,9 +39,6 @@ global $DB, $PAGE, $OUTPUT, $USER;
 if (!$context = context_system::instance()) {
     throw new moodle_exception('badcontext');
 }
-
-$isteacher = false;
-$isresponsiblecontact = false;
 
 // Check if optionid is valid.
 $PAGE->set_context($context);
@@ -84,20 +82,19 @@ echo '<a href="' . $subscriptionlink . '" class="btn btn-primary">' .
     '<i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;' . get_string('icalexportuserevents', 'local_musi') . '</a>';
 echo "<hr class='w-100 border border-light'/>";
 
-if ($DB->get_records('booking_teachers', ['userid' => $USER->id])) {
-    $isteacher = true;
+// The sections of the current semester only list the booking instance of the shortcodes.
+// The archive sections list every booking instance, so they are decided separately.
+$currentbookingid = mycourses::get_current_bookingid();
+$isteacher = mycourses::is_teacher((int) $USER->id);
+$isresponsiblecontact = mycourses::is_responsible_contact((int) $USER->id);
+
+if ($isteacher && mycourses::is_teacher((int) $USER->id, $currentbookingid)) {
     echo html_writer::div(get_string('coursesiteach', 'local_musi'), 'h2 mt-2 mb-2 text-center');
     echo format_text("[trainerkursekarten]", FORMAT_HTML);
 }
 
 // Meine Kurse als Kontaktperson.
-// The responsiblecontact column holds a comma separated list of user ids,
-// so we wrap it in commas to avoid matching e.g. 15 when looking for 5.
-$responsiblecontactlike = $DB->sql_like($DB->sql_concat("','", "responsiblecontact", "','"), ':responsiblecontact');
-$responsiblecontactsql = "SELECT 1 FROM {booking_options} WHERE $responsiblecontactlike";
-$responsiblecontactparams = ['responsiblecontact' => '%,' . $USER->id . ',%'];
-if ($DB->record_exists_sql($responsiblecontactsql, $responsiblecontactparams)) {
-    $isresponsiblecontact = true;
+if ($isresponsiblecontact && mycourses::is_responsible_contact((int) $USER->id, $currentbookingid)) {
     echo html_writer::div(get_string('coursesiamresponsiblefor', 'local_musi'), 'h2 mt-5 mb-2 text-center');
     echo format_text("[kontaktpersonkursekarten]", FORMAT_HTML);
 }
