@@ -50,7 +50,8 @@ defined('MOODLE_INTERNAL') || die();
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class musi_table extends bookingoptions_wbtable {
-    // The property $displayoptions is inherited from bookingoptions_wbtable.
+    /** @var array $displayoptions */
+    public $displayoptions = [];
 
     /** @var array<int, array<int, \stdClass>> Page-scoped ledger records keyed [userid][optionid]. */
     private $receiptledgercache = [];
@@ -595,7 +596,9 @@ class musi_table extends bookingoptions_wbtable {
      */
     public function col_description($values) {
 
-        $fulldescription = $values->description;
+        // Run the description through the text filters (e.g. mediaplugin for embedded videos),
+        // exactly like the detail view does. Otherwise raw <video> tags with YouTube URLs can't be played.
+        $fulldescription = format_text($values->description);
         $ret = $fulldescription;
 
         if (!empty(get_config('local_musi', 'collapsedescriptionmaxlength'))) {
