@@ -197,6 +197,43 @@ final class arguments_test extends advanced_testcase {
     }
 
     /**
+     * The argument prefixfilter gives the course list a from-to filter on the course number.
+     *
+     * @covers \local_musi\shortcodes::unifiedview
+     */
+    public function test_prefixfilter_argument(): void {
+        $bdata = self::provide_bdata();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $bookingmanager = $this->getDataGenerator()->create_user();
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+        $this->setAdminUser();
+
+        global $PAGE;
+        $PAGE->set_context(context_course::instance($course->id));
+        $PAGE->set_course($course);
+        $PAGE->set_url(new \moodle_url('/local/musi/tests/arguments_test.php'));
+
+        $env = new stdClass();
+        $next = function () {
+        };
+        $intrange = \local_wunderbyte_table\filters\types\intrange::class;
+
+        [$table] = shortcodes::unifiedview('allekurseliste', ['id' => $booking->cmid], null, $env, $next);
+        $this->assertArrayNotHasKey('titleprefix', $table->subcolumns['datafields'] ?? []);
+
+        [$table] = shortcodes::unifiedview(
+            'allekurseliste',
+            ['id' => $booking->cmid, 'prefixfilter' => 1],
+            null,
+            $env,
+            $next
+        );
+        $this->assertSame($intrange, $table->subcolumns['datafields']['titleprefix']['wbfilterclass']);
+    }
+
+    /**
      * Extract the link text from an HTML <a> tag.
      *
      * Example:

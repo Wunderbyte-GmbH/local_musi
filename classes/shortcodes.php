@@ -30,7 +30,7 @@ use html_writer;
 use local_wunderbyte_table\filters\types\callback;
 use local_wunderbyte_table\filters\types\customfieldfilter;
 use local_wunderbyte_table\filters\types\hourlist;
-use local_wunderbyte_table\filters\types\exactcolumn;
+use local_wunderbyte_table\filters\types\intrange;
 use local_wunderbyte_table\local\helper\actforuser;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\bo_availability\bo_info;
@@ -167,9 +167,9 @@ class shortcodes {
             self::generate_table_for_list($table, $args);
         }
 
-        if (isset($args['prefixfilter']) && !empty($args['prefixfilter'])) {
-            $prefixsearch = new exactcolumn('titleprefix', get_string('titleprefix', 'local_musi'));
-            $table->add_filter($prefixsearch);
+        if (!empty($args['prefixfilter'])) {
+            // From-to filter on the course number (titleprefix). Only the digits of a prefix are compared.
+            $table->add_filter(new intrange('titleprefix', get_string('titleprefix', 'local_musi')));
         }
 
         [$fields, $from, $where, $params, $filter] = self::get_sql_params($booking, $wherearray, $additionalwhere, null, $table);
