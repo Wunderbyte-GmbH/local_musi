@@ -1,3 +1,6 @@
+## Unreleased
+* Improvement: The argument prefixfilter=1 of the course list shortcodes ([allekurseliste], [allekursekarten], [allekursegrid]) gives a from-to filter on the course number (titleprefix) instead of an exact match. Only the digits of a prefix are compared.
+
 ## Version 1.0.8 (2026100200)
 * New Feature: Moodle 5.2 support.
 * New Feature: meinekurse.php lists the courses of the user as responsible contact (new shortcode [kontaktpersonkursekarten]). (Wunderbyte-GmbH/Wunderbyte-GmbH#2290)
