@@ -83,7 +83,12 @@ final class musi_table_cache_test extends advanced_testcase {
         \local_shopping_cart\shopping_cart::buy_for_user((int) $student->id);
         $table = new musi_table('musi_table_cache_test_admin');
         $adminhtml = $table->col_bookings($values);
-        $this->assertStringContainsString('report.php', $adminhtml, 'The cashier gets the link to manage the bookings.');
+        // Since mod_booking 10.0.3 the link goes to the Bookings tracker (report2.php) or to report.php.
+        $this->assertMatchesRegularExpression(
+            '~/mod/booking/report2?\.php~',
+            $adminhtml,
+            'The cashier gets the link to manage the bookings.'
+        );
 
         // Now the student looks at the very same booking option.
         unset($_GET['_buyforuser_']);
@@ -92,8 +97,8 @@ final class musi_table_cache_test extends advanced_testcase {
         $table = new musi_table('musi_table_cache_test_student');
         $studenthtml = $table->col_bookings($values);
 
-        $this->assertStringNotContainsString(
-            'report.php',
+        $this->assertDoesNotMatchRegularExpression(
+            '~/mod/booking/report2?\.php~',
             $studenthtml,
             'The student must not get the cached html of the cashier.'
         );
