@@ -1,5 +1,8 @@
-## Unreleased
+## Version 1.0.9 (2026110300)
+* Improvement: The course views of the user ([meinekursekarten], [meinekurseliste]) show the booked time slots of a slot booking option (new column bookedslots). All active bookings of the user on the option are listed, so slots bought in several purchases appear together. The column is shown independently of the setting musishortcodesshowoptiondates and stays empty for all other option types. At the cashier the slots of the selected buyer are shown, not the ones of the logged-in cashier.
 * Improvement: The argument prefixfilter=1 of the course list shortcodes ([allekurseliste], [allekursekarten], [allekursegrid]) gives a from-to filter on the course number (titleprefix) instead of an exact match. Only the digits of a prefix are compared.
+* Bugfix: Videos embedded in the description of a booking option are playable in the list and card shortcodes. The description is now run through the text filters (for example the multimedia plugins filter), exactly like on the detail page, instead of being output as raw html.
+* Requires mod_booking 2026093005 or newer: the booked slots column relies on mod_booking rendering the slots of the selected buyer at the cashier.
 
 ## Version 1.0.8 (2026100200)
 * New Feature: Moodle 5.2 support.
