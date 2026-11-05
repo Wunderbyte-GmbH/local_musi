@@ -918,10 +918,21 @@ class shortcodes {
             self::add_standardfilters($table);
         }
 
-        if (!empty($args['search'])) {
-            $table->define_fulltextsearchcolumns([
+        // The fulltextsearchcolumns argument implicitly enables the search, like in the shortcodes of mod_booking.
+        if (!empty($args['search']) || !empty($args['fulltextsearchcolumns'])) {
+            $fulltextsearchcolumns = [
                 'titleprefix', 'text', 'sportsdivision', 'sport', 'location',
-                'teacherobjects', 'botags']);
+                'teacherobjects', 'botags'];
+            if (!empty($args['fulltextsearchcolumns'])) {
+                // Columns of the argument are searched in addition to the standard columns, they never replace them.
+                // A column name ends up unescaped in the SQL of the table, so mod_booking only lets known names pass:
+                // columns of the table booking_options and shortnames of booking customfields.
+                $fulltextsearchcolumns = array_merge(
+                    $fulltextsearchcolumns,
+                    booking::get_valid_fulltextsearchcolumns(explode(',', $args['fulltextsearchcolumns']))
+                );
+            }
+            $table->define_fulltextsearchcolumns(array_values(array_unique($fulltextsearchcolumns)));
         }
 
         if (!empty($args['sort'])) {

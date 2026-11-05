@@ -21,6 +21,7 @@ use coding_exception;
 use context_course;
 use context_system;
 use local_wunderbyte_table\external\load_data;
+use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\singleton_service;
 use mod_booking_generator;
 use stdClass;
@@ -231,6 +232,131 @@ final class arguments_test extends advanced_testcase {
             $next
         );
         $this->assertSame($intrange, $table->subcolumns['datafields']['titleprefix']['wbfilterclass']);
+    }
+
+    /**
+     * The argument fulltextsearchcolumns adds a booking customfield to the full text search of the course list.
+     *
+     * The keywords of a booking option are not displayed, but the search has to find the option by them.
+     *
+     * @covers \local_musi\shortcodes::allcourseslist
+     * @covers \local_musi\shortcodes::unifiedview
+     *
+     * @dataProvider fulltextsearchcolumns_provider
+     *
+     * @param array $args shortcode arguments
+     * @param array $expected expected search columns and search results
+     */
+    public function test_fulltextsearchcolumns_argument(array $args, array $expected): void {
+        global $PAGE;
+
+        $bdata = self::provide_bdata();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $bookingmanager = $this->getDataGenerator()->create_user();
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+        $this->setAdminUser();
+
+        // The customfields of the standard search columns of local_musi and the new keywords field.
+        $bookingcat = $this->getDataGenerator()->create_custom_field_category([
+            'name' => 'BookCustomCat1',
+            'component' => 'mod_booking',
+            'area' => 'booking',
+            'itemid' => 0,
+            'contextid' => context_system::instance()->id,
+        ]);
+        $bookingcat->save();
+        foreach (['sport', 'sportsdivision', 'botags', 'keywords'] as $shortname) {
+            $bookingfield = $this->getDataGenerator()->create_custom_field([
+                'categoryid' => $bookingcat->get('id'),
+                'name' => $shortname,
+                'shortname' => $shortname,
+                'type' => 'text',
+                'configdata' => '',
+            ]);
+            $bookingfield->save();
+        }
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $options = [
+            ['text' => 'Badminton', 'customfield_sport' => 'Racketsport', 'customfield_keywords' => 'Federball, Shuttlecock'],
+            ['text' => 'Basketball', 'customfield_sport' => 'Ballsport', 'customfield_keywords' => 'Korbball'],
+            ['text' => 'Yoga', 'customfield_sport' => 'Fitness', 'customfield_keywords' => ''],
+        ];
+        foreach ($options as $option) {
+            $record = (object) $option;
+            $record->bookingid = $booking->id;
+            $plugingenerator->create_option($record);
+        }
+
+        $PAGE->set_context(context_course::instance($course->id));
+        $PAGE->set_course($course);
+        $PAGE->set_url(new \moodle_url('/local/musi/tests/arguments_test.php'));
+
+        $env = new stdClass();
+        $next = function () {
+        };
+
+        $args['id'] = $booking->cmid;
+        $args['all'] = 1;
+        $html = shortcodes::allcourseslist('allekurseliste', $args, null, $env, $next);
+        if (!empty($expected['debuggingcalled'])) {
+            $this->assertDebuggingCalled();
+        }
+        preg_match('/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i', $html, $matches);
+        $this->assertNotEmpty($matches, 'The table was not rendered.');
+
+        $table = wunderbyte_table::instantiate_from_tablecache_hash($matches[1]);
+        $table->printtable($table->pagesize, $table->useinitialsbar, $table->downloadhelpbutton);
+        $this->assertEquals(count($options), $table->totalrows);
+        $this->assertSame($expected['fulltextsearchcolumns'], $table->fulltextsearchcolumns);
+
+        foreach ($expected['searchresults'] as $searchtext => $numberofrecords) {
+            $searchtable = wunderbyte_table::instantiate_from_tablecache_hash($matches[1]);
+            $searchtable->apply_searchtext($searchtext);
+            $searchtable->printtable($searchtable->pagesize, $searchtable->useinitialsbar, $searchtable->downloadhelpbutton);
+            $this->assertEquals(
+                $numberofrecords,
+                $searchtable->totalrows,
+                "Unexpected number of records when searching for '$searchtext'"
+            );
+        }
+    }
+
+    /**
+     * Data provider for test_fulltextsearchcolumns_argument.
+     *
+     * @return array
+     */
+    public static function fulltextsearchcolumns_provider(): array {
+        $standardcolumns = ['titleprefix', 'text', 'sportsdivision', 'sport', 'location', 'teacherobjects', 'botags'];
+        return [
+            'search only: keywords are not searched' => [
+                ['search' => 1],
+                [
+                    'fulltextsearchcolumns' => $standardcolumns,
+                    'searchresults' => ['Badminton' => 1, 'Racketsport' => 1, 'Federball' => 0, 'Korbball' => 0],
+                ],
+            ],
+            'search with keywords' => [
+                ['search' => 1, 'fulltextsearchcolumns' => 'keywords'],
+                [
+                    'fulltextsearchcolumns' => [...$standardcolumns, 'keywords'],
+                    // The standard columns are still searched, the keywords come on top.
+                    'searchresults' => ['Badminton' => 1, 'Racketsport' => 1, 'Federball' => 1, 'Korbball' => 1, 'ball' => 2],
+                ],
+            ],
+            'keywords without search argument enable the search, quotes and invalid columns are ignored' => [
+                ['fulltextsearchcolumns' => '"keywords, doesnotexist, text"'],
+                [
+                    'debuggingcalled' => true,
+                    'fulltextsearchcolumns' => [...$standardcolumns, 'keywords'],
+                    'searchresults' => ['Shuttlecock' => 1, 'Yoga' => 1, 'Federball' => 1],
+                ],
+            ],
+        ];
     }
 
     /**
