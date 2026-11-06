@@ -18,7 +18,11 @@ namespace local_musi;
 
 use coding_exception;
 use context_system;
+use core_text;
 use dml_exception;
+use local_wunderbyte_table\local\customfield\wbt_field_controller_base;
+use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
+use mod_booking\customfield\booking_handler;
 use moodle_exception;
 use HTMLPurifier_Exception;
 
@@ -278,27 +282,205 @@ class sports {
     /**
      * Get an array of booking option ids for a provided sport name, e.g. "Basketball".
      *
+     * The sport is compared with the names returned by {@see self::return_sportnames_of_options()},
+     * so options with several sports and sports chosen in a dropdown customfield are found too.
+     *
      * @param string $sportname e.g. "Basketball"
      * @param int $bookingid optional
-     * @return array an array of booking option ids for the provided sport
+     * @return array an array of records with the booking option ids for the provided sport
      * @throws dml_exception
      */
     public static function return_list_of_boids_with_sport(string $sportname, $bookingid = 0) {
 
+        $sportname = self::normalise_sportname($sportname);
+
+        $boids = [];
+        foreach (self::return_sportnames_of_options() as $optionid => $sportnames) {
+            if (in_array($sportname, $sportnames, true)) {
+                $boids[$optionid] = (object)['id' => $optionid];
+            }
+        }
+        return $boids;
+    }
+
+    /**
+     * Returns the names of the sports of all booking options which have a value in the customfield "sport".
+     *
+     * What the customfield stores depends on its type: a text field stores the name of the sport itself,
+     * a dropdown menu (select) stores the number of the chosen entry and fields with multiple choice
+     * (e.g. dynamicformat) store all chosen keys in one value, as comma separated list or json array.
+     * Here every stored value is translated into the names an option can be found with.
+     *
+     * @param int $optionid optional, to get the sports of one booking option only
+     * @return array [optionid => [normalised sport name, ...]], {@see self::normalise_sportname()}
+     * @throws dml_exception
+     */
+    public static function return_sportnames_of_options(int $optionid = 0): array {
         global $DB;
 
-        $sqllikesport = $DB->sql_like('cfd.value', ':sportname', false, false);
+        // Customfield shortnames are only unique within a component and area, so we have to name them.
+        $sql = "SELECT cfd.id, cfd.instanceid, cfd.value
+                  FROM {customfield_data} cfd
+                  JOIN {customfield_field} cff ON cff.id = cfd.fieldid
+                  JOIN {customfield_category} cfc ON cfc.id = cff.categoryid
+                  JOIN {booking_options} bo ON bo.id = cfd.instanceid
+                 WHERE cff.shortname = 'sport' AND cfc.component = 'mod_booking' AND cfc.area = 'booking'";
+        $params = [];
+        if (!empty($optionid)) {
+            $sql .= " AND bo.id = :optionid";
+            $params['optionid'] = $optionid;
+        }
 
-        $sql = "SELECT bo.id
-                FROM {booking_options} bo
-                JOIN {customfield_data} cfd ON bo.id=cfd.instanceid
-                JOIN {customfield_field} cff ON cff.id=cfd.fieldid
-                WHERE cff.shortname='sport' AND $sqllikesport";
+        $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname('sport', 'mod_booking', 'booking');
 
-        $params = [
-            'sportname' => $sportname,
+        $sportnames = [];
+        // Many options share the same value, so every distinct value is translated only once.
+        $namesofvalue = [];
+        $records = $DB->get_recordset_sql($sql, $params);
+        foreach ($records as $record) {
+            $value = (string)$record->value;
+            if (trim($value) === '') {
+                continue;
+            }
+            if (!isset($namesofvalue[$value])) {
+                $namesofvalue[$value] = self::return_sportnames_of_value($value, $fieldcontroller);
+            }
+            $sportnames[(int)$record->instanceid] = $namesofvalue[$value];
+        }
+        $records->close();
+
+        return $sportnames;
+    }
+
+    /**
+     * Translates the stored value of the customfield "sport" into the names of the sports.
+     *
+     * @param string $value the value as stored in the table customfield_data
+     * @param wbt_field_controller_base $fieldcontroller field controller of the customfield "sport"
+     * @return array list of normalised sport names
+     */
+    private static function return_sportnames_of_value(string $value, wbt_field_controller_base $fieldcontroller): array {
+        // The value as a whole comes first: the name of a sport in a text field might contain a comma.
+        $keys = [$value];
+        $decoded = json_decode($value);
+        if (is_array($decoded)) {
+            $keys = array_merge($keys, array_filter($decoded, 'is_scalar'));
+        } else if (strpos($value, ',') !== false) {
+            $keys = array_merge($keys, explode(',', $value));
+        }
+
+        $names = [];
+        foreach ($keys as $key) {
+            $key = (string)$key;
+            // A stored key can be the name itself (text field) or stand for the name (dropdown menu).
+            // The field controller knows the type of the field and returns the name the user has chosen.
+            // We do not want format_string here, as it turns "&" into "&amp;" and never matches a page name.
+            foreach ([$key, $fieldcontroller->get_option_value_by_key($key, false)] as $name) {
+                $name = self::normalise_sportname($name);
+                if ($name !== '') {
+                    $names[$name] = $name;
+                }
+            }
+        }
+        return array_values($names);
+    }
+
+    /**
+     * Returns the sports of every sports division: the sections of the course with the sport pages are
+     * the sports divisions, the pages in them are the sports, exactly as the shortcode [sparten] shows them.
+     *
+     * @return array [name of sports division => [normalised sport name => true]] in the order of the sections
+     */
+    public static function return_sports_of_divisions(): array {
+        $courseid = self::return_courseid();
+        if (empty($courseid)) {
+            return [];
+        }
+
+        $data = self::get_all_sportsdivisions_data($courseid, false);
+
+        $sportsofdivisions = [];
+        foreach ($data['categories'] as $category) {
+            foreach ($category['sports'] as $sport) {
+                $sportsofdivisions[$category['name']][self::normalise_sportname($sport['name'])] = true;
+            }
+        }
+        return $sportsofdivisions;
+    }
+
+    /**
+     * Decides which sports division a booking option with the given sports has to have.
+     *
+     * A booking option has exactly one sports division. If its sports belong to different sports divisions,
+     * a stored one is kept as long as it is one of them, so it can be chosen by hand. In all other cases
+     * the first matching sports division in the order of the sections is used.
+     *
+     * @param array $sportnames normalised names of the sports of the booking option
+     * @param array $sportsofdivisions {@see self::return_sports_of_divisions()}
+     * @param string $storeddivision the sports division stored for the booking option right now
+     * @return string|null null if none of the sports has a sports division
+     */
+    public static function return_division_for_sports(
+        array $sportnames,
+        array $sportsofdivisions,
+        string $storeddivision = ''
+    ): ?string {
+        $divisions = [];
+        foreach ($sportsofdivisions as $division => $sports) {
+            if (!empty(array_intersect_key($sports, array_flip($sportnames)))) {
+                $divisions[] = (string)$division;
+            }
+        }
+        if (empty($divisions)) {
+            return null;
+        }
+
+        foreach ($divisions as $division) {
+            if (self::normalise_sportname($division) === self::normalise_sportname($storeddivision)) {
+                return $division;
+            }
+        }
+        return reset($divisions);
+    }
+
+    /**
+     * Returns the id of the customfield "sportsdivision" of mod_booking.
+     *
+     * @return int 0 if there is no such customfield
+     * @throws dml_exception
+     */
+    public static function return_sportsdivision_fieldid(): int {
+        global $DB;
+
+        $sql = "SELECT cff.id
+                  FROM {customfield_field} cff
+                  JOIN {customfield_category} cfc ON cfc.id = cff.categoryid
+                 WHERE cff.shortname = 'sportsdivision' AND cfc.component = 'mod_booking' AND cfc.area = 'booking'";
+
+        return (int)$DB->get_field_sql($sql, [], IGNORE_MULTIPLE);
+    }
+
+    /**
+     * Saves the sports division of a booking option. The caller has to take care of the caches.
+     *
+     * @param int $optionid
+     * @param string $division
+     */
+    public static function save_sportsdivision(int $optionid, string $division): void {
+        $instance = (object)[
+            'id' => $optionid,
+            'customfield_sportsdivision' => $division,
         ];
+        booking_handler::create()->instance_form_save($instance);
+    }
 
-        return $DB->get_records_sql($sql, $params);
+    /**
+     * Names of sports and sports divisions are compared case insensitive and without surrounding whitespace.
+     *
+     * @param string $sportname
+     * @return string
+     */
+    public static function normalise_sportname(string $sportname): string {
+        return core_text::strtolower(trim($sportname));
     }
 }

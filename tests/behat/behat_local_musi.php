@@ -51,6 +51,24 @@ class behat_local_musi extends behat_base {
     }
 
     /**
+     * Name a section of a course. The sections of the course with the sport pages are the sports divisions.
+     *
+     * @Given /^the section "(?P<number>\d+)" of course "(?P<shortname>[^"]*)" for musi has the name "(?P<name>[^"]*)"$/
+     * @param int $number number of the section
+     * @param string $shortname shortname of the course
+     * @param string $name new name of the section
+     * @return void
+     */
+    public function the_section_of_course_for_musi_has_the_name($number, $shortname, $name) {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/course/lib.php');
+
+        $course = $DB->get_record('course', ['shortname' => $shortname], '*', MUST_EXIST);
+        $section = $DB->get_record('course_sections', ['course' => $course->id, 'section' => $number], '*', MUST_EXIST);
+        course_update_section($course, $section, ['name' => $name]);
+    }
+
+    /**
      * Get a booking by booking instance name.
      *
      * @param string $name booking instance name.

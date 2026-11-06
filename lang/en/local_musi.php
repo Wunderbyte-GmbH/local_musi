@@ -219,6 +219,7 @@ $string['shortcodesshowallsports'] = "List of all sports";
 $string['showdescription'] = 'Show description';
 $string['sport'] = 'Sport';
 $string['sportsdivision'] = 'Sports division';
+$string['sportsdivisionreplaced'] = 'The sports division "{$a->olddivision}" does not match the sport of the course "{$a->option}" and has been replaced by "{$a->newdivision}".';
 $string['sportsdivisions'] = 'Sports divisions';
 $string['status'] = 'Status';
 $string['statuschanged'] = 'Status changed';

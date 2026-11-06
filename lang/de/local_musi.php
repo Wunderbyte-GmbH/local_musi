@@ -222,6 +222,7 @@ $string['shortcodesshowallsports'] = "Liste aller Sportarten";
 $string['showdescription'] = 'Zeige Beschreibung';
 $string['sport'] = 'Sportart';
 $string['sportsdivision'] = 'Sparte';
+$string['sportsdivisionreplaced'] = 'Die Sparte „{$a->olddivision}“ passt nicht zur Sportart des Kurses „{$a->option}“ und wurde durch „{$a->newdivision}“ ersetzt.';
 $string['sportsdivisions'] = 'Sparten';
 $string['status'] = 'Status';
 $string['statuschanged'] = 'Status geändert';

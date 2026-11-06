@@ -19,10 +19,11 @@ namespace local_musi\task;
 use cache_helper;
 use core\task\scheduled_task;
 use local_musi\sports;
-use mod_booking\customfield\booking_handler;
 
 /**
- * Scheduled task creates SAP files in Moodle data directory.
+ * Scheduled task which writes the sports division (customfield "sportsdivision") of the booking options.
+ *
+ * The sports division of a sport is the section its page is in, see the shortcode [sparten].
  *
  * @package   local_musi
  * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
@@ -38,52 +39,48 @@ class add_sports_division extends scheduled_task {
     }
 
     /**
-     * Scheduled task that creates the SAP files needed for reporting.
+     * Looks up the sports division of the sports of every booking option and saves it, where it differs.
      *
+     * Booking options saved in the form get their sports division right away, see
+     * {@see \local_musi\observer::bookingoption_updated()}. The task takes care of everything else:
+     * imported booking options, renamed or moved sport pages and new sports divisions.
      */
     public function execute() {
+        global $DB;
 
         // First we check if there is a field sportsdivision at all.
-        $handler = booking_handler::create();
-        $categories = $handler->get_fields();
-
-        $return = true;
-        foreach ($categories as $category) {
-            $name = $category->get('shortname');
-            if ($name == 'sportsdivision') {
-                $return = false;
-            }
-        }
-
-        if ($return) {
+        $fieldid = sports::return_sportsdivision_fieldid();
+        if (empty($fieldid)) {
             return;
         }
 
         // Are there sport divisions in use?
-        $courseid = sports::return_courseid();
-
-        if (empty($courseid)) {
+        $sportsofdivisions = sports::return_sports_of_divisions();
+        if (empty($sportsofdivisions)) {
             return;
         }
 
-        $data = sports::get_all_sportsdivisions_data($courseid, false);
+        // The sports divisions as they are stored right now. Only options with another value are saved.
+        $storeddivisions = $DB->get_records_menu('customfield_data', ['fieldid' => $fieldid], '', 'instanceid, value');
 
-        // Get List of all booking options which use a particular sport.
-        foreach ($data["categories"] as $category) {
-            foreach ($category["sports"] as $sport) {
-                $boids = sports::return_list_of_boids_with_sport($sport['name']);
+        $changed = false;
+        foreach (sports::return_sportnames_of_options() as $optionid => $sportnames) {
+            $storeddivision = $storeddivisions[$optionid] ?? null;
+            $division = sports::return_division_for_sports($sportnames, $sportsofdivisions, (string)$storeddivision);
 
-                foreach ($boids as $boid) {
-                    $instance = (object)[
-                        'id' => $boid->id,
-                        'customfield_sportsdivision' => $category['name'],
-                    ];
-                    $handler->instance_form_save($instance);
-                }
+            // A sport without a page has no sports division. We do not touch these booking options.
+            if ($division === null || $division === $storeddivision) {
+                continue;
             }
+
+            sports::save_sportsdivision($optionid, $division);
+            $changed = true;
         }
-        // Important: Purge caches here!
-        cache_helper::purge_by_event('setbackoptionstable');
-        cache_helper::purge_by_event('setbackoptionsettings');
+
+        if ($changed) {
+            // Important: Purge caches here!
+            cache_helper::purge_by_event('setbackoptionstable');
+            cache_helper::purge_by_event('setbackoptionsettings');
+        }
     }
 }
