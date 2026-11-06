@@ -360,6 +360,139 @@ final class arguments_test extends advanced_testcase {
     }
 
     /**
+     * The argument priority orders the search results of [allekurseliste].
+     *
+     * The argument is handled by mod_booking for all booking options shortcodes, so this test makes sure it works
+     * together with the search columns of local_musi and the argument fulltextsearchcolumns.
+     *
+     * @covers \local_musi\shortcodes::allcourseslist
+     * @covers \mod_booking\shortcodes::set_common_table_options_from_arguments
+     *
+     * @dataProvider priority_provider
+     *
+     * @param array $args shortcode arguments
+     * @param array $expected expected priority columns and search results in their order
+     */
+    public function test_priority_argument(array $args, array $expected): void {
+        global $PAGE;
+
+        $bdata = self::provide_bdata();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $bookingmanager = $this->getDataGenerator()->create_user();
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+        $this->setAdminUser();
+
+        // The customfields of the standard search columns of local_musi and a keywords field.
+        $bookingcat = $this->getDataGenerator()->create_custom_field_category([
+            'name' => 'BookCustomCat1',
+            'component' => 'mod_booking',
+            'area' => 'booking',
+            'itemid' => 0,
+            'contextid' => context_system::instance()->id,
+        ]);
+        $bookingcat->save();
+        foreach (['sport', 'sportsdivision', 'botags', 'keywords'] as $shortname) {
+            $bookingfield = $this->getDataGenerator()->create_custom_field([
+                'categoryid' => $bookingcat->get('id'),
+                'name' => $shortname,
+                'shortname' => $shortname,
+                'type' => 'text',
+                'configdata' => '',
+            ]);
+            $bookingfield->save();
+        }
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $options = [
+            ['titleprefix' => '424', 'text' => 'Pilates'],
+            ['titleprefix' => '4240', 'text' => 'Tanz'],
+            ['titleprefix' => 'A3', 'text' => '424'],
+            ['titleprefix' => 'A4', 'text' => 'Kurs 424 Yoga'],
+            ['titleprefix' => 'A5', 'text' => 'Yoga', 'customfield_keywords' => 'Kurs 424'],
+        ];
+        foreach ($options as $option) {
+            $record = (object) $option;
+            $record->bookingid = $booking->id;
+            $plugingenerator->create_option($record);
+        }
+
+        $PAGE->set_context(context_course::instance($course->id));
+        $PAGE->set_course($course);
+        $PAGE->set_url(new \moodle_url('/local/musi/tests/arguments_test.php'));
+
+        $env = new stdClass();
+        $next = function () {
+        };
+
+        $args['id'] = $booking->cmid;
+        $args['all'] = 1;
+        $html = shortcodes::allcourseslist('allekurseliste', $args, null, $env, $next);
+        preg_match('/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i', $html, $matches);
+        $this->assertNotEmpty($matches, 'The table was not rendered.');
+
+        $table = wunderbyte_table::instantiate_from_tablecache_hash($matches[1]);
+        $this->assertSame($expected['prioritycolumns'], $table->prioritycolumns);
+
+        foreach ($expected['searchresults'] as $searchtext => $texts) {
+            $searchtable = wunderbyte_table::instantiate_from_tablecache_hash($matches[1]);
+            $searchtable->apply_searchtext($searchtext);
+            $searchtable->printtable($searchtable->pagesize, $searchtable->useinitialsbar, $searchtable->downloadhelpbutton);
+            $this->assertSame(
+                $texts,
+                array_values(array_map(fn($row) => $row->text, $searchtable->rawdata)),
+                "Unexpected order of the results when searching for '$searchtext'"
+            );
+        }
+    }
+
+    /**
+     * Data provider for test_priority_argument.
+     *
+     * The booking options are (titleprefix | text | keywords):
+     * 424 | Pilates, 4240 | Tanz, A3 | 424, A4 | Kurs 424 Yoga, A5 | Yoga | Kurs 424.
+     * Without priority, the results are sorted by text.
+     *
+     * @return array
+     */
+    public static function priority_provider(): array {
+        return [
+            'without priority the order does not change' => [
+                ['search' => 1, 'fulltextsearchcolumns' => 'keywords'],
+                [
+                    'prioritycolumns' => [],
+                    'searchresults' => [
+                        '424' => ['424', 'Kurs 424 Yoga', 'Pilates', 'Tanz', 'Yoga'],
+                    ],
+                ],
+            ],
+            'priority titleprefix, text' => [
+                ['search' => 1, 'fulltextsearchcolumns' => 'keywords', 'priority' => 'titleprefix,text'],
+                [
+                    'prioritycolumns' => ['titleprefix', 'text'],
+                    'searchresults' => [
+                        // Titleprefix equals, titleprefix contains, text equals, text contains, only in the keywords.
+                        '424' => ['Pilates', 'Tanz', '424', 'Kurs 424 Yoga', 'Yoga'],
+                        // Several words: text contains every word, only in the keywords.
+                        'Kurs 424' => ['Kurs 424 Yoga', 'Yoga'],
+                    ],
+                ],
+            ],
+            'quotes around the argument are ignored' => [
+                ['search' => 1, 'priority' => '"text"'],
+                [
+                    'prioritycolumns' => ['text'],
+                    'searchresults' => [
+                        '424' => ['424', 'Kurs 424 Yoga', 'Pilates', 'Tanz'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
      * Extract the link text from an HTML <a> tag.
      *
      * Example:
