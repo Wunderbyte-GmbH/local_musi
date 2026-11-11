@@ -47,6 +47,9 @@ final class sportsdivision_test extends advanced_testcase {
     /** @var stdClass the booking instance the options are created in */
     private stdClass $booking;
 
+    /** @var array types and configdata of the customfields "sport" and "sportsdivision" of the current test */
+    private array $fields = [];
+
     /**
      * Tests set up.
      */
@@ -73,22 +76,20 @@ final class sportsdivision_test extends advanced_testcase {
     /**
      * The customer scenario: the sport of a booking option is changed and the sports division is emptied
      * in the form. The sports division of the new sport has to be there right after saving, no matter
-     * if the customfield "sport" is a text field or a dropdown menu.
+     * if the customfields are text fields or dropdown menus.
      *
-     * @dataProvider sportfield_provider
+     * @dataProvider fieldtypes_provider
      *
-     * @param string $type type of the customfield "sport"
-     * @param array $configdata configdata of the customfield "sport"
-     * @param array $values the values the customfield stores for the sports
+     * @param array $fields types and configdata of the customfields "sport" and "sportsdivision"
      */
-    public function test_saving_writes_division_of_changed_sport(string $type, array $configdata, array $values): void {
-        $this->create_sports_and_customfields($type, $configdata);
+    public function test_saving_writes_division_of_changed_sport(array $fields): void {
+        $this->create_sports_and_customfields($fields);
 
         // A new booking option gets its sports division, too.
-        $option = $this->create_option('Fitnesstraining & Yoga', $values['Yoga']);
+        $option = $this->create_option('Fitnesstraining & Yoga', $this->sport_value('Yoga'));
         $this->assertSame('Gesundheit', $this->get_stored_division($option->id));
 
-        $this->save_option_form($option, $values['Basketball'], '');
+        $this->save_option_form($option, $this->sport_value('Basketball'), '');
         $this->assertSame('Ballsport', $this->get_stored_division($option->id));
 
         // The cached settings of the booking option know the new sports division.
@@ -97,24 +98,30 @@ final class sportsdivision_test extends advanced_testcase {
 
         // Nothing was wrong, the sports division was only missing. So there is no warning.
         $this->assertEmpty($this->fetch_warnings());
+
+        // A sports division which does not match the sport is replaced and the warning names both.
+        $this->save_option_form($option, $this->sport_value('Yoga'), 'Ballsport');
+        $this->assertSame('Gesundheit', $this->get_stored_division($option->id));
+        $notifications = $this->fetch_warnings();
+        $this->assertCount(1, $notifications);
+        $this->assertStringContainsString('"Ballsport"', reset($notifications)->get_message());
+        $this->assertStringContainsString('"Gesundheit"', reset($notifications)->get_message());
     }
 
     /**
      * The task writes the sports division of booking options which were not saved in the form.
      *
-     * @dataProvider sportfield_provider
+     * @dataProvider fieldtypes_provider
      *
-     * @param string $type type of the customfield "sport"
-     * @param array $configdata configdata of the customfield "sport"
-     * @param array $values the values the customfield stores for the sports
+     * @param array $fields types and configdata of the customfields "sport" and "sportsdivision"
      */
-    public function test_task_writes_division_of_changed_sport(string $type, array $configdata, array $values): void {
-        $this->create_sports_and_customfields($type, $configdata);
+    public function test_task_writes_division_of_changed_sport(array $fields): void {
+        $this->create_sports_and_customfields($fields);
 
         $option = $this->create_option('Fitnesstraining & Yoga');
-        $this->set_customfields($option->id, $values['Yoga']);
+        $this->set_customfields($option->id, $this->sport_value('Yoga'));
         $ampersandoption = $this->create_option('Sport with ampersand');
-        $this->set_customfields($ampersandoption->id, $values['Fitnesstraining & Yoga']);
+        $this->set_customfields($ampersandoption->id, $this->sport_value('Fitnesstraining & Yoga'));
         $this->assertNull($this->get_stored_division($option->id));
 
         $task = new add_sports_division();
@@ -122,28 +129,61 @@ final class sportsdivision_test extends advanced_testcase {
         $this->assertSame('Gesundheit', $this->get_stored_division($option->id));
         $this->assertSame('Gesundheit', $this->get_stored_division($ampersandoption->id));
 
-        $this->set_customfields($option->id, $values['Basketball'], '');
+        $this->set_customfields($option->id, $this->sport_value('Basketball'), '');
         $task->execute();
         $this->assertSame('Ballsport', $this->get_stored_division($option->id));
         $this->assertSame('Gesundheit', $this->get_stored_division($ampersandoption->id));
+
+        // A sports division which does not match the sport is replaced, too.
+        $this->set_customfields($option->id, $this->sport_value('Yoga'), 'Ballsport');
+        $task->execute();
+        $this->assertSame('Gesundheit', $this->get_stored_division($option->id));
     }
 
     /**
-     * Data provider with the types of the customfield "sport".
+     * A dropdown menu with multiple choice stores all chosen sports in one value.
+     */
+    public function test_multiselect_dropdown_sport(): void {
+        $fields = self::fieldtypes_provider()['dynamicformat dropdown with multiple choice for the sport'][0];
+        $this->create_sports_and_customfields($fields);
+
+        $option = $this->create_option('Fitnesstraining & Yoga', $this->sport_value('Basketball', 'Yoga'));
+        $this->assertSame('Gesundheit', $this->get_stored_division($option->id));
+
+        // A stored sports division of one of the sports is kept.
+        $this->save_option_form($option, $this->sport_value('Basketball', 'Yoga'), 'Ballsport');
+        $this->assertSame('Ballsport', $this->get_stored_division($option->id));
+        $this->assertEmpty($this->fetch_warnings());
+    }
+
+    /**
+     * Data provider with the types of the customfields "sport" and "sportsdivision".
+     *
+     * The sport can be chosen in a text field, a select field or a dynamicformat field: a text field stores
+     * the name, a select field the position of the entry, a dynamicformat field the first column of its sql,
+     * here the ids of the pages. The sports division is a text field.
      *
      * @return array
      */
-    public static function sportfield_provider(): array {
+    public static function fieldtypes_provider(): array {
+        $text = ['type' => 'text', 'configdata' => []];
+        $select = [
+            'type' => 'select',
+            'configdata' => ['options' => "Yoga\r\nBasketball\r\nFitnesstraining & Yoga", 'defaultvalue' => ''],
+        ];
+        $dynamicsport = [
+            'type' => 'dynamicformat',
+            'configdata' => ['dynamicsql' => 'SELECT id, name AS data FROM {page} ORDER BY id', 'multiselect' => 0],
+        ];
+        $multiselectsport = $dynamicsport;
+        $multiselectsport['configdata']['multiselect'] = 1;
+
         return [
-            'Text field stores the name of the sport' => [
-                'text',
-                [],
-                ['Yoga' => 'Yoga', 'Basketball' => 'Basketball', 'Fitnesstraining & Yoga' => 'Fitnesstraining & Yoga'],
-            ],
-            'Dropdown menu stores the number of the entry' => [
-                'select',
-                ['options' => "Yoga\r\nBasketball\r\nFitnesstraining & Yoga", 'defaultvalue' => ''],
-                ['Yoga' => 1, 'Basketball' => 2, 'Fitnesstraining & Yoga' => 3],
+            'text fields' => [['sport' => $text, 'sportsdivision' => $text]],
+            'select dropdown for the sport' => [['sport' => $select, 'sportsdivision' => $text]],
+            'dynamicformat dropdown for the sport' => [['sport' => $dynamicsport, 'sportsdivision' => $text]],
+            'dynamicformat dropdown with multiple choice for the sport' => [
+                ['sport' => $multiselectsport, 'sportsdivision' => $text],
             ],
         ];
     }
@@ -165,7 +205,7 @@ final class sportsdivision_test extends advanced_testcase {
         string $expecteddivision,
         bool $expectwarning
     ): void {
-        $this->create_sports_and_customfields('text', []);
+        $this->create_sports_and_customfields(self::fieldtypes_provider()['text fields'][0]);
 
         // The task.
         $option = $this->create_option('Fitnesstraining & Yoga');
@@ -206,7 +246,7 @@ final class sportsdivision_test extends advanced_testcase {
      * saved and the user gets a warning.
      */
     public function test_saving_warns_about_division_not_matching_sport(): void {
-        $this->create_sports_and_customfields('text', []);
+        $this->create_sports_and_customfields(self::fieldtypes_provider()['text fields'][0]);
 
         $option = $this->create_option('Fitnesstraining & Yoga', 'Yoga');
         $this->fetch_warnings();
@@ -236,13 +276,34 @@ final class sportsdivision_test extends advanced_testcase {
     }
 
     /**
+     * A site without a course of sport pages has no sports divisions to derive. Sports and sports
+     * divisions can be entered freely there: neither saving the form nor the task touches them.
+     */
+    public function test_without_sport_pages_nothing_is_touched(): void {
+        global $DB;
+
+        $this->create_sports_and_customfields(self::fieldtypes_provider()['text fields'][0], false);
+
+        $option = $this->create_option('Fitnesstraining & Yoga', 'Yoga');
+        $this->fetch_warnings();
+        $this->save_option_form($option, 'Yoga', 'Meine Sparte');
+        $this->assertSame('Meine Sparte', $this->get_stored_division($option->id));
+        $this->assertEmpty($this->fetch_warnings());
+
+        $writes = $DB->perf_get_writes();
+        (new add_sports_division())->execute();
+        $this->assertSame($writes, $DB->perf_get_writes());
+        $this->assertSame('Meine Sparte', $this->get_stored_division($option->id));
+    }
+
+    /**
      * The task only touches the booking options it has a sports division for and only writes, when
      * the sports division is not stored yet.
      */
     public function test_task_leaves_other_options_untouched(): void {
         global $DB;
 
-        $this->create_sports_and_customfields('text', []);
+        $this->create_sports_and_customfields(self::fieldtypes_provider()['text fields'][0]);
 
         // There is no page for chess, so the manually entered sports division has to stay.
         $chessoption = $this->create_option('Chess');
@@ -286,12 +347,13 @@ final class sportsdivision_test extends advanced_testcase {
      * Creates the pages of the sports in the sections of the sports divisions and the customfields
      * "sport" and "sportsdivision" of mod_booking.
      *
-     * @param string $sporttype type of the customfield "sport"
-     * @param array $sportconfigdata configdata of the customfield "sport"
+     * @param array $fields types and configdata of the customfields "sport" and "sportsdivision"
+     * @param bool $withpages false for a site which does not derive the sports divisions from sport pages
      */
-    private function create_sports_and_customfields(string $sporttype, array $sportconfigdata): void {
+    private function create_sports_and_customfields(array $fields, bool $withpages = true): void {
         global $DB;
 
+        $this->fields = $fields;
         $this->setAdminUser();
         $generator = $this->getDataGenerator();
 
@@ -303,7 +365,7 @@ final class sportsdivision_test extends advanced_testcase {
         ];
         foreach ($divisions as $sectionnumber => $division) {
             $DB->set_field('course_sections', 'name', $division['name'], ['course' => $course->id, 'section' => $sectionnumber]);
-            foreach ($division['sports'] as $sport) {
+            foreach ($withpages ? $division['sports'] : [] as $sport) {
                 $generator->create_module('page', [
                     'course' => $course->id,
                     'section' => $sectionnumber,
@@ -318,11 +380,11 @@ final class sportsdivision_test extends advanced_testcase {
         ]);
         $generator->create_custom_field([
             'categoryid' => $category->get('id'), 'name' => 'Sport', 'shortname' => 'sport',
-            'type' => $sporttype, 'configdata' => $sportconfigdata,
+            'type' => $fields['sport']['type'], 'configdata' => $fields['sport']['configdata'],
         ]);
         $generator->create_custom_field([
             'categoryid' => $category->get('id'), 'name' => 'Sports division', 'shortname' => 'sportsdivision',
-            'type' => 'text',
+            'type' => $fields['sportsdivision']['type'], 'configdata' => $fields['sportsdivision']['configdata'],
         ]);
 
         $this->booking = $generator->create_module('booking', [
@@ -333,10 +395,35 @@ final class sportsdivision_test extends advanced_testcase {
     }
 
     /**
+     * Returns the value the customfield "sport" of the current test stores for the given sports.
+     *
+     * @param string ...$names names of the sports
+     * @return string|int|array
+     */
+    private function sport_value(string ...$names) {
+        global $DB;
+
+        switch ($this->fields['sport']['type']) {
+            case 'select':
+                $options = ['Yoga' => 1, 'Basketball' => 2, 'Fitnesstraining & Yoga' => 3];
+                return $options[reset($names)];
+            case 'dynamicformat':
+                $ids = [];
+                foreach ($names as $name) {
+                    $ids[] = (string)$DB->get_field('page', 'id', ['name' => $name], MUST_EXIST);
+                }
+                // A field with multiple choice gets the chosen keys as array, like from the form.
+                return !empty($this->fields['sport']['configdata']['multiselect']) ? $ids : reset($ids);
+            default:
+                return implode(',', $names);
+        }
+    }
+
+    /**
      * Creates a booking option the way the form of the booking option does.
      *
      * @param string $name name of the booking option
-     * @param string|int|null $sport value of the customfield "sport"
+     * @param string|int|array|null $sport value of the customfield "sport"
      * @return stdClass the booking option
      */
     private function create_option(string $name, $sport = null): stdClass {
@@ -353,7 +440,7 @@ final class sportsdivision_test extends advanced_testcase {
      * Saves sport and sports division of a booking option the way the form of the booking option does.
      *
      * @param stdClass $option the booking option
-     * @param string|int $sport value of the customfield "sport"
+     * @param string|int|array $sport value of the customfield "sport"
      * @param string $division value of the customfield "sportsdivision"
      */
     private function save_option_form(stdClass $option, $sport, string $division): void {
@@ -372,7 +459,7 @@ final class sportsdivision_test extends advanced_testcase {
      * This is what the task is for.
      *
      * @param int $optionid
-     * @param string|int $sport value of the customfield "sport"
+     * @param string|int|array $sport value of the customfield "sport"
      * @param string|null $division value of the customfield "sportsdivision", null to leave it alone
      */
     private function set_customfields(int $optionid, $sport, ?string $division = null): void {
