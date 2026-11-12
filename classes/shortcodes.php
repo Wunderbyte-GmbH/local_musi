@@ -930,9 +930,11 @@ class shortcodes {
 
         // The fulltextsearchcolumns argument implicitly enables the search, like in the shortcodes of mod_booking.
         if (!empty($args['search']) || !empty($args['fulltextsearchcolumns'])) {
+            // Teachers are searched by their names (teachernames). The column teacherobjects is JSON,
+            // a search in it also finds the ids of the users and the keys of the JSON.
             $fulltextsearchcolumns = [
                 'titleprefix', 'text', 'sportsdivision', 'sport', 'location',
-                'teacherobjects', 'botags'];
+                'teachernames', 'botags'];
             if (!empty($args['fulltextsearchcolumns'])) {
                 // Columns of the argument are searched in addition to the standard columns, they never replace them.
                 // A column name ends up unescaped in the SQL of the table, so mod_booking only lets known names pass:

@@ -331,7 +331,7 @@ final class arguments_test extends advanced_testcase {
      * @return array
      */
     public static function fulltextsearchcolumns_provider(): array {
-        $standardcolumns = ['titleprefix', 'text', 'sportsdivision', 'sport', 'location', 'teacherobjects', 'botags'];
+        $standardcolumns = ['titleprefix', 'text', 'sportsdivision', 'sport', 'location', 'teachernames', 'botags'];
         return [
             'search only: keywords are not searched' => [
                 ['search' => 1],
@@ -357,6 +357,101 @@ final class arguments_test extends advanced_testcase {
                 ],
             ],
         ];
+    }
+
+    /**
+     * The search of [allekurseliste] finds teachers by their names only.
+     *
+     * The column teacherobjects is JSON ({"id":81, "firstname":"Pia", ...}), searching it found the ids of the
+     * users (a search for "81" found the courses of the teacher with the user id 81) and the keys of the JSON.
+     *
+     * @covers \local_musi\shortcodes::allcourseslist
+     * @covers \local_musi\shortcodes::set_common_table_options_from_arguments
+     */
+    public function test_search_finds_teachers_by_name_only(): void {
+        global $PAGE;
+
+        $bdata = self::provide_bdata();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $bookingmanager = $this->getDataGenerator()->create_user();
+        $teacher1 = $this->getDataGenerator()->create_user(['firstname' => 'Pia', 'lastname' => 'Berger']);
+        $teacher2 = $this->getDataGenerator()->create_user(['firstname' => 'Ida', 'lastname' => 'Fischer']);
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+        $this->setAdminUser();
+
+        // The customfields of the standard search columns of local_musi.
+        $bookingcat = $this->getDataGenerator()->create_custom_field_category([
+            'name' => 'BookCustomCat1',
+            'component' => 'mod_booking',
+            'area' => 'booking',
+            'itemid' => 0,
+            'contextid' => context_system::instance()->id,
+        ]);
+        $bookingcat->save();
+        foreach (['sport', 'sportsdivision', 'botags'] as $shortname) {
+            $bookingfield = $this->getDataGenerator()->create_custom_field([
+                'categoryid' => $bookingcat->get('id'),
+                'name' => $shortname,
+                'shortname' => $shortname,
+                'type' => 'text',
+                'configdata' => '',
+            ]);
+            $bookingfield->save();
+        }
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $options = [
+            ['text' => 'Option one', 'teachersforoption' => $teacher1->username],
+            ['text' => 'Option two', 'teachersforoption' => $teacher1->username . ',' . $teacher2->username],
+            ['text' => 'Option three'],
+        ];
+        foreach ($options as $option) {
+            $record = (object) $option;
+            $record->bookingid = $booking->id;
+            $plugingenerator->create_option($record);
+        }
+
+        $PAGE->set_context(context_course::instance($course->id));
+        $PAGE->set_course($course);
+        $PAGE->set_url(new \moodle_url('/local/musi/tests/arguments_test.php'));
+
+        $env = new stdClass();
+        $next = function () {
+        };
+        $args = ['id' => $booking->cmid, 'all' => 1, 'search' => 1];
+        $html = shortcodes::allcourseslist('allekurseliste', $args, null, $env, $next);
+        preg_match('/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i', $html, $matches);
+        $this->assertNotEmpty($matches, 'The table was not rendered.');
+
+        $searches = [
+            // The names are found, in every order of the words.
+            'Berger' => 2,
+            'pia' => 2,
+            'Pia Berger' => 2,
+            'Berger, Pia' => 2,
+            'Fischer' => 1,
+            'Ida Berger' => 1,
+            // The ids of the users and the keys of the JSON are not.
+            (string) $teacher1->id => 0,
+            (string) $teacher2->id => 0,
+            'firstname' => 0,
+            'lastname' => 0,
+            'name' => 0,
+            '"id"' => 0,
+        ];
+        foreach ($searches as $searchtext => $numberofrecords) {
+            $searchtable = wunderbyte_table::instantiate_from_tablecache_hash($matches[1]);
+            $searchtable->apply_searchtext((string) $searchtext);
+            $searchtable->printtable($searchtable->pagesize, $searchtable->useinitialsbar, $searchtable->downloadhelpbutton);
+            $this->assertEquals(
+                $numberofrecords,
+                $searchtable->totalrows,
+                "Unexpected number of records when searching for '$searchtext'"
+            );
+        }
     }
 
     /**
