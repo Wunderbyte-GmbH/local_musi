@@ -360,20 +360,30 @@ final class arguments_test extends advanced_testcase {
     }
 
     /**
-     * The argument priority orders the search results of [allekurseliste].
+     * The search results of the course shortcodes are ordered by priority.
      *
      * The argument is handled by mod_booking for all booking options shortcodes, so this test makes sure it works
-     * together with the search columns of local_musi and the argument fulltextsearchcolumns.
+     * together with the search columns of local_musi and the argument fulltextsearchcolumns. All course
+     * shortcodes always put titleprefix and text first, columns of the argument priority are appended.
      *
      * @covers \local_musi\shortcodes::allcourseslist
+     * @covers \local_musi\shortcodes::allcoursescards
+     * @covers \local_musi\shortcodes::allcoursesgrid
+     * @covers \local_musi\shortcodes::mycoursescards
+     * @covers \local_musi\shortcodes::mycourseslist
+     * @covers \local_musi\shortcodes::mytaughtcoursescards
+     * @covers \local_musi\shortcodes::myresponsiblecontactcoursescards
+     * @covers \local_musi\shortcodes::set_table_options_from_arguments
+     * @covers \local_musi\shortcodes::add_default_priority
      * @covers \mod_booking\shortcodes::set_common_table_options_from_arguments
      *
      * @dataProvider priority_provider
      *
      * @param array $args shortcode arguments
      * @param array $expected expected priority columns and search results in their order
+     * @param string $method shortcode function to call
      */
-    public function test_priority_argument(array $args, array $expected): void {
+    public function test_priority_argument(array $args, array $expected, string $method = 'allcourseslist'): void {
         global $PAGE;
 
         $bdata = self::provide_bdata();
@@ -413,10 +423,15 @@ final class arguments_test extends advanced_testcase {
             ['titleprefix' => 'A4', 'text' => 'Kurs 424 Yoga'],
             ['titleprefix' => 'A5', 'text' => 'Yoga', 'customfield_keywords' => 'Kurs 424'],
         ];
+        // The admin teaches, is responsible for and has booked every option, so that the views of the user
+        // ([meinekursekarten], [trainerkursekarten], ...) show the same options as the overviews.
         foreach ($options as $option) {
             $record = (object) $option;
             $record->bookingid = $booking->id;
-            $plugingenerator->create_option($record);
+            $record->teachersforoption = 'admin';
+            $record->responsiblecontact = 'admin';
+            $created = $plugingenerator->create_option($record);
+            $plugingenerator->create_answer(['optionid' => $created->id, 'userid' => get_admin()->id]);
         }
 
         $PAGE->set_context(context_course::instance($course->id));
@@ -429,8 +444,11 @@ final class arguments_test extends advanced_testcase {
 
         $args['id'] = $booking->cmid;
         $args['all'] = 1;
-        $html = shortcodes::allcourseslist('allekurseliste', $args, null, $env, $next);
-        preg_match('/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i', $html, $matches);
+        $html = shortcodes::$method('shortcode', $args, null, $env, $next);
+        // Only the list template has the hash of the table in its html, cards and grid pass it to their JS.
+        if (!preg_match('/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i', $html, $matches)) {
+            preg_match('/init\.init\(\'[^\']*\', \'([^\']+)\'\)/', $PAGE->requires->get_end_code(), $matches);
+        }
         $this->assertNotEmpty($matches, 'The table was not rendered.');
 
         $table = wunderbyte_table::instantiate_from_tablecache_hash($matches[1]);
@@ -453,18 +471,92 @@ final class arguments_test extends advanced_testcase {
      *
      * The booking options are (titleprefix | text | keywords):
      * 424 | Pilates, 4240 | Tanz, A3 | 424, A4 | Kurs 424 Yoga, A5 | Yoga | Kurs 424.
-     * Without priority, the results are sorted by text.
+     * Without priority, the results would be sorted by text.
      *
      * @return array
      */
     public static function priority_provider(): array {
         return [
-            'without priority the order does not change' => [
+            'without the argument titleprefix and text have priority' => [
                 ['search' => 1, 'fulltextsearchcolumns' => 'keywords'],
                 [
-                    'prioritycolumns' => [],
+                    'prioritycolumns' => ['titleprefix', 'text'],
                     'searchresults' => [
-                        '424' => ['424', 'Kurs 424 Yoga', 'Pilates', 'Tanz', 'Yoga'],
+                        // Titleprefix equals, titleprefix contains, text equals, text contains, only in the keywords.
+                        '424' => ['Pilates', 'Tanz', '424', 'Kurs 424 Yoga', 'Yoga'],
+                    ],
+                ],
+            ],
+            'default priority of the cards' => [
+                ['search' => 1, 'fulltextsearchcolumns' => 'keywords'],
+                [
+                    'prioritycolumns' => ['titleprefix', 'text'],
+                    'searchresults' => [
+                        '424' => ['Pilates', 'Tanz', '424', 'Kurs 424 Yoga', 'Yoga'],
+                    ],
+                ],
+                'allcoursescards',
+            ],
+            'default priority of the grid' => [
+                ['search' => 1, 'fulltextsearchcolumns' => 'keywords'],
+                [
+                    'prioritycolumns' => ['titleprefix', 'text'],
+                    'searchresults' => [
+                        '424' => ['Pilates', 'Tanz', '424', 'Kurs 424 Yoga', 'Yoga'],
+                    ],
+                ],
+                'allcoursesgrid',
+            ],
+            // The views of the user.
+            'default priority of [meinekursekarten]' => [
+                ['search' => 1],
+                [
+                    'prioritycolumns' => ['titleprefix', 'text'],
+                    'searchresults' => ['424' => ['Pilates', 'Tanz', '424', 'Kurs 424 Yoga']],
+                ],
+                'mycoursescards',
+            ],
+            'default priority of [meinekurseliste]' => [
+                ['search' => 1],
+                [
+                    'prioritycolumns' => ['titleprefix', 'text'],
+                    'searchresults' => ['424' => ['Pilates', 'Tanz', '424', 'Kurs 424 Yoga']],
+                ],
+                'mycourseslist',
+            ],
+            // Only the priority columns: the sql of this shortcode comes from booking::get_all_options_of_teacher_sql(),
+            // which does not join the customfields of the search columns (sport, sportsdivision), so it cannot be searched.
+            'default priority of [trainerkursekarten]' => [
+                ['search' => 1],
+                [
+                    'prioritycolumns' => ['titleprefix', 'text'],
+                    'searchresults' => [],
+                ],
+                'mytaughtcoursescards',
+            ],
+            'default priority of [kontaktpersonkursekarten], the argument is appended' => [
+                ['search' => 1, 'priority' => 'location'],
+                [
+                    'prioritycolumns' => ['titleprefix', 'text', 'location'],
+                    'searchresults' => ['424' => ['Pilates', 'Tanz', '424', 'Kurs 424 Yoga']],
+                ],
+                'myresponsiblecontactcoursescards',
+            ],
+            'columns of the argument are appended to titleprefix and text' => [
+                ['search' => 1, 'fulltextsearchcolumns' => 'keywords', 'priority' => 'keywords'],
+                [
+                    'prioritycolumns' => ['titleprefix', 'text', 'keywords'],
+                    'searchresults' => [
+                        '424' => ['Pilates', 'Tanz', '424', 'Kurs 424 Yoga', 'Yoga'],
+                    ],
+                ],
+            ],
+            'the argument cannot move titleprefix and text back' => [
+                ['search' => 1, 'fulltextsearchcolumns' => 'keywords', 'priority' => 'keywords,text,titleprefix'],
+                [
+                    'prioritycolumns' => ['titleprefix', 'text', 'keywords'],
+                    'searchresults' => [
+                        '424' => ['Pilates', 'Tanz', '424', 'Kurs 424 Yoga', 'Yoga'],
                     ],
                 ],
             ],
@@ -483,9 +575,9 @@ final class arguments_test extends advanced_testcase {
             'quotes around the argument are ignored' => [
                 ['search' => 1, 'priority' => '"text"'],
                 [
-                    'prioritycolumns' => ['text'],
+                    'prioritycolumns' => ['titleprefix', 'text'],
                     'searchresults' => [
-                        '424' => ['424', 'Kurs 424 Yoga', 'Pilates', 'Tanz'],
+                        '424' => ['Pilates', 'Tanz', '424', 'Kurs 424 Yoga'],
                     ],
                 ],
             ],

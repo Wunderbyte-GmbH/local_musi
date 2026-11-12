@@ -53,6 +53,14 @@ use moodle_url;
  */
 class shortcodes {
     /**
+     * Columns that always come first in the order of the search results of all course shortcodes
+     * (every shortcode using set_table_options_from_arguments()), see add_default_priority().
+     *
+     * @var string[]
+     */
+    private const DEFAULT_PRIORITY_COLUMNS = ['titleprefix', 'text'];
+
+    /**
      * Prints out list of bookingoptions.
      * Arguments can be 'category' or 'perpage'.
      *
@@ -897,6 +905,8 @@ class shortcodes {
      */
     private static function set_table_options_from_arguments(&$table, $args) {
         self::fix_args($args);
+        // Has to happen before mod_booking reads the argument priority.
+        self::add_default_priority($args);
 
         /** @var musi_table $table */
         $table->set_display_options($args);
@@ -1313,6 +1323,28 @@ class shortcodes {
             $value = str_replace('"', '', $value);
             $value = str_replace("'", "", $value);
         }
+    }
+
+    /**
+     * Puts the default priority columns in front of the shortcode argument priority.
+     *
+     * All course shortcodes (the overviews like [allekurseliste] and the views of the user like
+     * [meinekursekarten]) always order their search results by course number and name first.
+     * Columns of the argument (e.g. priority="customfield1") are appended, so they only decide the order
+     * of the results that match neither of the default columns.
+     * Columns that are named twice keep their first position, mod_booking removes the duplicates.
+     *
+     * Called by set_table_options_from_arguments() after fix_args(), so that quotation marks are already
+     * removed, and before mod_booking reads the argument.
+     *
+     * @param array $args reference to arguments array
+     */
+    private static function add_default_priority(array &$args): void {
+        $priority = self::DEFAULT_PRIORITY_COLUMNS;
+        if (!empty($args['priority'])) {
+            $priority = array_merge($priority, explode(',', (string)$args['priority']));
+        }
+        $args['priority'] = implode(',', $priority);
     }
 
     /**
