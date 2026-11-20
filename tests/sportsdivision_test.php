@@ -18,6 +18,7 @@ namespace local_musi;
 
 use advanced_testcase;
 use context_system;
+use core_component;
 use core\hook\output\before_http_headers;
 use core\notification;
 use local_musi\task\add_sports_division;
@@ -44,6 +45,9 @@ use tool_mocktesttime\time_mock;
  * @covers \local_musi\sports
  */
 final class sportsdivision_test extends advanced_testcase {
+    /** @var string[] customfield types which read their entries with an sql and store the key of the chosen entry */
+    private const DYNAMICTYPES = ['dynamic', 'dynamicformat'];
+
     /** @var stdClass the booking instance the options are created in */
     private stdClass $booking;
 
@@ -142,9 +146,12 @@ final class sportsdivision_test extends advanced_testcase {
 
     /**
      * A dropdown menu with multiple choice stores all chosen sports in one value.
+     *
+     * @dataProvider multiselect_fieldtypes_provider
+     *
+     * @param array $fields types and configdata of the customfields "sport" and "sportsdivision"
      */
-    public function test_multiselect_dropdown_sport(): void {
-        $fields = self::fieldtypes_provider()['dynamicformat dropdown with multiple choice for the sport'][0];
+    public function test_multiselect_dropdown_sport(array $fields): void {
         $this->create_sports_and_customfields($fields);
 
         $option = $this->create_option('Fitnesstraining & Yoga', $this->sport_value('Basketball', 'Yoga'));
@@ -159,9 +166,10 @@ final class sportsdivision_test extends advanced_testcase {
     /**
      * Data provider with the types of the customfields "sport" and "sportsdivision".
      *
-     * The sport can be chosen in a text field, a select field or a dynamicformat field: a text field stores
-     * the name, a select field the position of the entry, a dynamicformat field the first column of its sql,
-     * here the ids of the pages. The sports division is a text field.
+     * The sport can be chosen in a text field, a select field, a dynamic field or a dynamicformat field:
+     * a text field stores the name, a select field the position of the entry, the fields of the types dynamic
+     * and dynamicformat (which was derived from dynamic) the first column of their sql, here the ids of the
+     * pages. The sports division is a text field.
      *
      * @return array
      */
@@ -171,21 +179,37 @@ final class sportsdivision_test extends advanced_testcase {
             'type' => 'select',
             'configdata' => ['options' => "Yoga\r\nBasketball\r\nFitnesstraining & Yoga", 'defaultvalue' => ''],
         ];
-        $dynamicsport = [
-            'type' => 'dynamicformat',
-            'configdata' => ['dynamicsql' => 'SELECT id, name AS data FROM {page} ORDER BY id', 'multiselect' => 0],
-        ];
-        $multiselectsport = $dynamicsport;
-        $multiselectsport['configdata']['multiselect'] = 1;
 
-        return [
+        $cases = [
             'text fields' => [['sport' => $text, 'sportsdivision' => $text]],
             'select dropdown for the sport' => [['sport' => $select, 'sportsdivision' => $text]],
-            'dynamicformat dropdown for the sport' => [['sport' => $dynamicsport, 'sportsdivision' => $text]],
-            'dynamicformat dropdown with multiple choice for the sport' => [
-                ['sport' => $multiselectsport, 'sportsdivision' => $text],
-            ],
         ];
+        foreach (self::DYNAMICTYPES as $type) {
+            $dynamicsport = [
+                'type' => $type,
+                'configdata' => ['dynamicsql' => 'SELECT id, name AS data FROM {page} ORDER BY id', 'multiselect' => 0],
+            ];
+            $multiselectsport = $dynamicsport;
+            $multiselectsport['configdata']['multiselect'] = 1;
+
+            $cases["$type dropdown for the sport"] = [['sport' => $dynamicsport, 'sportsdivision' => $text]];
+            $cases["$type dropdown with multiple choice for the sport"] = [
+                ['sport' => $multiselectsport, 'sportsdivision' => $text],
+            ];
+        }
+        return $cases;
+    }
+
+    /**
+     * Data provider with the customfield types which allow to choose more than one sport.
+     *
+     * @return array
+     */
+    public static function multiselect_fieldtypes_provider(): array {
+        return array_filter(
+            self::fieldtypes_provider(),
+            fn(array $case): bool => !empty($case[0]['sport']['configdata']['multiselect'])
+        );
     }
 
     /**
@@ -353,6 +377,13 @@ final class sportsdivision_test extends advanced_testcase {
     private function create_sports_and_customfields(array $fields, bool $withpages = true): void {
         global $DB;
 
+        // Customfield types like dynamicformat are separate plugins and no dependency of local_musi.
+        foreach ($fields as $field) {
+            if (core_component::get_plugin_directory('customfield', $field['type']) === null) {
+                $this->markTestSkipped('The plugin customfield_' . $field['type'] . ' is not installed.');
+            }
+        }
+
         $this->fields = $fields;
         $this->setAdminUser();
         $generator = $this->getDataGenerator();
@@ -407,6 +438,7 @@ final class sportsdivision_test extends advanced_testcase {
             case 'select':
                 $options = ['Yoga' => 1, 'Basketball' => 2, 'Fitnesstraining & Yoga' => 3];
                 return $options[reset($names)];
+            case 'dynamic':
             case 'dynamicformat':
                 $ids = [];
                 foreach ($names as $name) {

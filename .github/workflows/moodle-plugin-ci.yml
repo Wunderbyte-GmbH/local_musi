@@ -19,6 +19,7 @@ jobs:
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-local_entities
         moodle-plugin-ci add-plugin --branch master branchup/moodle-filter_shortcodes
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-tool_mocktesttime
+        moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-customfield_dynamicformat
 
       mustache_ignore_names: ''
 
@@ -84,6 +85,7 @@ jobs:
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-local_entities
         moodle-plugin-ci add-plugin --branch master branchup/moodle-filter_shortcodes
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-tool_mocktesttime
+        moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-customfield_dynamicformat
 
       mustache_ignore_names: ''
 
