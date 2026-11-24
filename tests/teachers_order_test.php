@@ -117,6 +117,11 @@ final class teachers_order_test extends advanced_testcase {
 
         $html = (string) shortcodes::$callback($shortcode, $args, null, $env, $next);
         $this->assert_text_order(['Anna Zimmer', 'Carl Adler', 'Bea Maier'], $html);
+        // One list separated by commas (the flag "last" comes from mod_booking): no comma after the last teacher.
+        $this->assertMatchesRegularExpression(
+            '~Anna Zimmer</a>,\\s+<a[^>]*>Carl Adler</a>,\\s+<a[^>]*>Bea Maier</a>\\s*</span>~',
+            $html
+        );
     }
 
     /**
