@@ -27,6 +27,7 @@ namespace local_musi\event;
 use coding_exception;
 use core\event\base;
 use moodle_url;
+
 use function get_string;
 
 /**

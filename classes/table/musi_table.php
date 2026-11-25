@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace local_musi\table;
+
 use cache;
 use mod_booking\booking_answers\booking_answers;
 use coding_exception;
@@ -68,7 +69,8 @@ class musi_table extends bookingoptions_wbtable {
     public function set_display_options(array $displayoptions) {
 
         // Units, e.g. "(UE: 1,3)".
-        if (isset($displayoptions['showunits'])) { // Do not use empty here!!
+        if (isset($displayoptions['showunits'])) {
+            // Do not use empty here!!
             $this->displayoptions['showunits'] = (bool) $displayoptions['showunits'];
             // We need this for mustache tow work.
             if (!$this->displayoptions['showunits']) {
@@ -76,8 +78,8 @@ class musi_table extends bookingoptions_wbtable {
             }
         }
 
-        // Max. answers.
-        if (!isset($displayoptions['showmaxanwers'])) { // Do not use empty here!!
+        // Max. answers. Do not use empty here but isset.
+        if (!isset($displayoptions['showmaxanwers'])) {
             $this->displayoptions['showmaxanwers'] = true; // Max. answers are shown by default.
         } else {
             $this->displayoptions['showmaxanwers'] = (bool) $displayoptions['showmaxanwers'];
