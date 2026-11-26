@@ -267,7 +267,13 @@ class shortcodes {
             }
         }
 
-        $table->foruserid = actforuser::get_foruserid(['urlparamforuserid' => 'userid']);
+        // Only cashiers may render the list for another user, the helper checks this before it
+        // accepts an id from the url.
+        $table->foruserid = actforuser::get_foruserid(
+            ['urlparamforuserid' => 'userid'],
+            0,
+            ['local/shopping_cart:cashier']
+        );
 
         return self::generate_output($args, $table, $perpage);
     }
@@ -761,8 +767,8 @@ class shortcodes {
             shopping_cart::buy_for_user(0);
         }
 
-        // Check if rendering is for another user id.
-        $userid = actforuser::get_foruserid($args);
+        // Check if rendering is for another user id. Only cashiers may act for another user.
+        $userid = actforuser::get_foruserid($args, 0, ['local/shopping_cart:cashier']);
         if ($userid > 0) {
             shopping_cart::buy_for_user($userid);
         }
