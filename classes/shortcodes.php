@@ -26,6 +26,7 @@
 
 namespace local_musi;
 
+use context_system;
 use html_writer;
 use local_wunderbyte_table\filters\types\callback;
 use local_wunderbyte_table\filters\types\customfieldfilter;
@@ -267,7 +268,7 @@ class shortcodes {
             }
         }
 
-        $table->foruserid = actforuser::get_foruserid(['urlparamforuserid' => 'userid']);
+        $table->foruserid = self::get_authorised_foruserid(['urlparamforuserid' => 'userid']);
 
         return self::generate_output($args, $table, $perpage);
     }
@@ -762,7 +763,7 @@ class shortcodes {
         }
 
         // Check if rendering is for another user id.
-        $userid = actforuser::get_foruserid($args);
+        $userid = self::get_authorised_foruserid($args);
         if ($userid > 0) {
             shopping_cart::buy_for_user($userid);
         }
@@ -790,6 +791,42 @@ class shortcodes {
         // Without defining sorting won't work!
         $table->define_columns(['titleprefix']);
         return $table;
+    }
+
+    /**
+     * Returns the id of the user the table should be rendered for, or 0.
+     *
+     * The id is resolved via the 'foruserid' and 'urlparamforuserid' arguments and may therefore
+     * come straight from the request. Important security check: The id of another user is only
+     * honoured when the current user is a cashier, is allowed to book for others or is a team booker.
+     *
+     * @param array $args Arguments passed to the shortcode.
+     * @return int The user id, 0 if there is none or the current user is not allowed to act for it.
+     */
+    public static function get_authorised_foruserid(array $args): int {
+        global $USER;
+
+        $userid = actforuser::get_foruserid($args);
+        if ($userid <= 0) {
+            return 0;
+        }
+
+        if ($userid === (int) $USER->id) {
+            return $userid;
+        }
+
+        $context = context_system::instance();
+        if (
+            has_capability('local/shopping_cart:cashier', $context)
+            || has_capability('mod/booking:bookforothers', $context)
+            // Team bookers (eg. supervisors) may book for some users only.
+            // The allowedtobookforuser condition of mod_booking decides per option.
+            || has_capability('mod/booking:bookmyteam', $context)
+        ) {
+            return $userid;
+        }
+
+        return 0;
     }
 
     /**
