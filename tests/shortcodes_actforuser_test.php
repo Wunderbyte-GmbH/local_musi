@@ -20,6 +20,7 @@ use advanced_testcase;
 use cache_helper;
 use context_course;
 use context_system;
+use local_shopping_cart\shopping_cart;
 use local_wunderbyte_table\local\helper\actforuser;
 use mod_booking\singleton_service;
 use mod_booking_generator;
@@ -134,7 +135,43 @@ final class shortcodes_actforuser_test extends advanced_testcase {
         // The book buttons are rendered for the user who is logged in, not for the user in the url.
         $this->assertStringNotContainsString('data-userid="' . $this->otheruser->id . '"', $html);
         $this->assertStringContainsString('data-userid="' . $user->id . '"', $html);
+        // The shopping cart still buys for the user who is logged in.
+        $this->assertSame((int)$user->id, (int)shopping_cart::return_buy_for_userid());
         $this->assertSame(0, actforuser::$unverifiedforeignids);
+    }
+
+    /**
+     * Capabilities for booking other users do not allow rendering the course list for another user.
+     *
+     * @dataProvider booking_capability_provider
+     * @param string $capability
+     */
+    public function test_user_id_from_url_is_ignored_without_cashier_capability(string $capability): void {
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $this->course->id, 'student');
+        $roleid = $this->getDataGenerator()->create_role();
+        assign_capability($capability, CAP_ALLOW, $roleid, context_system::instance());
+        role_assign($roleid, $user->id, context_system::instance());
+        $this->setUser($user);
+        $_GET['userid'] = (string)$this->otheruser->id;
+
+        $html = $this->render_course_list();
+
+        $this->assertStringNotContainsString('data-userid="' . $this->otheruser->id . '"', $html);
+        $this->assertSame((int)$user->id, (int)shopping_cart::return_buy_for_userid());
+        $this->assertSame(0, actforuser::$unverifiedforeignids);
+    }
+
+    /**
+     * Capabilities that allow booking for others but not acting as cashier.
+     *
+     * @return array
+     */
+    public static function booking_capability_provider(): array {
+        return [
+            'bookforothers' => ['mod/booking:bookforothers'],
+            'bookmyteam' => ['mod/booking:bookmyteam'],
+        ];
     }
 
     /**
@@ -153,6 +190,8 @@ final class shortcodes_actforuser_test extends advanced_testcase {
 
         // The book buttons are rendered for the user in the url.
         $this->assertStringContainsString('data-userid="' . $this->otheruser->id . '"', $html);
+        // The shopping cart buys for the user in the url.
+        $this->assertSame((int)$this->otheruser->id, (int)shopping_cart::return_buy_for_userid());
         $this->assertSame(0, actforuser::$unverifiedforeignids);
     }
 }
